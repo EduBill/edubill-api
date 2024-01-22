@@ -45,4 +45,12 @@ public class User extends BaseEntity{
         this.userRole = userRole;
         this.authInfo = new AuthInfo(requestId);
     }
+
+    public void updateUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public void updatePhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 }

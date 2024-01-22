@@ -32,7 +32,7 @@ public class Payment extends BaseEntity{
     private Integer difference;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "student_id")
     private Student student;
 
 

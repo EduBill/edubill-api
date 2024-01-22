@@ -21,8 +21,8 @@ public class UserRepository {
     }
     public void update(Long userId, UserUpdateRequestDto userUpdateRequestDto) {
         User findUser = em.find(User.class, userId);
-        findUser.setUserName(userUpdateRequestDto.getUserName());
-        findUser.setPhoneNumber(userUpdateRequestDto.getPhoneNumber());
+        findUser.updateUserName(userUpdateRequestDto.getUserName());
+        findUser.updatePhoneNumber(userUpdateRequestDto.getPhoneNumber());
     }
 
     public Optional<User> findByPhoneNumber(String phoneNumber) {

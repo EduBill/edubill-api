@@ -11,7 +11,8 @@ import lombok.Getter;
 public enum ErrorCode {
 
     // 프론트에 보여지는 값
-    LOGIN_INPUT_INVALID(400, "M002","아이디나 비밀번호가 일치하지 않습니다.");
+    // User
+    LOGIN_INPUT_INVALID(400, "U001","아이디나 비밀번호가 일치하지 않습니다.");
 
     private int status;
     private final String code;

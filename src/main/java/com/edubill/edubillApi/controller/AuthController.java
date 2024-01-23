@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final BCryptPasswordEncoder pwEncoder;
     private final AuthService authService;
 
     //@RequestBody 객체 변환
@@ -30,7 +29,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody LoginRequestDto loginRequestDto) {
+    public ResponseEntity login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
 
         // 여기에 적절한 로직을 추가하여 응답을 생성가능
         // SON 형태의 응답을 생성

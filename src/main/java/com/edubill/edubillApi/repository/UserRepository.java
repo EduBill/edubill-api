@@ -1,7 +1,7 @@
 package com.edubill.edubillApi.repository;
 
 import com.edubill.edubillApi.domain.User;
-import com.edubill.edubillApi.dto.UserDto;
+import com.edubill.edubillApi.dto.user.UserUpdateRequestDto;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -17,15 +17,19 @@ public class UserRepository {
     public void save(User user){
         em.persist(user);
     }
-    public void update(Long userId, UserDto userDto) {
+    public void update(Long userId, UserUpdateRequestDto userUpdateRequestDto) {
         User findUser = em.find(User.class, userId);
-        findUser.setUserName(userDto.getUserName());
-        findUser.setUserEmail(userDto.getUserEmail());
-        findUser.setPhoneNumber(userDto.getPhoneNumber());
+        findUser.setUserName(userUpdateRequestDto.getUserName());
+        findUser.setPhoneNumber(userUpdateRequestDto.getPhoneNumber());
     }
 
     public Optional<User> findById(Long userId){
         User findUser = em.find(User.class, userId);
+        return Optional.ofNullable(findUser);
+    }
+
+    public Optional<User> findByUserEmail(String userEmail){
+        User findUser = em.find(User.class, userEmail);
         return Optional.ofNullable(findUser);
     }
 

@@ -16,7 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-@Configuration
+//@Configuration
 @EnableWebSecurity //security 활성화 -> 기본 스프링 필터체인에 등록
 @RequiredArgsConstructor
 @Slf4j

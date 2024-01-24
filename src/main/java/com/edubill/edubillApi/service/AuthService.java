@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
 
-@Service
+//@Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Slf4j
@@ -71,7 +71,7 @@ public class AuthService {
      * 회원가입 및 인증 서비스
      */
     // 회원가입 메서드
-    public void registerMember(String phoneNumber) {
+/*    public void registerMember(String phoneNumber) {
         // 회원 정보 저장 전에 인증번호를 생성하고 전송
         String verificationCode = generateVerificationCode();
         sendVerificationCode(phoneNumber, verificationCode);
@@ -81,14 +81,14 @@ public class AuthService {
         member.setPhoneNumber(phoneNumber);
         member.setVerificationCode(verificationCode);
         userRepository.save(member);
-    }
+    }*/
 
     // 인증 확인 메서드
-    public boolean verifyCode(String phoneNumber, String enteredCode) {
+/*    public boolean verifyCode(String phoneNumber, String enteredCode) {
         // 전화번호에 해당하는 회원의 저장된 인증번호를 가져옴
         User user = UserRepository.findByPhoneNumber(phoneNumber);
 
         // 회원이 존재하고, 입력된 인증번호가 저장된 인증번호와 일치하면 인증 성공
         return user != null && user.getVerificationCode().equals(enteredCode);
-    }
+    }*/
 }

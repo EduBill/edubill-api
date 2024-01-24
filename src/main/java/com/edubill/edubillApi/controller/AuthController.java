@@ -14,7 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
-@RestController
+//@RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class AuthController {
@@ -36,14 +36,15 @@ public class AuthController {
         User loginUser = authService.login(loginRequestDto);
 
 
-        return ResponseEntity.ok(JwtTokenDto.builder()
-                .userId(user.getUserId())
-                .userEmail(user.getUserEmail())
-                .nickname(user.getUserNickname())
-                .accessToken(accessToken.getToken())
-                .refreshToken(refreshToken.getToken())
-                .build()
-        );
+//        return ResponseEntity.ok(JwtTokenDto.builder()
+//                .userId(user.getUserId())
+//                .userEmail(user.getUserEmail())
+//                .nickname(user.getUserNickname())
+//                .accessToken(accessToken.getToken())
+//                .refreshToken(refreshToken.getToken())
+//                .build()
+//        );
+        return null;
     }
 
 /*

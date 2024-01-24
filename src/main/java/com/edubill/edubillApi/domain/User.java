@@ -1,56 +1,48 @@
 package com.edubill.edubillApi.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
-
-import java.time.LocalDateTime;
+import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
-@Setter
-@SuperBuilder(toBuilder = true)
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "USERS")
 public class User extends BaseEntity{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Long id;
+    private Long userId;
 
     @Column(name = "user_name", nullable = false)
     private String userName;
 
-    @Column(name = "user_email", unique = true, nullable = false)
-    private String userEmail;
-
-    @Column(name = "user_password", nullable = false)
-    private String userPassword;
-
-    @Column(name = "phone_number")
-    private Long phoneNumber;
+    @Column(name = "phone_number", nullable = false)
+    private String phoneNumber;
 
     @Column(name = "user_role", nullable = false)
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) //user 삭제시 payment도 삭제
-    private List<Payment> payments = new ArrayList<>();
+    @Transient
+    private AuthInfo authInfo;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Account> accounts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Invoice> invoices = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Academy> academies = new ArrayList<>();
 
 
-
-//    @Column(name = "created_date")
-//    private LocalDateTime createdDate; // 가입날짜
-//
-//    @Column(name = "created_date")
-//    private LocalDateTime updatedDate; // 수정날짜
-
-    public User(String userName) {
+    public User(String phoneNumber,String userName, UserRole userRole, String requestId) {
+        this.phoneNumber = phoneNumber;
         this.userName = userName;
+        this.userRole = userRole;
+        this.authInfo = new AuthInfo(requestId);
     }
 }

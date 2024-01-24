@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 @MappedSuperclass //Entity 클래스들이 해당 추상 클래스를 상속할 경우 created_at, updated_at를 컬럼으로 인식
 @Getter
 @EntityListeners(AuditingEntityListener.class)
-//@SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 public abstract class BaseEntity implements Serializable {
 

@@ -9,7 +9,8 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum UserRole {
 
-    USER("ROLE_USER", "일반 사용자 권한"),
+    PARENTS("ROLE_PARENTS", "학부모 권한"),
+    ACADEMY("ROLE_ACADEMY", "학원 권한"),
     ADMIN("ROLE_ADMIN", "관리자 권한");
 
     private final String code;

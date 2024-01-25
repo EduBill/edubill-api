@@ -31,31 +31,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
 
-        // 여기에 적절한 로직을 추가하여 응답을 생성가능
-        // SON 형태의 응답을 생성
         User loginUser = authService.login(loginRequestDto);
 
-
-//        return ResponseEntity.ok(JwtTokenDto.builder()
-//                .userId(user.getUserId())
-//                .userEmail(user.getUserEmail())
-//                .nickname(user.getUserNickname())
-//                .accessToken(accessToken.getToken())
-//                .refreshToken(refreshToken.getToken())
-//                .build()
-//        );
         return null;
     }
-
-/*
-    @GetMapping("/response-body-json-v1")
-    public ResponseEntity<HelloData> responseBodyJsonV1() {
-        HelloData helloData = new HelloData();
-        helloData.setUsername("userA");
-        helloData.setAge(20);
-        return new ResponseEntity<>(helloData, HttpStatus.OK);
-    }
-*/
-
-
 }

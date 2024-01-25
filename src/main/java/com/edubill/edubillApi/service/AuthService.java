@@ -5,23 +5,30 @@ import com.edubill.edubillApi.dto.UserDto;
 import com.edubill.edubillApi.dto.user.JoinRequestDto;
 import com.edubill.edubillApi.dto.user.LoginRequestDto;
 import com.edubill.edubillApi.exception.LoginFailedException;
+import com.edubill.edubillApi.jwt.JwtToken;
+import com.edubill.edubillApi.jwt.JwtTokenProvider;
 import com.edubill.edubillApi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
 
-//@Service
+@Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Slf4j
 public class AuthService {
 
-    private final BCryptPasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     @Transactional
     public UserDto join(JoinRequestDto joinRequestDto) {
@@ -44,6 +51,7 @@ public class AuthService {
         }
         return user;
     }
+
 
     @Transactional
     public void logout() {
@@ -71,24 +79,24 @@ public class AuthService {
      * 회원가입 및 인증 서비스
      */
     // 회원가입 메서드
-/*    public void registerMember(String phoneNumber) {
+    public void registerMember(String phoneNumber) {
         // 회원 정보 저장 전에 인증번호를 생성하고 전송
         String verificationCode = generateVerificationCode();
         sendVerificationCode(phoneNumber, verificationCode);
 
         // 회원 정보를 저장하기 전에 인증번호와 함께 저장
         User member = new User();
-        member.setPhoneNumber(phoneNumber);
-        member.setVerificationCode(verificationCode);
+        //member.setPhoneNumber(phoneNumber);
+        //member.setVerificationCode(verificationCode);
         userRepository.save(member);
-    }*/
+    }
 
     // 인증 확인 메서드
-/*    public boolean verifyCode(String phoneNumber, String enteredCode) {
+    public boolean verifyCode(String phoneNumber, String enteredCode) {
         // 전화번호에 해당하는 회원의 저장된 인증번호를 가져옴
         User user = UserRepository.findByPhoneNumber(phoneNumber);
 
         // 회원이 존재하고, 입력된 인증번호가 저장된 인증번호와 일치하면 인증 성공
         return user != null && user.getVerificationCode().equals(enteredCode);
-    }*/
+    }
 }

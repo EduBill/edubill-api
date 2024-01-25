@@ -33,6 +33,11 @@ public class UserRepository {
         return Optional.ofNullable(findUser);
     }
 
+    public Optional<User> findByUserName(String userName){
+        User findUser = em.find(User.class, userName);
+        return Optional.ofNullable(findUser);
+    }
+
     public void deleteById(Long userId) {
         User findUser = em.find(User.class, userId);
         if (findUser != null) {

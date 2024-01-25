@@ -1,20 +1,22 @@
 package com.edubill.edubillApi.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
-@Getter
-@Setter
-@SuperBuilder(toBuilder = true)
+@Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder(toBuilder = true)
 @Table(name = "USERS")
 public class User extends BaseEntity{
 
@@ -44,13 +46,12 @@ public class User extends BaseEntity{
 
 
 
+
 //    @Column(name = "created_date")
 //    private LocalDateTime createdDate; // 가입날짜
 //
 //    @Column(name = "created_date")
 //    private LocalDateTime updatedDate; // 수정날짜
 
-    public User(String userName) {
-        this.userName = userName;
-    }
+
 }

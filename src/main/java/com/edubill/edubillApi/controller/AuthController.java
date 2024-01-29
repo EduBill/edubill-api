@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.NoSuchElementException;
+
 @Slf4j
 @RestController
 @RequestMapping("/api")
@@ -34,12 +36,20 @@ public class AuthController {
     @PostMapping("/verify")
     public ResponseEntity<String> verify(@RequestBody VerificationResponseDto VerifyCodeRequestDto) {
 
-        String verificationCode = VerifyCodeRequestDto.getVerificationCode();
+        String enteredCode = VerifyCodeRequestDto.getVerificationCode();
         String requestId = VerifyCodeRequestDto.getRequestId();
-        log.info("verificationCode={}", verificationCode);
+        log.info("enteredCode={}", enteredCode);
         log.info("requestId={}", requestId);
 
-        authService.verifyCode(verificationCode, requestId); //?
+
+        //try-catch 추가필요
+        try {
+            authService.verifyCode(enteredCode, requestId);
+        } catch (NoSuchElementException e) {
+            log.info("요청에 해당하는 정보가 없습니다. ={}", e.getMessage());
+        } catch (IllegalArgumentException e) {
+            log.info("코드가 일치하지 않습니다. ={}", e.getMessage());
+        }
         return new ResponseEntity<>(requestId, HttpStatus.OK);
     }
 

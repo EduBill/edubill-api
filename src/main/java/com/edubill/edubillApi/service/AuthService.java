@@ -6,13 +6,16 @@ import com.edubill.edubillApi.repository.UserRepository;
 import com.edubill.edubillApi.repository.VerificationCodeRepository;
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class AuthService {
@@ -36,16 +39,17 @@ public class AuthService {
 
     public void verifyCode(String enteredCode, String requestId) {
         // 저장된 인증번호 조회
-        Optional<VerificationCodeEntity> optionalVerificationCodeEntity = verificationCodeRepository.findById(requestId);
+        VerificationCodeEntity verificationCodeEntity = verificationCodeRepository.findById(requestId).orElse(null);
 
-        if (optionalVerificationCodeEntity.isPresent()) {
-            VerificationCodeEntity verificationCodeEntity = optionalVerificationCodeEntity.get();
+        if (verificationCodeEntity != null) {
             // 6자리 코드 같을 경우 인증
             boolean isCodeMatched = verificationCodeEntity.getVerificationCode().equals(enteredCode);
+            if (!isCodeMatched) {
+                throw new IllegalArgumentException("Verification code does not match(enteredCode :" + enteredCode + ")");
+            }
 
         } else {
-            // 해당 요청 ID에 대한 데이터가 없을 경우 처리return null;
-            // 오류 처리
+            throw new NoSuchElementException("VerificationCodeEntity not found for requestId: " + requestId);
         }
     }
 

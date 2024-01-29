@@ -1,102 +1,84 @@
 package com.edubill.edubillApi.service;
-
-import com.edubill.edubillApi.domain.User;
-import com.edubill.edubillApi.dto.UserDto;
-import com.edubill.edubillApi.dto.user.JoinRequestDto;
-import com.edubill.edubillApi.dto.user.LoginRequestDto;
-import com.edubill.edubillApi.exception.LoginFailedException;
-import com.edubill.edubillApi.jwt.JwtToken;
-import com.edubill.edubillApi.jwt.JwtTokenProvider;
+import com.edubill.edubillApi.domain.VerificationCodeEntity;
+import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
+import com.edubill.edubillApi.dto.verification.VerifyCodeResponseDto;
 import com.edubill.edubillApi.repository.UserRepository;
+import com.edubill.edubillApi.repository.VerificationCodeRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+
+import java.util.Optional;
 import java.util.Random;
+import java.util.UUID;
 
-@Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
-@Slf4j
+@Service
 public class AuthService {
 
+
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final VerificationCodeRepository verificationCodeRepository;
 
-    @Transactional
-    public UserDto join(JoinRequestDto joinRequestDto) {
-        return null;
+    public VerificationResponseDto sendVerificationCode(String phoneNumber) {
+        // 인증번호 생성 및 저장
+        String verificationCode = generateRandomCode();
+        String requestId = UUID.randomUUID().toString();
+
+        // 데이터베이스에 저장
+        VerificationCodeEntity verificationCodeEntity = new VerificationCodeEntity(requestId, phoneNumber, verificationCode);
+        verificationCodeRepository.save(verificationCodeEntity);
+
+        // 인증번호와 고유 요청 ID를 응답
+        return new VerificationResponseDto(verificationCode, requestId);
     }
 
-    @Transactional
-    public User login(LoginRequestDto loginRequestDto) {
-        User user = userRepository.findByUserEmail(loginRequestDto.getUserEmail())
-                .orElseThrow(() -> new LoginFailedException("해당 이메일을 가진 사용자가 없다."));
+    public void verifyCode(String enteredCode, String requestId) {
+        // 저장된 인증번호 조회
+        Optional<VerificationCodeEntity> optionalVerificationCodeEntity = verificationCodeRepository.findById(requestId);
 
-        // 암호화후 db저장된 password와 사용자가 입력한 raw password를 비교
-        log.info("encoded_password_entity= {}", user.getUserPassword());
-        String encodePassword = passwordEncoder.encode(loginRequestDto.getUserPassword());
-        log.info("encoded_password = {}", encodePassword);
-        log.info("encoded_password_dto = {}", loginRequestDto.getUserPassword());
+        if (optionalVerificationCodeEntity.isPresent()) {
+            VerificationCodeEntity verificationCodeEntity = optionalVerificationCodeEntity.get();
+            // 6자리 코드 같을 경우 인증
+            boolean isCodeMatched = verificationCodeEntity.getVerificationCode().equals(enteredCode);
 
-        if (!passwordEncoder.matches(loginRequestDto.getUserPassword(), user.getUserPassword())) {
-            throw new LoginFailedException("비밀번호가 일치하지 않는다.");
+        } else {
+            // 해당 요청 ID에 대한 데이터가 없을 경우 처리return null;
+            // 오류 처리
         }
-        return user;
     }
 
+    public CheckUserResponse checkUser(String phoneNumber) {
+        // 사용자 가입 여부 조회
+        boolean hasUser = userRepository.existsByPhoneNumber(phoneNumber);
 
-    @Transactional
-    public void logout() {
-
+        // 가입 여부를 응답
+        return new CheckUserResponse(hasUser);
     }
 
-    /**
-     * 인증번호 생성 및 전송 서비스
-     */
+    public LoginResponse login(String phoneNumber) {
+        // 사용자 인증 및 세션 관리 등의 로직이 들어갈 것
+        boolean success = userRepository.existsByPhoneNumber(phoneNumber);
+        String errorCode = success ? null : "USER_NOT_FOUND";
 
-    //인증번호 생성 메서드
-    public String generateVerificationCode() {
-        // 여기에서 랜덤한 인증번호를 생성하는 로직을 추가
-        // 예를 들면, Random 클래스를 사용하여 6자리 숫자 생성
-        return String.format("%06d", new Random().nextInt(1000000));
+        // 로그인 결과와 에러 코드를 응답
+        return new LoginResponse(success, errorCode);
     }
 
-    // 인증번호 전송 메서드
-    public void sendVerificationCode(String phoneNumber, String verificationCode) {
-        // 여기에서 실제로 전화번호로 인증번호를 발송하는 로직을 추가
-        // SMS, 이메일, 앱 푸시 등 다양한 방법을 사용할 수 있음
+    public RegisterResponse register(String phoneNumber, String name, String role) {
+        // 사용자 등록
+        UserEntity userEntity = new UserEntity(phoneNumber, name, role);
+        userRepository.save(userEntity);
+
+        // 회원가입 성공을 응답
+        return new RegisterResponse(true, null);
     }
 
-    /**
-     * 회원가입 및 인증 서비스
-     */
-    // 회원가입 메서드
-    public void registerMember(String phoneNumber) {
-        // 회원 정보 저장 전에 인증번호를 생성하고 전송
-        String verificationCode = generateVerificationCode();
-        sendVerificationCode(phoneNumber, verificationCode);
-
-        // 회원 정보를 저장하기 전에 인증번호와 함께 저장
-        User member = new User();
-        //member.setPhoneNumber(phoneNumber);
-        //member.setVerificationCode(verificationCode);
-        userRepository.save(member);
-    }
-
-    // 인증 확인 메서드
-    public boolean verifyCode(String phoneNumber, String enteredCode) {
-        // 전화번호에 해당하는 회원의 저장된 인증번호를 가져옴
-        User user = UserRepository.findByPhoneNumber(phoneNumber);
-
-        // 회원이 존재하고, 입력된 인증번호가 저장된 인증번호와 일치하면 인증 성공
-        return user != null && user.getVerificationCode().equals(enteredCode);
+    // 인증번호 생성 메서드 (6자리)
+    private static String generateRandomCode() {
+        Random random = new Random();
+        int code = 100000 + random.nextInt(900000);
+        return String.valueOf(code);
     }
 }

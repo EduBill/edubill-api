@@ -1,5 +1,6 @@
 package com.edubill.edubillApi.dto.user;
 
+import com.edubill.edubillApi.domain.UserRole;
 import lombok.*;
 
 @Getter
@@ -8,6 +9,9 @@ import lombok.*;
 public class JoinRequestDto {
 
     private String userName;
-    private String userEmail;
-    private String userPassword;
+    private String phoneNumber;
+    private String requestId;
+    private UserRole userRole;
+
+
 }

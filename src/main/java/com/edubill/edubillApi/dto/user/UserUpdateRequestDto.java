@@ -11,5 +11,5 @@ public class UserUpdateRequestDto implements Serializable {
 
     private Long userId;
     private String userName;
-    private Long phoneNumber;
+    private String phoneNumber;
 }

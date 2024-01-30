@@ -1,17 +1,9 @@
 package com.edubill.edubillApi.domain;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Pattern;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Entity
 @Getter @Setter

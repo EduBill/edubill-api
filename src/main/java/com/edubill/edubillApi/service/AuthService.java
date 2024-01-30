@@ -1,88 +1,83 @@
 package com.edubill.edubillApi.service;
-import com.edubill.edubillApi.domain.VerificationCodeEntity;
+
+import com.edubill.edubillApi.domain.User;
+import com.edubill.edubillApi.domain.UserRole;
+import com.edubill.edubillApi.dto.user.JoinRequestDto;
 import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
-import com.edubill.edubillApi.dto.verification.VerifyCodeResponseDto;
+import com.edubill.edubillApi.exception.UserAlreadyExistsException;
 import com.edubill.edubillApi.repository.UserRepository;
-import com.edubill.edubillApi.repository.VerificationCodeRepository;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class AuthService {
 
-
     private final UserRepository userRepository;
-    private final VerificationCodeRepository verificationCodeRepository;
+    private final HashMap<String, String> verificationMap = new HashMap<>();
 
-    public VerificationResponseDto sendVerificationCode(String phoneNumber) {
+    public VerificationResponseDto sendVerificationNumber(String phoneNumber) {
+
         // 인증번호 생성 및 저장
-        String verificationCode = generateRandomCode();
+        String verificationNumber = generateRandomNumber();
         String requestId = UUID.randomUUID().toString();
 
-        // 데이터베이스에 저장
-        VerificationCodeEntity verificationCodeEntity = new VerificationCodeEntity(requestId, phoneNumber, verificationCode);
-        verificationCodeRepository.save(verificationCodeEntity);
+        verificationMap.put(requestId, verificationNumber);
 
         // 인증번호와 고유 요청 ID를 응답
-        return new VerificationResponseDto(verificationCode, requestId);
+        // 실제로는 해당 전화번호를 key 값으로 sms전송
+        return new VerificationResponseDto(verificationNumber, requestId);
     }
 
-    public void verifyCode(String enteredCode, String requestId) {
-        // 저장된 인증번호 조회
-        VerificationCodeEntity verificationCodeEntity = verificationCodeRepository.findById(requestId).orElse(null);
+    public String verifyNumber(String enteredNumber, String requestId) {
+        String verificationNumber = verificationMap.get(requestId);
 
-        if (verificationCodeEntity != null) {
-            // 6자리 코드 같을 경우 인증
-            boolean isCodeMatched = verificationCodeEntity.getVerificationCode().equals(enteredCode);
-            if (!isCodeMatched) {
-                throw new IllegalArgumentException("Verification code does not match(enteredCode :" + enteredCode + ")");
-            }
-
-        } else {
-            throw new NoSuchElementException("VerificationCodeEntity not found for requestId: " + requestId);
+        // requestId에 대한 검증 번호가 존재하는지 확인
+        if (verificationNumber == null) {
+            throw new NoSuchElementException("VerificationNumber not found for requestId: " + requestId);
         }
+        // 6자리 코드 같을 경우 인증
+        boolean isVerify= verificationNumber.equals(enteredNumber);
+        if (!isVerify) {
+            throw new IllegalArgumentException("Verification Number does not match (enteredNumber: " + enteredNumber + ")");
+        }
+        return "인증 완료 되었습니다.";
+
     }
 
-    public CheckUserResponse checkUser(String phoneNumber) {
-        // 사용자 가입 여부 조회
-        boolean hasUser = userRepository.existsByPhoneNumber(phoneNumber);
+//    public User login(String phoneNumber, String requestId) {
+//        Boolean hasUser = checkDuplicateUser(phoneNumber, requestId);
+//        return hasUser;
+//    }
 
-        // 가입 여부를 응답
-        return new CheckUserResponse(hasUser);
+    public User join(JoinRequestDto joinRequestDto) {
+        String phoneNumber = joinRequestDto.getPhoneNumber();
+        String userName = joinRequestDto.getUserName();
+        UserRole userRole = joinRequestDto.getUserRole();
+        String requestId = joinRequestDto.getRequestId();
+
+        if (checkDuplicateUser(phoneNumber)) {
+            throw new UserAlreadyExistsException();
+        }
+        User user = new User(phoneNumber, userName, userRole, requestId);
+        return user;
     }
 
-    public LoginResponse login(String phoneNumber) {
-        // 사용자 인증 및 세션 관리 등의 로직이 들어갈 것
-        boolean success = userRepository.existsByPhoneNumber(phoneNumber);
-        String errorCode = success ? null : "USER_NOT_FOUND";
-
-        // 로그인 결과와 에러 코드를 응답
-        return new LoginResponse(success, errorCode);
-    }
-
-    public RegisterResponse register(String phoneNumber, String name, String role) {
-        // 사용자 등록
-        UserEntity userEntity = new UserEntity(phoneNumber, name, role);
-        userRepository.save(userEntity);
-
-        // 회원가입 성공을 응답
-        return new RegisterResponse(true, null);
-    }
-
-    // 인증번호 생성 메서드 (6자리)
-    private static String generateRandomCode() {
+    // 인증번호 생성 (6자리)
+    private static String generateRandomNumber() {
         Random random = new Random();
         int code = 100000 + random.nextInt(900000);
         return String.valueOf(code);
+    }
+
+    // 사용자 가입 여부 조회
+    public Boolean checkDuplicateUser(String phoneNumber) {
+        return userRepository.existsByPhoneNumber(phoneNumber);
     }
 }

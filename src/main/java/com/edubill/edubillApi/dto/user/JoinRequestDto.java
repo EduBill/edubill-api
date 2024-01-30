@@ -12,6 +12,4 @@ public class JoinRequestDto {
     private String phoneNumber;
     private String requestId;
     private UserRole userRole;
-
-
 }

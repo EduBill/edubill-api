@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.*;
@@ -21,6 +22,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final HashMap<String, String> verificationMap = new HashMap<>();
+
 
     public VerificationResponseDto sendVerificationNumber(String phoneNumber) {
 
@@ -34,6 +36,7 @@ public class AuthService {
         // 실제로는 해당 전화번호를 key 값으로 sms전송
         return new VerificationResponseDto(verificationNumber, requestId);
     }
+
 
     public String verifyNumber(String enteredNumber, String requestId) {
         String verificationNumber = verificationMap.get(requestId);
@@ -56,6 +59,7 @@ public class AuthService {
 //        return hasUser;
 //    }
 
+    @Transactional
     public User join(JoinRequestDto joinRequestDto) {
         String phoneNumber = joinRequestDto.getPhoneNumber();
         String userName = joinRequestDto.getUserName();
@@ -66,6 +70,7 @@ public class AuthService {
             throw new UserAlreadyExistsException();
         }
         User user = new User(phoneNumber, userName, userRole, requestId);
+        userRepository.save(user);
         return user;
     }
 

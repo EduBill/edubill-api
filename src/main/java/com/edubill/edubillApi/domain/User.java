@@ -21,16 +21,10 @@ public class User extends BaseEntity{
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private String userId;
+    private Long userId;
 
     @Column(name = "user_name", nullable = false)
     private String userName;
-
-//    @Column(name = "user_email", unique = true, nullable = false)
-//    private String userEmail;
-
-    @Column(name = "user_password", nullable = false)
-    private String userPassword;
 
     @Column(name = "phone_number")
     private String phoneNumber;
@@ -45,12 +39,18 @@ public class User extends BaseEntity{
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) //user 삭제시 payment도 삭제
     private List<Payment> payments = new ArrayList<>();
 
+    //    @Column(name = "user_email", unique = true, nullable = false)
+    //    private String userEmail;
+
+    //    @Column(name = "user_password", nullable = false)
+    //    private String userPassword;
 
     // 생성메서드
     public User(String phoneNumber,String userName, UserRole userRole, String requestId) {
         this.phoneNumber = phoneNumber;
         this.userName = userName;
         this.userRole = userRole;
-        this.authInfo.setRequestId(requestId);
+        this.authInfo = new AuthInfo();
+         authInfo.setRequestId(requestId);
     }
 }

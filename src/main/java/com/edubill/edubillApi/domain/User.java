@@ -1,6 +1,7 @@
 package com.edubill.edubillApi.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
@@ -50,7 +51,6 @@ public class User extends BaseEntity{
         this.phoneNumber = phoneNumber;
         this.userName = userName;
         this.userRole = userRole;
-        this.authInfo = new AuthInfo();
-         authInfo.setRequestId(requestId);
+        this.authInfo = new AuthInfo(requestId);
     }
 }

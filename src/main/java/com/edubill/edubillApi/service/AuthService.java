@@ -54,10 +54,9 @@ public class AuthService {
 
     }
 
-//    public User login(String phoneNumber, String requestId) {
-//        Boolean hasUser = checkDuplicateUser(phoneNumber, requestId);
-//        return hasUser;
-//    }
+    public User login(String phoneNumber, String requestId) {
+
+    }
 
     @Transactional
     public User join(JoinRequestDto joinRequestDto) {
@@ -66,12 +65,17 @@ public class AuthService {
         UserRole userRole = joinRequestDto.getUserRole();
         String requestId = joinRequestDto.getRequestId();
 
-        if (checkDuplicateUser(phoneNumber)) {
-            throw new UserAlreadyExistsException();
+        if (isExistsUser(phoneNumber)) {
+            throw new UserAlreadyExistsException("이미 존재하는 회원");
         }
         User user = new User(phoneNumber, userName, userRole, requestId);
         userRepository.save(user);
         return user;
+    }
+
+    // 사용자 가입 여부 조회
+    public Boolean isExistsUser(String phoneNumber) {
+        return userRepository.existsByPhoneNumber(phoneNumber);
     }
 
     // 인증번호 생성 (6자리)
@@ -79,10 +83,5 @@ public class AuthService {
         Random random = new Random();
         int code = 100000 + random.nextInt(900000);
         return String.valueOf(code);
-    }
-
-    // 사용자 가입 여부 조회
-    public Boolean checkDuplicateUser(String phoneNumber) {
-        return userRepository.existsByPhoneNumber(phoneNumber);
     }
 }

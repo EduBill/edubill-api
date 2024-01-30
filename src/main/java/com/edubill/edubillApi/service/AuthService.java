@@ -6,6 +6,7 @@ import com.edubill.edubillApi.dto.user.JoinRequestDto;
 import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
 import com.edubill.edubillApi.exception.UserAlreadyExistsException;
 import com.edubill.edubillApi.repository.UserRepository;
+import com.edubill.edubillApi.repository.VerificationRepository;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
@@ -21,16 +22,20 @@ import java.util.*;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final HashMap<String, String> verificationMap = new HashMap<>();
+    private final VerificationRepository verificationRepository;
 
 
     public VerificationResponseDto sendVerificationNumber(String phoneNumber) {
+        // 휴대폰 번호 형식 체크
+        if (!isValidPhoneNumber(phoneNumber)) {
+            throw new IllegalArgumentException("휴대폰 번호의 양식과 맞지 않습니다.");
+        }
 
         // 인증번호 생성 및 저장
         String verificationNumber = generateRandomNumber();
         String requestId = UUID.randomUUID().toString();
 
-        verificationMap.put(requestId, verificationNumber);
+        verificationRepository.put(requestId, verificationNumber);
 
         // 인증번호와 고유 요청 ID를 응답
         // 실제로는 해당 전화번호를 key 값으로 sms전송
@@ -38,8 +43,9 @@ public class AuthService {
     }
 
 
+
     public String verifyNumber(String enteredNumber, String requestId) {
-        String verificationNumber = verificationMap.get(requestId);
+        String verificationNumber = verificationRepository.get(requestId);
 
         // requestId에 대한 검증 번호가 존재하는지 확인
         if (verificationNumber == null) {
@@ -54,20 +60,17 @@ public class AuthService {
 
     }
 
-    public User login(String phoneNumber, String requestId) {
+    public User signIn(String phoneNumber, String requestId) {
 
     }
 
     @Transactional
-    public User join(JoinRequestDto joinRequestDto) {
+    public User signUp(JoinRequestDto joinRequestDto) {
         String phoneNumber = joinRequestDto.getPhoneNumber();
         String userName = joinRequestDto.getUserName();
         UserRole userRole = joinRequestDto.getUserRole();
         String requestId = joinRequestDto.getRequestId();
 
-        if (isExistsUser(phoneNumber)) {
-            throw new UserAlreadyExistsException("이미 존재하는 회원");
-        }
         User user = new User(phoneNumber, userName, userRole, requestId);
         userRepository.save(user);
         return user;
@@ -83,5 +86,11 @@ public class AuthService {
         Random random = new Random();
         int code = 100000 + random.nextInt(900000);
         return String.valueOf(code);
+    }
+
+    // 휴대폰 번호 형식 체크 메소드
+    private boolean isValidPhoneNumber(String phoneNumber) {
+        String regex = "^01(?:0|1|[6-9])(\\d{3,4})(\\d{4})$";
+        return phoneNumber.matches(regex);
     }
 }

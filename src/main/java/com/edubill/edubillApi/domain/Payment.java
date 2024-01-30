@@ -23,7 +23,7 @@ public class Payment extends BaseEntity{
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id")
+    @JoinColumn(name = "account_number")
     private Account account;
 
 //    @Column(name = "payment_date")

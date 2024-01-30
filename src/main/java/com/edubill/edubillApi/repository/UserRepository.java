@@ -7,6 +7,7 @@ import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -25,22 +26,19 @@ public class UserRepository {
     }
 
     public Optional<User> findByPhoneNumber(String phoneNumber) {
-        User findUser = em.find(User.class, phoneNumber);
-        return Optional.ofNullable(findUser);
+        String jpql = "select u from User u where u.phoneNumber = :phoneNumber";
+        Query query = em.createQuery(jpql, User.class);
+        query.setParameter("phoneNumber", phoneNumber);
+        List<User> resultList = query.getResultList();
+        if (!resultList.isEmpty()) {
+            return Optional.of(resultList.get(0));
+        } else {
+            return Optional.empty();
+        }
     }
 
-//    public Optional<User> findByUserEmail(String userEmail){
-//        User findUser = em.find(User.class, userEmail);
-//        return Optional.ofNullable(findUser);
-//    }
-
-    public Optional<User> findByUserName(String userName){
-        User findUser = em.find(User.class, userName);
-        return Optional.ofNullable(findUser);
-    }
-
-    public void deleteByRequestId(String requestId) {
-        User findUser = em.find(User.class, requestId);
+    public void deleteById(Long id) {
+        User findUser = em.find(User.class, id);
         if (findUser != null) {
             em.remove(findUser);
         }
@@ -52,13 +50,4 @@ public class UserRepository {
         Long count = (Long) query.getSingleResult();
         return count > 0;
     }
-
-    public boolean existsByRequestId(String requestId) {
-        Query query = em.createQuery("select count(u) from User u where u.requestId = :requestId");
-        query.setParameter("requestId", requestId);
-        Long count = (Long) query.getSingleResult();
-        return count > 0;
-    }
-
-
 }

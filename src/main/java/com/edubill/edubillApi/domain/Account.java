@@ -11,6 +11,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
+@Table(name = "ACCOUNTS")
 public class Account extends BaseEntity{
 
     @Id
@@ -24,11 +25,11 @@ public class Account extends BaseEntity{
     private String holderName; //계좌주 -> user, holder가 일치할때만 등록가능
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "account_status")
     private AccountStatus accountStatus;
 
-//    @OneToMany(mappedBy = "account", cascade = CascadeType.REMOVE, orphanRemoval = true)
-//    private List<Payment> payments = new ArrayList<>();
-
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
 }

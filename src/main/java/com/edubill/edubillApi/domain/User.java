@@ -32,11 +32,19 @@ public class User extends BaseEntity{
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) //user 삭제시 payment도 삭제
     private List<Payment> payments = new ArrayList<>();
 
-    //    @Column(name = "user_email", unique = true, nullable = false)
-    //    private String userEmail;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Account> accounts = new ArrayList<>();
 
-    //    @Column(name = "user_password", nullable = false)
-    //    private String userPassword;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Invoice> invoices = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Academy> academies = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Student> students = new ArrayList<>();
+
+
 
     // 생성메서드
     public User(String phoneNumber,String userName, UserRole userRole, String requestId) {

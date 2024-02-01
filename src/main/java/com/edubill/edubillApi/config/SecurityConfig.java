@@ -42,7 +42,6 @@ public class SecurityConfig {
                         authorize
                                 .requestMatchers("/users/login").permitAll() // 해당 API에 대해서는 모든 요청을 허가
                                 .requestMatchers("/users/admin").hasAuthority(UserRole.ADMIN.getCode()) // ADMIN 권한이 있어야 요청할 수 있음
-                                .requestMatchers("/users/user").hasAuthority(UserRole.USER.getCode()) // USER 권한이 있어야 요청할 수 있음
                                 .anyRequest().authenticated()) // 이 밖에 모든 요청에 대해서는 로그인한 사용자만
 
                 // JWT 인증을 위하여 직접 구현한 필터를 UsernamePasswordAuthenticationFilter 전에 실행

@@ -4,9 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum PaymentStatus {
-    SUCCESS("성공"),
-    PENDING("보류"),
-    FAILURE("실패");
+    PAID("결제 완료"),
+    UNPAID("결제 미완료");
 
     private final String statusMessage;
 

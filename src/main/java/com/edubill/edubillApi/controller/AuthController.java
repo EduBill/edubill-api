@@ -1,12 +1,11 @@
 package com.edubill.edubillApi.controller;
 
-import com.edubill.edubillApi.domain.User;
-import com.edubill.edubillApi.dto.user.JoinRequestDto;
-import com.edubill.edubillApi.dto.user.LoginRequestDto;
+import com.edubill.edubillApi.dto.user.SignInRequestDto;
+import com.edubill.edubillApi.dto.user.SignUpRequestDto;
+import com.edubill.edubillApi.dto.user.UserDto;
 import com.edubill.edubillApi.dto.verification.ExistUserRequestDto;
 import com.edubill.edubillApi.dto.verification.VerificationRequestDto;
 import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
-import com.edubill.edubillApi.exception.LoginFailedException;
 import com.edubill.edubillApi.exception.UserAlreadyExistsException;
 import com.edubill.edubillApi.repository.UserRepository;
 import com.edubill.edubillApi.service.AuthService;
@@ -70,21 +69,22 @@ public class AuthController {
         return new ResponseEntity<>(authService.isExistsUser(phoneNumber), HttpStatus.OK);
     }
 
-    @PostMapping("/signin")
-    public ResponseEntity<User> signIn(@Valid @RequestBody LoginRequestDto loginRequestDto) {
-        // 로그인 API
+    // 회원가입 API
+    @PostMapping("/signup")
+    public ResponseEntity<UserDto> signUp(@Valid @RequestBody SignUpRequestDto signUpRequestDto) {
+        UserDto signUpUser = authService.signUp(signUpRequestDto);
+
+        return new ResponseEntity<>(signUpUser,HttpStatus.OK);
+    }
+
+    // 로그인 API
+    //@PostMapping("/signin")
+    public ResponseEntity<UserDto> signIn(@Valid @RequestBody SignInRequestDto loginRequestDto) {
         String phoneNumber = loginRequestDto.getPhoneNumber();
         String requestId = loginRequestDto.getRequestId();
 
-        User loginUser = authService.signIn(phoneNumber, requestId);
+        UserDto signInUser = authService.signIn(phoneNumber, requestId);
 
-        return new ResponseEntity<>(loginUser,HttpStatus.OK);
-    }
-
-    // 회원가입 API
-    @PostMapping("/signup")
-    public ResponseEntity<User> signUp(@Valid @RequestBody JoinRequestDto joinRequestDto) {
-        User joinedUser = authService.signUp(joinRequestDto);
-        return new ResponseEntity<>(joinedUser,HttpStatus.OK);
+        return new ResponseEntity<>(signInUser,HttpStatus.OK);
     }
 }

@@ -2,9 +2,9 @@ package com.edubill.edubillApi.service;
 
 import com.edubill.edubillApi.domain.User;
 import com.edubill.edubillApi.domain.UserRole;
-import com.edubill.edubillApi.dto.user.JoinRequestDto;
+import com.edubill.edubillApi.dto.user.SignUpRequestDto;
+import com.edubill.edubillApi.dto.user.UserDto;
 import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
-import com.edubill.edubillApi.exception.UserAlreadyExistsException;
 import com.edubill.edubillApi.repository.UserRepository;
 import com.edubill.edubillApi.repository.VerificationRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,6 @@ public class AuthService {
     private final UserRepository userRepository;
     private final VerificationRepository verificationRepository;
 
-
     public VerificationResponseDto sendVerificationNumber(String phoneNumber) {
         // 휴대폰 번호 형식 체크
         if (!isValidPhoneNumber(phoneNumber)) {
@@ -32,8 +31,8 @@ public class AuthService {
         }
 
         // 인증번호 생성 및 저장
-        String verificationNumber = generateRandomNumber();
-        String requestId = UUID.randomUUID().toString();
+        final String verificationNumber = generateRandomNumber();
+        final String requestId = UUID.randomUUID().toString();
 
         verificationRepository.put(requestId, verificationNumber);
 
@@ -60,20 +59,23 @@ public class AuthService {
 
     }
 
-    public User signIn(String phoneNumber, String requestId) {
-
+    public UserDto signIn(String phoneNumber, String requestId) {
+        return null;
     }
 
     @Transactional
-    public User signUp(JoinRequestDto joinRequestDto) {
-        String phoneNumber = joinRequestDto.getPhoneNumber();
-        String userName = joinRequestDto.getUserName();
-        UserRole userRole = joinRequestDto.getUserRole();
-        String requestId = joinRequestDto.getRequestId();
+    public UserDto signUp(SignUpRequestDto signUpRequestDto) {
+        String phoneNumber = signUpRequestDto.getPhoneNumber();
+        String userName = signUpRequestDto.getUserName();
+        UserRole userRole = signUpRequestDto.getUserRole();
+        String requestId = signUpRequestDto.getRequestId();
 
         User user = new User(phoneNumber, userName, userRole, requestId);
         userRepository.save(user);
-        return user;
+
+        UserDto userDto = UserDto.toDto(user);
+
+        return userDto;
     }
 
     // 사용자 가입 여부 조회
@@ -84,8 +86,8 @@ public class AuthService {
     // 인증번호 생성 (6자리)
     private static String generateRandomNumber() {
         Random random = new Random();
-        int code = 100000 + random.nextInt(900000);
-        return String.valueOf(code);
+        int randomNumber = 100000 + random.nextInt(900000);
+        return String.valueOf(randomNumber);
     }
 
     // 휴대폰 번호 형식 체크 메소드

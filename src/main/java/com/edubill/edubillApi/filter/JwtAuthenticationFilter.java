@@ -37,7 +37,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Authentication authentication = jwtTokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            log.info("유효한 토큰 ={}", SecurityContextHolder.getContext().getAuthentication().toString());
         }
         chain.doFilter(request, response);
     }

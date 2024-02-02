@@ -37,4 +37,15 @@ public class AcademyStudent {
         this.academyId = academyId;
         this.studentId = studentId;
     }
+
+    //==연관관계 메서드==//
+    public void setAcademy(Academy academy) {
+        this.academy = academy;
+        academy.getAcademyStudents().add(this);
+    }
+
+    public void setStudent(Student student) {
+        this.student = student;
+        student.getAcademyStudents().add(this);
+    }
 }

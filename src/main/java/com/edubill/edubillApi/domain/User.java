@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter @Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "USERS")
@@ -19,7 +19,7 @@ public class User extends BaseEntity{
     @Column(name = "user_name", nullable = false)
     private String userName;
 
-    @Column(name = "phone_number")
+    @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
     @Column(name = "user_role", nullable = false)
@@ -28,9 +28,6 @@ public class User extends BaseEntity{
 
     @Transient
     private AuthInfo authInfo;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) //user 삭제시 payment도 삭제
-    private List<Payment> payments = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Account> accounts = new ArrayList<>();
@@ -41,12 +38,7 @@ public class User extends BaseEntity{
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Academy> academies = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Student> students = new ArrayList<>();
 
-
-
-    // 생성메서드
     public User(String phoneNumber,String userName, UserRole userRole, String requestId) {
         this.phoneNumber = phoneNumber;
         this.userName = userName;

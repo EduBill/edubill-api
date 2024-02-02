@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -31,5 +34,15 @@ public class Academy {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "academy", cascade = CascadeType.ALL)
+    private List<AcademyStudent> academyStudents = new ArrayList<>();
+
+
+    //==연관관계 메서드==//
+    public void setUser(User user) {
+        this.user = user;
+        user.getAcademies().add(this);
+    }
 
 }

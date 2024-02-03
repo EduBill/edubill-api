@@ -1,4 +1,5 @@
 #!/bin/bash
+source /home/ubuntu/.bash_profile
 BUILD_JAR=$(ls /home/ubuntu/action/build/libs/edubillApi-0.0.1-SNAPSHOT.jar)
 JAR_NAME=$(basename $BUILD_JAR)
 echo "> build 파일명: $JAR_NAME" >> /home/ubuntu/action/deploy.log

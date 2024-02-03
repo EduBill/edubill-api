@@ -50,5 +50,5 @@ jobs:
         run: >
          aws deploy create-deployment --application-name edubill-dev
          --deployment-config-name CodeDeployDefault.AllAtOnce
-         --deployment-group-name edubill-target-dev
+         --deployment-group-name edubill-dev
          --s3-location bucket=$BUCKET_NAME,bundleType=zip,key=deploy/$GITHUB_SHA.zip

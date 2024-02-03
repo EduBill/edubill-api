@@ -15,7 +15,7 @@ import java.util.List;
 public class Account extends BaseEntity{
 
     @Id
-    @Column(name = "account_number", unique = true, nullable = false)
+    @Column(name = "account_number")
     private String accountNumber;
 
     @Enumerated(EnumType.STRING)

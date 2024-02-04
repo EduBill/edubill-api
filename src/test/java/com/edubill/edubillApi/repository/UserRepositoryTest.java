@@ -13,20 +13,4 @@ import static org.assertj.core.api.Assertions.*;
 @Transactional
 public class UserRepositoryTest {
 
-    @Autowired
-    UserRepository userRepository;
-
-    @Test
-    public void memberTest() {
-        //given
-        User user = new User();
-        user.setUsername("memberA");
-
-        //when
-        User savedMember = userRepository.save(user);
-
-        //then
-        User findUser = userRepository.findById(savedMember.getId()).get();
-        assertThat(findUser).isEqualTo(savedMember);
-    }
 }

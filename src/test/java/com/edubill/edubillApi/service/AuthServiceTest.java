@@ -1,15 +1,13 @@
 package com.edubill.edubillApi.service;
 
 import com.edubill.edubillApi.domain.User;
-import com.edubill.edubillApi.dto.user.SignUpRequestDto;
+import com.edubill.edubillApi.dto.user.SignupRequestDto;
 import com.edubill.edubillApi.dto.user.UserDto;
 import com.edubill.edubillApi.dto.verification.ExistUserRequestDto;
 import com.edubill.edubillApi.dto.verification.VerificationRequestDto;
 import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
-import com.edubill.edubillApi.exception.UserAlreadyExistsException;
 import com.edubill.edubillApi.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +50,7 @@ class AuthServiceTest {
     void signUpTest() {
         //given
         String requestId = UUID.randomUUID().toString();
-        SignUpRequestDto requestA = new SignUpRequestDto("userA", "01012345678", requestId);
+        SignupRequestDto requestA = new SignupRequestDto("userA", "01012345678", requestId);
 
         //when
         UserDto userA = authService.signUp(requestA);
@@ -68,7 +66,7 @@ class AuthServiceTest {
     void signUpDuplicateTest() {
         //given
         String requestId = UUID.randomUUID().toString();
-        SignUpRequestDto signUpRequest = new SignUpRequestDto("userA", "01011111111", requestId);
+        SignupRequestDto signUpRequest = new SignupRequestDto("userA", "01011111111", requestId);
         UserDto userA = authService.signUp(signUpRequest);
 
         //when

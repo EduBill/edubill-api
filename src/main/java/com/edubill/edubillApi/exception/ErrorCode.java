@@ -13,7 +13,9 @@ public enum ErrorCode {
     // 프론트에 보여지는 값
     // User
     USER_DUPLICATION(400, "U001","이미 존재하는 회원입니다."),
-    LOGIN_INPUT_INVALID(400, "U002","입력하신 전화번호가 일치하지 않습니다.");
+    LOGIN_INPUT_INVALID(400, "U002","입력하신 전화번호가 일치하지 않습니다."),
+    USER_NOT_FOUND(400, "U003", "존재하지 않는 사용자입니다.");
+
 
 
     private int status;

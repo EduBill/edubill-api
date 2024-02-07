@@ -8,6 +8,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 
 import java.util.*;
 
@@ -19,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AuthControllerTest {
 
     @Autowired
-    private Validator validatorInjected;
+    private Validator validator;
 
     @Test
     @DisplayName("전화번호 유효성 검사")
@@ -30,22 +32,15 @@ public class AuthControllerTest {
         ExistUserRequestDto requestDto = new ExistUserRequestDto(phoneNumber, requestId);
 
         //when
-        Set<ConstraintViolation<ExistUserRequestDto>> validate = validatorInjected.validate(requestDto);
-
-
-        //then
-        Iterator<ConstraintViolation<ExistUserRequestDto>> iterator = validate.iterator();
+        Set<ConstraintViolation<ExistUserRequestDto>> violations = validator.validate(requestDto);
         List<String> messages = new ArrayList<>();
 
-        while (iterator.hasNext()) {
-            ConstraintViolation<ExistUserRequestDto> next = iterator.next();
-            messages.add(next.getMessage());
-            log.info("message = {}", next.getMessage());
-
+        for (ConstraintViolation<ExistUserRequestDto> violation : violations) {
+            log.info("message = {}", violation.getMessage());
+            messages.add(violation.getMessage());
         }
 
-        assertThat(messages).contains("휴대폰 번호의 양식과 맞지 않습니다.", "고유요청은 필수입니다.");
-
+        //then
+        assertThat(messages).contains("-을 제외한 10자리 번호를 입력해주세요", "고유요청은 필수입니다.");
     }
-
 }

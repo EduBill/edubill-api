@@ -18,7 +18,8 @@ public class UserDto implements Serializable {
     private String phoneNumber;
 
 
-    public static UserDto toDto(User user) {
+    // of 메서드를 통해 유저 객체를 DTO에 담아 반환
+    public static UserDto of(User user) {
         return new UserDto(
                 user.getUserId(),
                 user.getUserName(),

@@ -1,9 +1,12 @@
 package com.edubill.edubillApi.service;
 
 import com.edubill.edubillApi.domain.User;
-import com.edubill.edubillApi.dto.user.SignUpRequestDto;
+import com.edubill.edubillApi.domain.UserRole;
+import com.edubill.edubillApi.dto.user.LoginRequestDto;
+import com.edubill.edubillApi.dto.user.SignupRequestDto;
 import com.edubill.edubillApi.dto.user.UserDto;
 import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
+import com.edubill.edubillApi.exception.UserNotFoundException;
 import com.edubill.edubillApi.repository.UserRepository;
 import com.edubill.edubillApi.repository.VerificationRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ import java.util.*;
 @Slf4j
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -33,7 +37,7 @@ public class AuthService {
         final String verificationNumber = generateRandomNumber();
         final String requestId = UUID.randomUUID().toString();
 
-        verificationRepository.put(requestId, verificationNumber);
+        verificationRepository.setVerificationNumber(requestId, verificationNumber);
 
         // 인증번호와 고유 요청 ID를 응답
         // 실제로는 해당 전화번호를 key 값으로 sms전송
@@ -43,7 +47,7 @@ public class AuthService {
 
 
     public String verifyNumber(String InputNumber, String requestId) {
-        String verificationNumber = verificationRepository.get(requestId);
+        String verificationNumber = verificationRepository.getVerificationNumber(requestId);
 
         // requestId에 대한 검증 번호가 존재하는지 확인
         if (verificationNumber == null) {
@@ -58,23 +62,32 @@ public class AuthService {
 
     }
 
-    // 구현 필요
-    public UserDto signIn(String phoneNumber, String requestId) {
-        return null;
+    @Transactional
+    public UserDto signUp(SignupRequestDto signupRequestDto) {
+        String phoneNumber = signupRequestDto.getPhoneNumber();
+        String userName = signupRequestDto.getUserName();
+        String requestId = signupRequestDto.getRequestId();
+
+        User user = User.builder()
+                .phoneNumber(phoneNumber)
+                .userName(userName)
+                .requestId(requestId)
+                .userRole(UserRole.ADMIN) // 수정필요
+                .build();
+
+        userRepository.save(user);
+
+        return UserDto.of(user);
     }
 
     @Transactional
-    public UserDto signUp(SignUpRequestDto signUpRequestDto) {
-        String phoneNumber = signUpRequestDto.getPhoneNumber();
-        String userName = signUpRequestDto.getUserName();
-        String requestId = signUpRequestDto.getRequestId();
+    public UserDto login(LoginRequestDto loginRequestDto) {
+        String phoneNumber = loginRequestDto.getPhoneNumber();
 
-        User user = new User(phoneNumber, userName, requestId);
-        userRepository.save(user);
-
-        UserDto userDto = UserDto.toDto(user);
-
-        return userDto;
+        User user = userRepository.findByPhoneNumber(phoneNumber).orElseThrow(
+                () -> new UserNotFoundException("사용자가 없음")
+        );
+        return UserDto.of(user);// user객체를 dto에 담아서 반환
     }
 
     // 사용자 가입 여부 조회

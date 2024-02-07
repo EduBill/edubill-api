@@ -19,7 +19,7 @@ public class User extends BaseEntity{
     @Column(name = "user_name", nullable = false)
     private String userName;
 
-    @Column(name = "phone_number", nullable = false)
+    @Column(name = "phone_number", nullable = false, unique = true)
     private String phoneNumber;
 
     @Column(name = "user_role")
@@ -38,11 +38,12 @@ public class User extends BaseEntity{
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Academy> academies = new ArrayList<>();
 
-
-    public User(String phoneNumber,String userName, String requestId) {
+    @Builder
+    public User(String phoneNumber,String userName, String requestId, UserRole userRole) {
         this.phoneNumber = phoneNumber;
         this.userName = userName;
         this.authInfo = new AuthInfo(requestId);
+        this.userRole = userRole;
     }
 
     public void updateUserName(String userName) {

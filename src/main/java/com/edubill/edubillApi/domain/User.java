@@ -22,7 +22,7 @@ public class User extends BaseEntity{
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
-    @Column(name = "user_role", nullable = false)
+    @Column(name = "user_role")
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
@@ -39,10 +39,9 @@ public class User extends BaseEntity{
     private List<Academy> academies = new ArrayList<>();
 
 
-    public User(String phoneNumber,String userName, UserRole userRole, String requestId) {
+    public User(String phoneNumber,String userName, String requestId) {
         this.phoneNumber = phoneNumber;
         this.userName = userName;
-        this.userRole = userRole;
         this.authInfo = new AuthInfo(requestId);
     }
 

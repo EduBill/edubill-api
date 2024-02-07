@@ -9,11 +9,11 @@ public class HashMapVerificationRepository implements VerificationRepository{
     private final HashMap<String, String> verificationMap = new HashMap<>();
 
     @Override
-    public void put(String key, String value) {
+    public void setVerificationNumber(String key, String value) {
         verificationMap.put(key, value);
     }
     @Override
-    public String get(String key) {
+    public String getVerificationNumber(String key) {
         return verificationMap.get(key);
     }
 

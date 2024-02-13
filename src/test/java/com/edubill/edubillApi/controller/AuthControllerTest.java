@@ -1,6 +1,6 @@
 package com.edubill.edubillApi.controller;
 
-import com.edubill.edubillApi.dto.verification.ExistUserRequestDto;
+import com.edubill.edubillApi.dto.user.ExistUserRequestDto;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -8,8 +8,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 
 import java.util.*;
 

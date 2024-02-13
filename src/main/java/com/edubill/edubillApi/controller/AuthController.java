@@ -4,14 +4,14 @@ import com.edubill.edubillApi.domain.UserRole;
 import com.edubill.edubillApi.dto.user.LoginRequestDto;
 import com.edubill.edubillApi.dto.user.SignupRequestDto;
 import com.edubill.edubillApi.dto.user.UserDto;
-import com.edubill.edubillApi.dto.verification.ExistUserRequestDto;
+import com.edubill.edubillApi.dto.user.ExistUserRequestDto;
 import com.edubill.edubillApi.dto.verification.VerificationRequestDto;
 import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
 import com.edubill.edubillApi.exception.UserAlreadyExistsException;
 
 import com.edubill.edubillApi.jwt.JwtProvider;
 import com.edubill.edubillApi.jwt.JwtToken;
-import com.edubill.edubillApi.service.AuthService;
+import com.edubill.edubillApi.service.AuthServiceImpl;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,17 +24,17 @@ import java.util.NoSuchElementException;
 
 @Slf4j
 @RestController
-@RequestMapping("/v1/auth/api")
+@RequestMapping("/v1/auth/")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final JwtProvider jwtProvider;
-    private final AuthService authService;
+    private final AuthServiceImpl authServiceImpl;
 
     // 인증번호 발송 API
     @PostMapping("/send-verification-number")
     public ResponseEntity<VerificationResponseDto> sendVerificationNumber(@RequestBody String phoneNumber) {
-        VerificationResponseDto verificationResponseDto = authService.sendVerificationNumber(phoneNumber);
+        VerificationResponseDto verificationResponseDto = authServiceImpl.sendVerificationNumber(phoneNumber);
         return new ResponseEntity<>(verificationResponseDto, HttpStatus.OK);
 
     }
@@ -47,12 +47,13 @@ public class AuthController {
         String requestId = verificationRequestDto.getRequestId();
 
         try {
-            String message = authService.verifyNumber(verificationNumber, requestId);
-            log.info("message={}", message);
+            authServiceImpl.verifyNumber(verificationNumber, requestId);
         } catch (NoSuchElementException e) {
-            log.error("요청에 해당하는 정보가 없습니다. ={}", e.getMessage());
+            log.error("인증번호 존재하지 않음={}", e.getMessage());
+            return new ResponseEntity<>(requestId, HttpStatus.NOT_FOUND);// 에러코드 수정 필요
         } catch (IllegalArgumentException e) {
-            log.error("인증번호가 일치하지 않습니다. ={}", e.getMessage());
+            log.error("인증번호 불일치={}", e.getMessage());
+            return new ResponseEntity<>(requestId, HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(requestId, HttpStatus.OK);
     }
@@ -65,16 +66,16 @@ public class AuthController {
         String requestId = existUserRequestDto.getRequestId();
         log.info("request_id = {}", requestId);
 
-        if (authService.isExistsUser(phoneNumber)) {
+        if (authServiceImpl.isExistsUser(phoneNumber)) {
             throw new UserAlreadyExistsException("이미 존재하는 회원.");
         }
-        return new ResponseEntity<>(authService.isExistsUser(phoneNumber), HttpStatus.OK);
+        return new ResponseEntity<>(authServiceImpl.isExistsUser(phoneNumber), HttpStatus.OK);
     }
 
     // 회원가입 API
     @PostMapping("/signup")
     public ResponseEntity<UserDto> signUp(@Validated @RequestBody SignupRequestDto signupRequestDto) {
-        UserDto signupUser = authService.signUp(signupRequestDto);
+        UserDto signupUser = authServiceImpl.signUp(signupRequestDto);
 
         return new ResponseEntity<>(signupUser, HttpStatus.OK);
     }
@@ -83,8 +84,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<JwtToken> login(@Validated @RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
 
-        UserDto loginUser = authService.login(loginRequestDto);
-        UserRole userRole = UserRole.ADMIN; // 수정필요
+        UserDto loginUser = authServiceImpl.login(loginRequestDto);
+        UserRole userRole = UserRole.ACADEMY; // 수정필요
 
         JwtToken token = jwtProvider.createTokenByLogin(loginUser.getPhoneNumber(), userRole);
 

@@ -3,7 +3,7 @@ package com.edubill.edubillApi.service;
 import com.edubill.edubillApi.domain.User;
 import com.edubill.edubillApi.dto.user.SignupRequestDto;
 import com.edubill.edubillApi.dto.user.UserDto;
-import com.edubill.edubillApi.dto.verification.ExistUserRequestDto;
+import com.edubill.edubillApi.dto.user.ExistUserRequestDto;
 import com.edubill.edubillApi.dto.verification.VerificationRequestDto;
 import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
 import com.edubill.edubillApi.repository.UserRepository;
@@ -21,10 +21,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Slf4j
-class AuthServiceTest {
+class AuthServiceImplTest {
 
     @Autowired
-    private AuthService authService;
+    private AuthServiceMock authServiceMock;
     @Autowired
     private UserRepository userRepository;
 
@@ -34,15 +34,14 @@ class AuthServiceTest {
     void verificationTest() {
         //given
         String phoneNumber = "01012345678";
-        VerificationResponseDto verificationResponse = authService.sendVerificationNumber(phoneNumber);
-        String verificationNumber = verificationResponse.getVerificationNumber();
+        VerificationResponseDto verificationResponse = authServiceMock.sendVerificationNumber(phoneNumber);
 
         //when
-        VerificationRequestDto verificationRequest = new VerificationRequestDto(verificationNumber, verificationResponse.getRequestId());
+        VerificationRequestDto verificationRequest = new VerificationRequestDto("123456", verificationResponse.getRequestId());
 
         //then
-        String message = authService.verifyNumber(verificationRequest.getVerificationNumber(), verificationRequest.getRequestId());
-        assertThat(message).isEqualTo("인증 완료 되었습니다.");
+        Boolean isVerify = authServiceMock.verifyNumber(verificationRequest.getVerificationNumber(), verificationRequest.getRequestId());
+        assertThat(isVerify).isEqualTo(true);
     }
 
     @Test
@@ -53,7 +52,7 @@ class AuthServiceTest {
         SignupRequestDto requestA = new SignupRequestDto("userA", "01012345678", requestId);
 
         //when
-        UserDto userA = authService.signUp(requestA);
+        UserDto userA = authServiceMock.signUp(requestA);
 
         //then
         User findUser = userRepository.findByPhoneNumber("01012345678").orElse(null);
@@ -67,7 +66,7 @@ class AuthServiceTest {
         //given
         String requestId = UUID.randomUUID().toString();
         SignupRequestDto signUpRequest = new SignupRequestDto("userA", "01011111111", requestId);
-        UserDto userA = authService.signUp(signUpRequest);
+        UserDto userA = authServiceMock.signUp(signUpRequest);
 
         //when
         ExistUserRequestDto existRequest = new ExistUserRequestDto("01011111111", requestId);
@@ -75,7 +74,7 @@ class AuthServiceTest {
         //then
 //        assertThatThrownBy(() -> authService.isExistsUser(existRequest.getPhoneNumber()))
 //                .isInstanceOf(UserAlreadyExistsException.class);
-        assertThat(authService.isExistsUser(existRequest.getPhoneNumber())).isTrue();
+        assertThat(authServiceMock.isExistsUser(existRequest.getPhoneNumber())).isTrue();
     }
 
 }

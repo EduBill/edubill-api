@@ -39,7 +39,7 @@ public class JwtProvider {
     @Value("${jwt.secret.key}")
     private String secretKey;
     private Key key; //HMAC-SHA 키를 생성
-    private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
+    //private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
     private final UserDetailsService userDetailsService;
     private final UserRefreshTokenRepository refreshTokenMap;
 
@@ -60,6 +60,13 @@ public class JwtProvider {
         return null;
     }
 
+    public JwtToken createTokenByLogin(String phoneNumber, UserRole role) {
+        String accessToken = createToken(phoneNumber, role, ACCESS_TOKEN_TIME);
+        String refreshToken = createToken(phoneNumber, role, REFRESH_TOKEN_TIME);
+        refreshTokenMap.setRefreshToken(phoneNumber, refreshToken, REFRESH_TOKEN_TIME);
+        return new JwtToken(accessToken, refreshToken);
+    }
+
     private String createToken(String phoneNumber, UserRole role, Long tokenExpireTime) {
 
         return BEARER_PREFIX + Jwts.builder()
@@ -69,34 +76,6 @@ public class JwtProvider {
                 .setExpiration(new Date(System.currentTimeMillis() + tokenExpireTime))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
-    }
-
-    public JwtToken createTokenByLogin(String phoneNumber, UserRole role) {
-        String accessToken = createToken(phoneNumber, role, ACCESS_TOKEN_TIME);
-        String refreshToken = createToken(phoneNumber, role, REFRESH_TOKEN_TIME);
-        refreshTokenMap.setRefreshToken(phoneNumber, refreshToken, REFRESH_TOKEN_TIME);
-        return new JwtToken(accessToken, refreshToken);
-    }
-
-    //AccessToken 재발행 + refreshToken 함께 발행
-    public JwtToken reissueAccessToken(String phoneNumber, UserRole role, String reToken) {
-        // 저장된 refresh token을 가져와서 입력된 reToken 같은지 유무 확인
-        if (!refreshTokenMap.getRefreshToken(phoneNumber).equals(reToken)) {
-            throw new RefreshTokenInvalidException("refresh token이 일치하지 않음");
-        }
-        String accessToken = createToken(phoneNumber, role, ACCESS_TOKEN_TIME);
-        String refreshToken = createToken(phoneNumber, role, REFRESH_TOKEN_TIME);
-        refreshTokenMap.setRefreshToken(phoneNumber, refreshToken, REFRESH_TOKEN_TIME);
-        return new JwtToken(accessToken, refreshToken);
-    }
-
-    public Claims getUserInfoFromToken(String token) {
-        return Jwts
-                .parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
     }
 
     public boolean validateToken(String token) {
@@ -117,17 +96,39 @@ public class JwtProvider {
         return false;
     }
 
+    public Claims getUserInfoFromToken(String token) {
+        return Jwts
+                .parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    // role 제거 후 테스트 필요
+    public Authentication createUserAuthentication(String phoneNumber) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(phoneNumber);
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    }
+
+    //AccessToken 재발행 + refreshToken 함께 발행
+    public JwtToken reissueAccessToken(String phoneNumber, UserRole role, String reToken) {
+        // 저장된 refresh token을 가져와서 입력된 reToken 같은지 유무 확인
+        if (!refreshTokenMap.getRefreshToken(phoneNumber).equals(reToken)) {
+            throw new RefreshTokenInvalidException("refresh token이 일치하지 않음");
+        }
+        String accessToken = createToken(phoneNumber, role, ACCESS_TOKEN_TIME);
+        String refreshToken = createToken(phoneNumber, role, REFRESH_TOKEN_TIME);
+        refreshTokenMap.setRefreshToken(phoneNumber, refreshToken, REFRESH_TOKEN_TIME);
+        return new JwtToken(accessToken, refreshToken);
+    }
+
     public Long getExpiration(String accessToken) {
         //access token 만료시간
         Date expiration = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody().getExpiration();
         //현재시간
         long now = new Date().getTime();
         return (expiration.getTime() - now);
-    }
-
-    public Authentication createUserAuthentication(String phoneNumber) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(phoneNumber);
-        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 
 }

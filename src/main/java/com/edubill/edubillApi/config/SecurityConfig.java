@@ -1,7 +1,7 @@
 package com.edubill.edubillApi.config;
 
-import com.edubill.edubillApi.exception.CustomAccessDeniedHandler;
-import com.edubill.edubillApi.exception.CustomAuthenticationEntryPoint;
+import com.edubill.edubillApi.exception.AccessDeniedHandlerCustom;
+import com.edubill.edubillApi.exception.AuthenticationEntryPointCustom;
 import com.edubill.edubillApi.repository.UserRefreshTokenRepository;
 import com.edubill.edubillApi.jwt.JwtAuthFilter;
 import com.edubill.edubillApi.jwt.JwtProvider;
@@ -9,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
@@ -30,14 +28,14 @@ public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
     private final UserRefreshTokenRepository refreshTokenMap;
-    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
-    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final AuthenticationEntryPointCustom authenticationEntryPointCustom;
+    private final AccessDeniedHandlerCustom accessDeniedHandlerCustom;
 
 
-    @Bean
-    public PasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+//    @Bean
+//    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -61,8 +59,8 @@ public class SecurityConfig {
 
         http.
                 exceptionHandling(authenticationManager-> authenticationManager
-                        .authenticationEntryPoint(customAuthenticationEntryPoint) // 401 Error 처리, 인증과정에서 실패할 시 처리
-                        .accessDeniedHandler(customAccessDeniedHandler)); // 403 Error 처리, 인증과는 별개로 추가적인 권한이 충족되지 않는 경우
+                        .authenticationEntryPoint(authenticationEntryPointCustom) // 401 Error 처리, 인증과정에서 실패할 시 처리
+                        .accessDeniedHandler(accessDeniedHandlerCustom)); // 403 Error 처리, 인증과는 별개로 추가적인 권한이 충족되지 않는 경우
 
         http
                 .addFilterBefore(new JwtAuthFilter(refreshTokenMap, jwtProvider), UsernamePasswordAuthenticationFilter.class);

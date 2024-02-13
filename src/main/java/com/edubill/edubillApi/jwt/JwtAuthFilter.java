@@ -45,7 +45,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             // 검증 후 인증 객체 생성하여 securityContextHolder에서 관리
             Claims userInfo = jwtProvider.getUserInfoFromToken(accessToken);
             String phoneNumber = userInfo.getSubject();
-            setAuthentication(phoneNumber);//subject = phoneNumber
+            setAuthentication(phoneNumber);
         }
         filterChain.doFilter(request,response);
     }
@@ -63,7 +63,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         response.setContentType("application/json");
         try {
             String json = new ObjectMapper().writeValueAsString(new SecurityExceptionDto(statusCode, message));
-            //, ObjectMapper를 사용하여 SecurityExceptionDto 객체를 JSON 문자열로 변환
+            // ObjectMapper를 사용하여 SecurityExceptionDto 객체를 JSON 문자열로 변환
             response.getWriter().write(json); //JSON 문자열을 응답으로 작성
         } catch (Exception e) {
             log.error(e.getMessage());

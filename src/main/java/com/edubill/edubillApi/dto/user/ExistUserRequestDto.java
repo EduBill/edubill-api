@@ -1,4 +1,4 @@
-package com.edubill.edubillApi.dto.verification;
+package com.edubill.edubillApi.dto.user;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;

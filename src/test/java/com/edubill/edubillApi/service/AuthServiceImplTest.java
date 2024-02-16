@@ -12,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -21,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Slf4j
+@Transactional
 class AuthServiceImplTest {
 
     @Autowired
@@ -65,9 +67,10 @@ class AuthServiceImplTest {
     void signUpDuplicateTest() {
         //given
         String requestId = UUID.randomUUID().toString();
-        SignupRequestDto signUpRequest = new SignupRequestDto("userA", "01011111111", requestId);
-        UserDto userA = authServiceMock.signUp(signUpRequest);
+        SignupRequestDto signUpRequest = new SignupRequestDto("userB", "01011111111", requestId);
+        UserDto userB = authServiceMock.signUp(signUpRequest);
 
+        // 새로운 회원 가입 전에 /exists/user 엔드포인트를 무조건 거쳐야함
         //when
         ExistUserRequestDto existRequest = new ExistUserRequestDto("01011111111", requestId);
 

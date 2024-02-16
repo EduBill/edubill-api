@@ -2,7 +2,6 @@ package com.edubill.edubillApi.config;
 
 import com.edubill.edubillApi.exception.AccessDeniedHandlerCustom;
 import com.edubill.edubillApi.exception.AuthenticationEntryPointCustom;
-import com.edubill.edubillApi.repository.UserRefreshTokenRepository;
 import com.edubill.edubillApi.jwt.JwtAuthFilter;
 import com.edubill.edubillApi.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +15,6 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -27,15 +24,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
-    private final UserRefreshTokenRepository refreshTokenMap;
     private final AuthenticationEntryPointCustom authenticationEntryPointCustom;
     private final AccessDeniedHandlerCustom accessDeniedHandlerCustom;
 
-
-//    @Bean
-//    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -54,7 +45,7 @@ public class SecurityConfig {
         //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/","/v1/auth/**","/v1/auth/api/signup","/v1/auth/api/login").permitAll()
+                        .requestMatchers("/","/v1/auth/**","/v1/auth/signup","/v1/auth/login").permitAll()
                         .anyRequest().authenticated());
 
         http.
@@ -63,7 +54,7 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandlerCustom)); // 403 Error 처리, 인증과는 별개로 추가적인 권한이 충족되지 않는 경우
 
         http
-                .addFilterBefore(new JwtAuthFilter(refreshTokenMap, jwtProvider), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

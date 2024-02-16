@@ -11,6 +11,4 @@ import lombok.RequiredArgsConstructor;
 public class JwtToken {
 
     private final String accessToken;
-    private final String refreshToken;
-
 }

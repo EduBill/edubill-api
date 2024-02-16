@@ -24,7 +24,7 @@ import java.util.NoSuchElementException;
 
 @Slf4j
 @RestController
-@RequestMapping("/v1/auth/")
+@RequestMapping("/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -32,7 +32,7 @@ public class AuthController {
     private final AuthServiceImpl authServiceImpl;
 
     // 인증번호 발송 API
-    @PostMapping("/send-verification-number")
+    @PostMapping("/send/verification/number")
     public ResponseEntity<VerificationResponseDto> sendVerificationNumber(@RequestBody String phoneNumber) {
         VerificationResponseDto verificationResponseDto = authServiceImpl.sendVerificationNumber(phoneNumber);
         return new ResponseEntity<>(verificationResponseDto, HttpStatus.OK);
@@ -40,7 +40,7 @@ public class AuthController {
     }
 
     // 인증번호 확인 API
-    @PostMapping("/verifyNumber")
+    @PostMapping("/verify/number")
     public ResponseEntity<String> verifyNumber(@Validated @RequestBody VerificationRequestDto verificationRequestDto) {
 
         String verificationNumber = verificationRequestDto.getVerificationNumber();
@@ -59,7 +59,7 @@ public class AuthController {
     }
 
     // 사용자 유무 확인 API
-    @PostMapping("/exists-user")
+    @PostMapping("/exists/user")
     public ResponseEntity<Boolean> isExistsUser(@Validated @RequestBody ExistUserRequestDto existUserRequestDto) {
 
         String phoneNumber = existUserRequestDto.getPhoneNumber();
@@ -86,9 +86,7 @@ public class AuthController {
 
         UserDto loginUser = authServiceImpl.login(loginRequestDto);
         UserRole userRole = UserRole.ACADEMY; // 수정필요
-
         JwtToken token = jwtProvider.createTokenByLogin(loginUser.getPhoneNumber(), userRole);
-
         response.addHeader(JwtProvider.AUTHORIZATION_HEADER, token.getAccessToken());// 헤더에 access token 만 싣기
 
         return new ResponseEntity<>(token, HttpStatus.OK);

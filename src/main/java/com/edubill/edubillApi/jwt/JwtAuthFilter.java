@@ -1,7 +1,7 @@
 package com.edubill.edubillApi.jwt;
 
 import com.edubill.edubillApi.dto.SecurityExceptionDto;
-import com.edubill.edubillApi.repository.UserRefreshTokenRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -22,7 +22,6 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-    private final UserRefreshTokenRepository refreshTokenMap;
     private final JwtProvider jwtProvider;
 
     @Override
@@ -31,15 +30,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String accessToken = jwtProvider.resolveToken(request);
 
         if (accessToken != null) {
-            String blackList = refreshTokenMap.getBlackList(accessToken); //?
-            if (blackList != null) {
-                if (blackList.equals("logout")) {
-                    throw new IllegalArgumentException("다시 로그인 해야함.");
-                }
-            }
-            if(!jwtProvider.validateToken(accessToken)){
-                response.sendError(401, "만료되었습니다.");
-                jwtExceptionHandler(response,"401", HttpStatus.BAD_REQUEST.value());
+            if (!jwtProvider.validateToken(accessToken)) {
+                jwtExceptionHandler(response, "AccessToken이 유효하지 않습니다.", HttpStatus.UNAUTHORIZED.value());
                 return;
             }
             // 검증 후 인증 객체 생성하여 securityContextHolder에서 관리
@@ -47,7 +39,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String phoneNumber = userInfo.getSubject();
             setAuthentication(phoneNumber);
         }
-        filterChain.doFilter(request,response);
+        filterChain.doFilter(request, response);
     }
 
     //세션에 사용자 등록
@@ -61,12 +53,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     public void jwtExceptionHandler(HttpServletResponse response, String message, int statusCode) {
         response.setStatus(statusCode);
         response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
         try {
-            String json = new ObjectMapper().writeValueAsString(new SecurityExceptionDto(statusCode, message));
-            // ObjectMapper를 사용하여 SecurityExceptionDto 객체를 JSON 문자열로 변환
-            response.getWriter().write(json); //JSON 문자열을 응답으로 작성
-        } catch (Exception e) {
-            log.error(e.getMessage());
+            // ObjectMapper를 사용하여 SecurityExceptionDto 객체를 json 문자열로 변환
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(new SecurityExceptionDto(message,statusCode));
+            response.getWriter().write(json); //json 문자열을 응답으로 작성
+        } catch (IOException e) {
+            throw new RuntimeException("Error while processing JSON", e);
         }
     }
 }

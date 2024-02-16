@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SecurityExceptionDto {
 
-    private int statusCode;
     private String message;
+    private int statusCode;
 
 }

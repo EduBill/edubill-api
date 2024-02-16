@@ -16,6 +16,7 @@ public class UserDto implements Serializable {
     private Long userId;
     private String userName;
     private String phoneNumber;
+    private UserRole userRole;
 
 
     // of 메서드를 통해 유저 객체를 DTO에 담아 반환
@@ -23,7 +24,8 @@ public class UserDto implements Serializable {
         return new UserDto(
                 user.getUserId(),
                 user.getUserName(),
-                user.getPhoneNumber()
+                user.getPhoneNumber(),
+                user.getUserRole()
         );
     }
 }

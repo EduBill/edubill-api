@@ -57,7 +57,7 @@ public interface AuthService {
         return UserDto.of(user);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     default UserDto login(LoginRequestDto loginRequestDto) {
         UserRepository userRepository = getUserRepository();
 

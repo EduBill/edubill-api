@@ -4,6 +4,7 @@ import com.edubill.edubillApi.domain.UserRole;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -82,8 +83,14 @@ public class JwtProvider {
                     .parseClaimsJws(token);
 
             return true;
-        } catch (SecurityException | MalformedJwtException | UnsupportedJwtException e) {
-            log.error("Invalid JWT token, 만료된 jwt 토큰 입니다.");
+
+        // 상위 클래스인 SecurityException을 연결하는 io.jsonwebtoken.SignatureException 는 deprecated 되어 사용 불가
+        } catch (SignatureException e) {
+            log.error("Invalid JWT signature, signature 가 유효하지 않은 토큰 입니다.");
+        } catch (MalformedJwtException | UnsupportedJwtException e) {
+            log.error("Invalid JWT token, 유효하지 않은 jwt 토큰 입니다.");
+        } catch (ExpiredJwtException e) {
+            log.error("Expired JWT token. 만료된 jwt 토큰 입니다.");
         } catch (IllegalArgumentException e) {
             log.error("JWT claims is empty, 잘못된 JWT 토큰 입니다.");
         }

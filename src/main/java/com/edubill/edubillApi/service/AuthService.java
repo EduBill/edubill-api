@@ -21,20 +21,14 @@ public interface AuthService {
 
     VerificationResponseDto sendVerificationNumber(String phoneNumber);
 
-    default Boolean verifyNumber(String InputNumber, String requestId) {
+    default void verifyNumber(String InputNumber, String requestId) {
         VerificationRepository verificationRepository = getVerificationRepository();
 
         String verificationNumber = verificationRepository.getVerificationNumber(requestId);
-        // requestId에 대한 검증 번호가 존재하는지 확인
-        if (verificationNumber == null) {
-            throw new NoSuchElementException("해당요청에 대한 인증번호가 존재하지 않습니다. : " + requestId);
-        }
         // 6자리 코드 같을 경우 인증
-        boolean isTrue = verificationNumber.equals(InputNumber);
-        if (!isTrue) {
+        if (!verificationNumber.equals(InputNumber)) {
             throw new IllegalArgumentException("인증번호가 일치하지 않습니다. (InputNumber: " + InputNumber + ")");
         }
-        return isTrue;
     }
 
     @Transactional
@@ -71,7 +65,6 @@ public interface AuthService {
     // 사용자 가입 여부 조회
     default Boolean isExistsUser(String phoneNumber) {
         UserRepository userRepository = getUserRepository();
-
         return userRepository.existsByPhoneNumber(phoneNumber);
     }
 }

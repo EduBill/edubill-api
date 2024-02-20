@@ -10,6 +10,9 @@ import lombok.*;
 @AllArgsConstructor
 public class SignupRequestDto {
 
+    @NotNull(message = "고유요청은 필수입니다.")
+    private String requestId;
+
     @NotNull(message = "유저 이름은 필수입니다.")
     private String userName;
 
@@ -17,8 +20,6 @@ public class SignupRequestDto {
     @Pattern(regexp =  "^01(?:0|1|[6-9])(\\d{3,4})(\\d{4})$",message = "휴대폰 번호의 양식과 맞지 않습니다.")
     private String phoneNumber;
 
-    @NotNull(message = "고유요청은 필수입니다.")
-    private String requestId;
 
 //    @NotNull(message = "권한 입력은 필수입니다.")
 //    private UserRole userRole;

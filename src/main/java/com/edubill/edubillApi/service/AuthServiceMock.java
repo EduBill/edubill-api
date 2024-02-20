@@ -11,6 +11,7 @@ import com.edubill.edubillApi.repository.UserRepository;
 import com.edubill.edubillApi.repository.VerificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,7 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Qualifier("authServiceMock")
 public class AuthServiceMock implements AuthService {
 
     private final UserRepository userRepository;
@@ -43,6 +45,6 @@ public class AuthServiceMock implements AuthService {
 
         verificationRepository.setVerificationNumber(requestId, verificationNumber);
 
-        return new VerificationResponseDto(verificationNumber, requestId);
+        return new VerificationResponseDto(requestId,verificationNumber);
     }
 }

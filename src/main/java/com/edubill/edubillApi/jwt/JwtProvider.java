@@ -75,7 +75,7 @@ public class JwtProvider {
 
     public boolean validateToken(String token) {
         try {
-            // 주어진 토큰을 파싱하기 위해 JWT 파서를 설정하고, 서명 키를 설정한 뒤, 토큰을 파싱하여 JWT 서명 검사를 수행합니다.
+            // 주어진 토큰을 파싱하기 위해 JWT 파서를 설정하고, 서명 키를 설정한 뒤, 토큰을 파싱하여 JWT 서명 검사를 수행
             Jwts
                     .parserBuilder()
                     .setSigningKey(key)

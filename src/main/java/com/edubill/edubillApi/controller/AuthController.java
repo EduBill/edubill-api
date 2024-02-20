@@ -53,13 +53,11 @@ public class AuthController {
         String requestId = verificationRequestDto.getRequestId();
         String verificationNumber = verificationRequestDto.getVerificationNumber();
 
-        try {
-            authService.verifyNumber(verificationNumber, requestId);
-        } catch (IllegalArgumentException e) {
-            log.error("인증번호 불일치={}", e.getMessage());
-            return new ResponseEntity<>(requestId, HttpStatus.BAD_REQUEST);
+        Boolean validNumber = authService.verifyNumber(requestId, verificationNumber);
+        if (validNumber) {
+            return ResponseEntity.ok(requestId);
         }
-        return ResponseEntity.ok(requestId);
+        return new ResponseEntity<>(requestId, HttpStatus.BAD_REQUEST);
     }
 
     // 사용자 유무 확인 API

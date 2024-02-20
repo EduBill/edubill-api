@@ -21,14 +21,12 @@ public interface AuthService {
 
     VerificationResponseDto sendVerificationNumber(String phoneNumber);
 
-    default void verifyNumber(String InputNumber, String requestId) {
+    default Boolean verifyNumber(String requestId, String InputNumber) {
         VerificationRepository verificationRepository = getVerificationRepository();
 
         String verificationNumber = verificationRepository.getVerificationNumber(requestId);
         // 6자리 코드 같을 경우 인증
-        if (!verificationNumber.equals(InputNumber)) {
-            throw new IllegalArgumentException("인증번호가 일치하지 않습니다. (InputNumber: " + InputNumber + ")");
-        }
+        return verificationNumber.equals(InputNumber);
     }
 
     @Transactional

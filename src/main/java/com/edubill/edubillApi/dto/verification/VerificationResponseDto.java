@@ -7,7 +7,6 @@ import lombok.Getter;
 @Getter
 public class VerificationResponseDto {
 
-    private String verificationNumber; //인증번호
     private String requestId; //unique request
-
+    private String verificationNumber; //인증번호
 }

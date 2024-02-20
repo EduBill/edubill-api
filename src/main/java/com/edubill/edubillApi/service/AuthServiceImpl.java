@@ -1,12 +1,6 @@
 package com.edubill.edubillApi.service;
 
-import com.edubill.edubillApi.domain.User;
-import com.edubill.edubillApi.domain.UserRole;
-import com.edubill.edubillApi.dto.user.LoginRequestDto;
-import com.edubill.edubillApi.dto.user.SignupRequestDto;
-import com.edubill.edubillApi.dto.user.UserDto;
 import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
-import com.edubill.edubillApi.exception.UserNotFoundException;
 import com.edubill.edubillApi.repository.UserRepository;
 import com.edubill.edubillApi.repository.VerificationRepository;
 import lombok.RequiredArgsConstructor;

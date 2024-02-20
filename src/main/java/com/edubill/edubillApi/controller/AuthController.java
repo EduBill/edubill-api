@@ -7,7 +7,6 @@ import com.edubill.edubillApi.dto.user.UserDto;
 import com.edubill.edubillApi.dto.user.ExistUserRequestDto;
 import com.edubill.edubillApi.dto.verification.VerificationRequestDto;
 import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
-import com.edubill.edubillApi.exception.UserAlreadyExistsException;
 
 import com.edubill.edubillApi.jwt.JwtProvider;
 import com.edubill.edubillApi.jwt.JwtToken;
@@ -22,7 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.NoSuchElementException;
 
 @Slf4j
 @RestController
@@ -86,9 +84,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<JwtToken> login(@Validated @RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
 
-        UserDto loginUser = authService.login(loginRequestDto);
-        UserRole userRole = UserRole.ACADEMY; // 수정필요
-        JwtToken token = jwtProvider.createTokenByLogin(loginUser.getPhoneNumber(), userRole);
+        UserDto userDto = authService.login(loginRequestDto);
+        JwtToken token = jwtProvider.createTokenByLogin(userDto.getPhoneNumber(), userDto.getUserRole());
         response.addHeader(JwtProvider.AUTHORIZATION_HEADER, token.getAccessToken());// 헤더에 access token 만 싣기
 
         return ResponseEntity.ok(token);

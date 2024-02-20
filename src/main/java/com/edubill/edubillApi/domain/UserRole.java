@@ -10,6 +10,7 @@ import java.util.Arrays;
 public enum UserRole {
 
     PARENTS("ROLE_PARENTS", "학부모 권한"),
+    STUDENT("ROLE_STUDENT", "학생 권한"),
     ACADEMY("ROLE_ACADEMY", "학원 권한"),
     ADMIN("ROLE_ADMIN", "관리자 권한");
 

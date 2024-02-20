@@ -49,7 +49,7 @@ public class SecurityConfigTest {
     @DisplayName("회원가입 테스트")
     void signupTest() throws Exception {
         // given
-        SignupRequestDto signupRequestDto = new SignupRequestDto("jaehak", "01087329001", "dfsdfsdf");
+        SignupRequestDto signupRequestDto = new SignupRequestDto("dfsdfsdf", "jaehak", "01087329001");
 
         // when
         mockMvc.perform(MockMvcRequestBuilders.post("/v1/auth/signup")
@@ -72,7 +72,7 @@ public class SecurityConfigTest {
 
         //== generateToken==//
         // given
-        LoginRequestDto loginRequestDto = new LoginRequestDto("01087329001", "dfsdfsdf");
+        LoginRequestDto loginRequestDto = new LoginRequestDto("dfsdfsdf", "01087329001");
 
         // when
         ResultActions result = mockMvc.perform(MockMvcRequestBuilders.post("/v1/auth/login")

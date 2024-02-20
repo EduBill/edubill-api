@@ -36,7 +36,7 @@ public class AuthController {
     }
 
     // 인증번호 발송 API
-    @PostMapping("/send/verification/number")
+    @PostMapping("/phone")
     public ResponseEntity<VerificationResponseDto> sendVerificationNumber(@RequestBody String phoneNumber) {
         VerificationResponseDto verificationResponseDto = authService.sendVerificationNumber(phoneNumber);
 
@@ -45,7 +45,7 @@ public class AuthController {
     }
 
     // 인증번호 확인 API
-    @PostMapping("/verify/number")
+    @PostMapping("/verify")
     public ResponseEntity<String> verifyNumber(@Validated @RequestBody VerificationRequestDto verificationRequestDto) {
 
         String requestId = verificationRequestDto.getRequestId();
@@ -84,8 +84,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<JwtToken> login(@Validated @RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
 
-        UserDto userDto = authService.login(loginRequestDto);
-        JwtToken token = jwtProvider.createTokenByLogin(userDto.getPhoneNumber(), userDto.getUserRole());
+        UserDto loginUser = authService.login(loginRequestDto);
+        JwtToken token = jwtProvider.createTokenByLogin(loginUser.getPhoneNumber(), loginUser.getUserRole());
         response.addHeader(JwtProvider.AUTHORIZATION_HEADER, token.getAccessToken());// 헤더에 access token 만 싣기
 
         return ResponseEntity.ok(token);

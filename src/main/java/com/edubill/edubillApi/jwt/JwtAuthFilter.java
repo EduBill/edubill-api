@@ -1,7 +1,6 @@
 package com.edubill.edubillApi.jwt;
 
 import com.edubill.edubillApi.dto.SecurityExceptionDto;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;

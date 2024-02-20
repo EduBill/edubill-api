@@ -9,6 +9,5 @@ import lombok.RequiredArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @RequiredArgsConstructor
 public class JwtToken {
-
     private final String accessToken;
 }

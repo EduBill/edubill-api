@@ -11,8 +11,6 @@ import com.edubill.edubillApi.repository.UserRepository;
 import com.edubill.edubillApi.repository.VerificationRepository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.NoSuchElementException;
-
 
 public interface AuthService {
     VerificationRepository getVerificationRepository();
@@ -41,7 +39,7 @@ public interface AuthService {
                 .phoneNumber(phoneNumber)
                 .userName(userName)
                 .requestId(requestId)
-                .userRole(UserRole.ADMIN) // 수정필요
+                .userRole(UserRole.ACADEMY) // 수정 필요
                 .build();
 
         userRepository.save(user);

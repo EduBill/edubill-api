@@ -21,16 +21,17 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     protected ResponseEntity<ErrorResponse> illegalExHandle(IllegalArgumentException e) {
-        final ErrorResponse response = ErrorResponse.of(INVALID_INPUT_VALUE);
+        final ErrorResponse response = ErrorResponse.of(INVALID_INPUT_VALUE, e.getMessage());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    // @Validated 에서 binding error 발생 시 (@RequestBody)
+    // @Validated 에서 binding error 발생 시
     @ExceptionHandler
     protected ResponseEntity<ErrorResponse> bindExHandle(BindException e) {
         final ErrorResponse response = ErrorResponse.of(INVALID_INPUT_VALUE, e.getBindingResult());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
+
 
     // 비즈니스 요구사항에 따른 Exception
     @ExceptionHandler

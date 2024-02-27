@@ -1,5 +1,6 @@
-package com.edubill.edubillApi.exception;
+package com.edubill.edubillApi.error.exception;
 
+import com.edubill.edubillApi.error.ErrorCode;
 import lombok.Getter;
 
 @Getter

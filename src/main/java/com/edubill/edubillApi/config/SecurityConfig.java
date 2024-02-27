@@ -1,7 +1,7 @@
 package com.edubill.edubillApi.config;
 
-import com.edubill.edubillApi.exception.AccessDeniedHandlerCustom;
-import com.edubill.edubillApi.exception.AuthenticationEntryPointCustom;
+import com.edubill.edubillApi.error.AccessDeniedHandlerCustom;
+import com.edubill.edubillApi.error.AuthenticationEntryPointCustom;
 import com.edubill.edubillApi.jwt.JwtAuthFilter;
 import com.edubill.edubillApi.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +45,9 @@ public class SecurityConfig {
         //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/","/v1/auth/**","/v1/auth/signup","/v1/auth/login","/error").permitAll()
+                        .requestMatchers("/","/v1/auth/**","/v1/auth/signup","/v1/auth/login","/error",
+                               "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**", "/api-docs/**").permitAll()
+                        // Springdoc-openapi 도입 시, Swagger 리소스로의 접근이 불가능해지기 때문에 이와 관련된 엔드포인트들은 Spring security 로직을 타지 않도록 구성필요
                         .anyRequest().authenticated());
 
         http.

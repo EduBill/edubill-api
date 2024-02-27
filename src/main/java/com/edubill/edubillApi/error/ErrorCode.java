@@ -19,16 +19,16 @@ public enum ErrorCode {
     NEED_LOGIN(401, "U005", "로그인이 필요합니다."),
     AUTHENTICATION_NOT_FOUND(401, "U006", "Security Context에 인증 정보가 없습니다."),
     USER_ALREADY_LOGOUT(400, "U007", "사용자가 이미 로그아웃하였습니다."),
+    INVALID_VERIFY_NUMBER(401,"U008", "인증번호가 일치하지 않습니다."),
 
     // common
-    INTERNAL_SERVER_ERROR(500, "C001", "internal server error"),
-    INVALID_INPUT_VALUE(400, "C002", "invalid input type"),
-    METHOD_NOT_ALLOWED(405, "C003", "method not allowed"),
-    INVALID_TYPE_VALUE(400, "C004", "invalid type value"),
+    INTERNAL_SERVER_ERROR(500, "C001", "서버 오류"),
+    INVALID_INPUT_VALUE(400, "C002", "잘못된 일력 값을 입력하였습니다."),
+    INVALID_TYPE_VALUE(400, "C003", "잘못된 타입을 입력하였습니다."),
     BAD_CREDENTIALS(400, "C005", "bad credentials");
 
 
-    private int status;
+    private final int status;
     private final String code;
     private final String message;
 }

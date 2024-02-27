@@ -1,4 +1,4 @@
-package com.edubill.edubillApi.exception;
+package com.edubill.edubillApi.error;
 
 import com.edubill.edubillApi.dto.SecurityExceptionDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,31 +8,30 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
-import org.springframework.web.ErrorResponse;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class AccessDeniedHandlerCustom implements AccessDeniedHandler {
+public class AuthenticationEntryPointCustom implements AuthenticationEntryPoint {
+
     private final ObjectMapper objectMapper;
-    private static final SecurityExceptionDto exceptionDto
-            = new SecurityExceptionDto("권한이 없는 사용자 요청", HttpStatus.FORBIDDEN.value());
+    private static final SecurityExceptionDto exceptionDto =
+            new SecurityExceptionDto("인증되지 않은 사용자 요청", HttpStatus.UNAUTHORIZED.value());
 
     @Override
-    public void handle(HttpServletRequest request,
-                       HttpServletResponse response,
-                       AccessDeniedException accessDeniedException) throws IOException {
+    public void commence(HttpServletRequest request,
+                         HttpServletResponse response,
+                         AuthenticationException authenticationException) throws IOException {
 
         String json = objectMapper.writeValueAsString(exceptionDto);
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setStatus(HttpStatus.FORBIDDEN.value());
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(json);
     }

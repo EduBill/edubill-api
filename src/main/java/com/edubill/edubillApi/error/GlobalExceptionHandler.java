@@ -2,6 +2,7 @@ package com.edubill.edubillApi.error;
 
 import com.edubill.edubillApi.error.exception.BusinessException;
 
+import com.edubill.edubillApi.error.exception.UserAlreadyExistsException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,6 @@ public class GlobalExceptionHandler {
         final ErrorResponse response = ErrorResponse.of(INVALID_INPUT_VALUE, e.getBindingResult());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
-
 
     // 비즈니스 요구사항에 따른 Exception
     @ExceptionHandler

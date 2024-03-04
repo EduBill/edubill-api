@@ -1,6 +1,7 @@
 package com.edubill.edubillApi.service;
 
 import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
+import com.edubill.edubillApi.repository.RequestIdRepository;
 import com.edubill.edubillApi.repository.UserRepository;
 import com.edubill.edubillApi.repository.VerificationRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,14 +18,19 @@ public class AuthServiceMock implements AuthService {
 
     private final UserRepository userRepository;
     private final VerificationRepository verificationRepository;
+    private final RequestIdRepository requestIdRepository;
 
+    @Override
+    public UserRepository getUserRepository() {
+        return this.userRepository;
+    }
     @Override
     public VerificationRepository getVerificationRepository() {
         return this.verificationRepository;
     }
     @Override
-    public UserRepository getUserRepository() {
-        return this.userRepository;
+    public RequestIdRepository getRequestIdRepository() {
+        return this.requestIdRepository;
     }
 
     // Mock과 구현체가 다른 메서드

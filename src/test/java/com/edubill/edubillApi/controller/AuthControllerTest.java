@@ -1,6 +1,7 @@
 package com.edubill.edubillApi.controller;
 
 import com.edubill.edubillApi.dto.user.ExistUserRequestDto;
+import com.edubill.edubillApi.dto.user.SignupRequestDto;
 import com.edubill.edubillApi.dto.verification.VerificationRequestDto;
 import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
 import com.edubill.edubillApi.service.AuthService;
@@ -23,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @Slf4j
@@ -42,6 +45,7 @@ public class AuthControllerTest {
 
     @Autowired
     private Validator validator;
+
 
     @Test
     @DisplayName("전화번호 유효성 검사")
@@ -74,13 +78,39 @@ public class AuthControllerTest {
         String requestId = verificationResponse.getRequestId();
 
         //when
-        VerificationRequestDto verificationRequest = new VerificationRequestDto(requestId,"123456");
+        VerificationRequestDto verificationRequest = new VerificationRequestDto(requestId,"123456", "01012345678");
 
         //then
-        mockMvc.perform(MockMvcRequestBuilders.post("/v1/auth/verify/number")
+        mockMvc.perform(post("/v1/auth/verify")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(verificationRequest)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string(requestId));
+                .andExpect(status().isOk())
+                .andExpect(content().string(requestId));
+    }
+
+    @Test
+    @DisplayName("requestId 검증")
+    void verifyRequestId() throws Exception {
+        //given
+        String phoneNumber = "01012345678";
+        VerificationResponseDto verificationResponse = authService.sendVerificationNumber(phoneNumber);
+        String requestId = verificationResponse.getRequestId();
+
+        // then
+        // verify
+        VerificationRequestDto verificationRequest = new VerificationRequestDto(requestId, "123456", "01012345678");
+        mockMvc.perform(post("/v1/auth/verify")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(verificationRequest)))
+                .andExpect(status().isOk())
+                .andExpect(content().string(requestId));
+
+        // sign up
+        SignupRequestDto signupRequest = new SignupRequestDto(requestId, "홍길동", "01012345678");
+        mockMvc.perform(post("/v1/auth/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(signupRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userName").value("홍길동"));
     }
 }

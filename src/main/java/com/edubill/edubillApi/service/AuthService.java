@@ -6,15 +6,18 @@ import com.edubill.edubillApi.dto.user.LoginRequestDto;
 import com.edubill.edubillApi.dto.user.SignupRequestDto;
 import com.edubill.edubillApi.dto.user.UserDto;
 import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
+import com.edubill.edubillApi.error.exception.UserAlreadyExistsException;
 import com.edubill.edubillApi.error.exception.UserNotFoundException;
+import com.edubill.edubillApi.repository.RequestIdRepository;
 import com.edubill.edubillApi.repository.UserRepository;
 import com.edubill.edubillApi.repository.VerificationRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 
 public interface AuthService {
-    VerificationRepository getVerificationRepository();
     UserRepository getUserRepository();
+    VerificationRepository getVerificationRepository();
+    RequestIdRepository getRequestIdRepository();
 
 
     VerificationResponseDto sendVerificationNumber(String phoneNumber);
@@ -34,6 +37,11 @@ public interface AuthService {
         String phoneNumber = signupRequestDto.getPhoneNumber();
         String userName = signupRequestDto.getUserName();
         String requestId = signupRequestDto.getRequestId();
+
+        // 사용자가 이미 존재하는지 확인
+        if (userRepository.existsByPhoneNumber(phoneNumber)) {
+            throw new UserAlreadyExistsException("사용자가 이미 존재함");
+        }
 
         User user = User.builder()
                 .phoneNumber(phoneNumber)
@@ -63,4 +71,17 @@ public interface AuthService {
         UserRepository userRepository = getUserRepository();
         return userRepository.existsByPhoneNumber(phoneNumber);
     }
+
+    default void requestIdForPhoneNumber(String phoneNumber, String requestId){
+        RequestIdRepository requestIdRepository = getRequestIdRepository();
+        // 실제로는 redis에 {key : value} = {phoneNumber : requestId} 의 형태로 저장
+        requestIdRepository.setRequestId(phoneNumber, requestId);
+    }
+
+    default Boolean isRequestIdValidForPhoneNumber(String phoneNumber, String clientRequestId){
+        RequestIdRepository requestIdRepository = getRequestIdRepository();
+        String storedRequestId = requestIdRepository.getRequestId(phoneNumber);
+        return clientRequestId.equals(storedRequestId);
+    };
+
 }

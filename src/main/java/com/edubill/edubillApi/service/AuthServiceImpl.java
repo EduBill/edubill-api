@@ -1,6 +1,7 @@
 package com.edubill.edubillApi.service;
 
 import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
+import com.edubill.edubillApi.repository.RequestIdRepository;
 import com.edubill.edubillApi.repository.UserRepository;
 import com.edubill.edubillApi.repository.VerificationRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -22,14 +24,19 @@ public class AuthServiceImpl implements AuthService{
 
     private final UserRepository userRepository;
     private final VerificationRepository verificationRepository;
+    private final RequestIdRepository requestIdRepository;
 
+    @Override
+    public UserRepository getUserRepository() {
+        return this.userRepository;
+    }
     @Override
     public VerificationRepository getVerificationRepository() {
         return this.verificationRepository;
     }
     @Override
-    public UserRepository getUserRepository() {
-        return this.userRepository;
+    public RequestIdRepository getRequestIdRepository() {
+        return this.requestIdRepository;
     }
 
     @Override
@@ -53,10 +60,15 @@ public class AuthServiceImpl implements AuthService{
 
     // 인증번호 생성 (6자리)
     private static String generateRandomNumber() {
-        Random random = new Random();
-        int randomNumber = 100000 + random.nextInt(900000);
+        int randomNumber = ThreadLocalRandom.current().nextInt(100000, 1000000);
         return String.valueOf(randomNumber);
     }
+
+//    private static String generateRandomNumber1() {
+//        Random random = new Random();
+//        int randomNumber = 100000 + random.nextInt(900000);
+//        return String.valueOf(randomNumber);
+//    }
 
     // 휴대폰 번호 형식 체크 메소드
     private boolean isValidPhoneNumber(String phoneNumber) {

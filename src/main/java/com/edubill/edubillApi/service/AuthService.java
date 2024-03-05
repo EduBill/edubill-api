@@ -22,12 +22,12 @@ public interface AuthService {
 
     VerificationResponseDto sendVerificationNumber(String phoneNumber);
 
-    default Boolean verifyNumber(String requestId, String InputNumber) {
+    default Boolean verifyNumber(String requestId, String InputVerificationNumber) {
         VerificationRepository verificationRepository = getVerificationRepository();
 
         String verificationNumber = verificationRepository.getVerificationNumber(requestId);
         // 6자리 코드 같을 경우 인증
-        return verificationNumber.equals(InputNumber);
+        return verificationNumber.equals(InputVerificationNumber);
     }
 
     @Transactional
@@ -43,7 +43,9 @@ public interface AuthService {
             throw new UserAlreadyExistsException("사용자가 이미 존재함");
         }
 
+        // userId 설정 : 01012345678@phone.auth
         User user = User.builder()
+                .userId(phoneNumber + "@phone.auth")
                 .phoneNumber(phoneNumber)
                 .userName(userName)
                 .requestId(requestId)

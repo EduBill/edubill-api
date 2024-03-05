@@ -12,9 +12,9 @@ import java.util.List;
 @Table(name = "USERS")
 public class User extends BaseEntity{
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
     @Column(name = "user_id")
-    private Long userId;
+    private String userId;
 
     @Column(name = "user_name", nullable = false)
     private String userName;
@@ -39,7 +39,8 @@ public class User extends BaseEntity{
     private List<Academy> academies = new ArrayList<>();
 
     @Builder
-    public User(String phoneNumber,String userName, String requestId, UserRole userRole) {
+    public User(String userId, String phoneNumber,String userName, String requestId, UserRole userRole) {
+        this.userId = userId;
         this.phoneNumber = phoneNumber;
         this.userName = userName;
         this.authInfo = new AuthInfo(requestId);

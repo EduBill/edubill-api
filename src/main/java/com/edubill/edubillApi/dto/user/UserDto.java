@@ -16,8 +16,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class UserDto implements Serializable {
 
-    @Schema(description = "userId", type = "Long", example = "1")
-    private Long userId;
+    @Schema(description = "userId", type = "String", example = "01012345678@phone.auth")
+    private String userId;
 
     @Schema(description = "userName", type = "String", example = "홍길동")
     private String userName;

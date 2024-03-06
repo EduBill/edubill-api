@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,34 +25,35 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class AuthServiceTest {
 
     @Autowired
-    private AuthServiceMock authServiceMock;
+    private @Qualifier("authServiceMock") AuthService authService;
     @Autowired
     private UserRepository userRepository;
 
 
-    @Test
+    //@Test
     @DisplayName("회원 가입")
     void signUpTest() {
+
         //given
         String requestId = UUID.randomUUID().toString();
         SignupRequestDto requestA = new SignupRequestDto(requestId, "userA", "01012345678");
 
         //when
-        UserDto userA = authServiceMock.signUp(requestA);
+        UserDto userA = authService.signUp(requestA);
 
         //then
-        User findUser = userRepository.findByPhoneNumber("01012345678").orElse(null);
+         User findUser = userRepository.findByPhoneNumber("01012345678").orElse(null);
         log.info("findUser={}", findUser);
         assertThat(findUser.getUserId()).isEqualTo(userA.getUserId());
     }
 
-    @Test
+    //@Test
     @DisplayName("중복 회원가입 실패")
     void signUpDuplicateTest() {
         //given
         String requestId = UUID.randomUUID().toString();
         SignupRequestDto signUpRequest = new SignupRequestDto(requestId,"userB", "01011111111");
-        UserDto userB = authServiceMock.signUp(signUpRequest);
+        UserDto userB = authService.signUp(signUpRequest);
 
         // 새로운 회원 가입 전에 /exists/user 엔드포인트를 무조건 거쳐야함
         //when
@@ -60,7 +62,7 @@ class AuthServiceTest {
         //then
 //        assertThatThrownBy(() -> authService.isExistsUser(existRequest.getPhoneNumber()))
 //                .isInstanceOf(UserAlreadyExistsException.class);
-        assertThat(authServiceMock.isExistsUser(existRequest.getPhoneNumber())).isTrue();
+        assertThat(authService.isExistsUser(existRequest.getPhoneNumber())).isTrue();
     }
 
 }

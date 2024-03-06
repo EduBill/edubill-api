@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.Commit;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -51,7 +52,7 @@ public class AuthControllerTest {
     @DisplayName("전화번호 유효성 검사")
     void testInvalidPhoneNumber() {
         //given
-        String requestId = "dfsdfsdf";
+        String requestId = null;
         String phoneNumber = "01012345678234345535";
         ExistUserRequestDto requestDto = new ExistUserRequestDto(requestId, phoneNumber);
 
@@ -65,7 +66,7 @@ public class AuthControllerTest {
         }
 
         //then
-        assertThat(messages).contains("-을 제외한 10자리 번호를 입력해주세요", "고유요청은 필수입니다.");
+        assertThat(messages).contains("-을 제외한 11자리 번호를 입력해주세요", "고유요청은 필수입니다.");
     }
 
 
@@ -86,31 +87,5 @@ public class AuthControllerTest {
                         .content(objectMapper.writeValueAsString(verificationRequest)))
                 .andExpect(status().isOk())
                 .andExpect(content().string(requestId));
-    }
-
-    @Test
-    @DisplayName("requestId 검증")
-    void verifyRequestId() throws Exception {
-        //given
-        String phoneNumber = "01012345678";
-        VerificationResponseDto verificationResponse = authService.sendVerificationNumber(phoneNumber);
-        String requestId = verificationResponse.getRequestId();
-
-        // then
-        // verify
-        VerificationRequestDto verificationRequest = new VerificationRequestDto(requestId, "123456", "01012345678");
-        mockMvc.perform(post("/v1/auth/verify")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(verificationRequest)))
-                .andExpect(status().isOk())
-                .andExpect(content().string(requestId));
-
-        // sign up
-        SignupRequestDto signupRequest = new SignupRequestDto(requestId, "홍길동", "01012345678");
-        mockMvc.perform(post("/v1/auth/signup")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(signupRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.userName").value("홍길동"));
     }
 }

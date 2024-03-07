@@ -1,5 +1,6 @@
 package com.edubill.edubillApi.service;
 
+import com.edubill.edubillApi.config.TestcontainerConfig;
 import com.edubill.edubillApi.domain.User;
 import com.edubill.edubillApi.dto.user.SignupRequestDto;
 import com.edubill.edubillApi.dto.user.UserDto;
@@ -21,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Slf4j
+@TestcontainerConfig
 @Transactional
 class AuthServiceTest {
 
@@ -30,7 +32,7 @@ class AuthServiceTest {
     private UserRepository userRepository;
 
 
-    //@Test
+    @Test
     @DisplayName("회원 가입")
     void signUpTest() {
 
@@ -47,7 +49,7 @@ class AuthServiceTest {
         assertThat(findUser.getUserId()).isEqualTo(userA.getUserId());
     }
 
-    //@Test
+    @Test
     @DisplayName("중복 회원가입 실패")
     void signUpDuplicateTest() {
         //given

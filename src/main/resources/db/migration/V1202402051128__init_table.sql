@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS academy
 (
     academy_id      BIGINT NOT NULL AUTO_INCREMENT,
-    user_id         BIGINT,
+    user_id         VARCHAR(255),
     academy_name    VARCHAR(255),
     academy_number  VARCHAR(255),
     business_number VARCHAR(255),
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS accounts
 (
     created_at     DATETIME(6),
     updated_at     DATETIME(6),
-    user_id        BIGINT,
+    user_id        VARCHAR(255),
     account_number VARCHAR(255) NOT NULL,
     holder_name    VARCHAR(255),
     account_status ENUM ('ACTIVE', 'INACTIVE', 'PENDING'),
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS invoices
     deadline              DATETIME(6),
     invoice_id            BIGINT NOT NULL AUTO_INCREMENT,
     updated_at            DATETIME(6),
-    user_id               BIGINT,
+    user_id               VARCHAR(255),
     receiver_name         VARCHAR(255),
     receiver_phone_number VARCHAR(255),
     details               TEXT,

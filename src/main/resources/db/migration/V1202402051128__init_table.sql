@@ -77,33 +77,3 @@ CREATE TABLE IF NOT EXISTS users
 
 ALTER TABLE IF EXISTS academy_students
     ADD CONSTRAINT UKt5hheejdtlcwym0wd73sy5wna UNIQUE (academy_id, student_id);
-
-ALTER TABLE IF EXISTS academy
-    ADD CONSTRAINT FKqcb2296fg82hygh88mpf7kqw6
-        FOREIGN KEY (user_id)
-            REFERENCES users (user_id);
-
-ALTER TABLE IF EXISTS academy_students
-    ADD CONSTRAINT FKfaonalif5jvxxb8cv9vxmb573
-        FOREIGN KEY (academy_id)
-            REFERENCES academy (academy_id);
-
-ALTER TABLE IF EXISTS academy_students
-    ADD CONSTRAINT FKe9nltnlflw9jvtrn2tcvmrqj1
-        FOREIGN KEY (student_id)
-            REFERENCES students (student_id);
-
-ALTER TABLE IF EXISTS accounts
-    ADD CONSTRAINT FKnjuop33mo69pd79ctplkck40n
-        FOREIGN KEY (user_id)
-            REFERENCES users (user_id);
-
-ALTER TABLE IF EXISTS invoices
-    ADD CONSTRAINT FKbwr4d4vyqf2bkoetxtt8j9dx7
-        FOREIGN KEY (user_id)
-            REFERENCES users (user_id);
-
-ALTER TABLE IF EXISTS payments
-    ADD CONSTRAINT FK6ooq278k2bs5xi8t5o6oort1v
-        FOREIGN KEY (student_id)
-            REFERENCES students (student_id);

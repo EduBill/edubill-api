@@ -56,12 +56,12 @@ public class SecurityConfigTest {
     @DisplayName("회원가입 후 로그인 진행")
     void signupAndLoginTest() throws Exception {
         //== 인증번호 발급 ==//
-        String phoneNumber = "01011111111";
+        String phoneNumber = "01012345678";
         VerificationResponseDto verificationResponse = authService.sendVerificationNumber(phoneNumber);
         String requestId = verificationResponse.getRequestId();
 
         //== 인증번호 검증 ==//
-        VerificationRequestDto verificationRequest = new VerificationRequestDto(requestId, "123456", "01011111111");
+        VerificationRequestDto verificationRequest = new VerificationRequestDto(requestId, "123456", "01012345678");
         mockMvc.perform(post("/v1/auth/verify")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(verificationRequest)))
@@ -70,7 +70,7 @@ public class SecurityConfigTest {
 
         //== 회원가입 ==//
         // given
-        SignupRequestDto signupRequestDto = new SignupRequestDto(requestId, "edubill", "01011111111");
+        SignupRequestDto signupRequestDto = new SignupRequestDto(requestId, "edubill", "01012345678");
 
         // when
         mockMvc.perform(MockMvcRequestBuilders.post("/v1/auth/signup")
@@ -78,18 +78,18 @@ public class SecurityConfigTest {
                         .content(objectMapper.writeValueAsString(signupRequestDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userName").value("edubill"))
-                .andExpect(jsonPath("$.phoneNumber").value("01011111111"))
+                .andExpect(jsonPath("$.phoneNumber").value("01012345678"))
                 .andExpect(jsonPath("$.userRole").value("ACADEMY")); // 수정 필요
 
         // then
-        User savedUser = userRepository.findByPhoneNumber("01011111111").orElse(null);
+        User savedUser = userRepository.findByPhoneNumber("01012345678").orElse(null);
         assertEquals("edubill", savedUser.getUserName());
         assertEquals(ACADEMY, savedUser.getUserRole());
 
 
         //== 로그인 및 토큰 생성 ==//
         // given
-        LoginRequestDto loginRequestDto = new LoginRequestDto(requestId, "01011111111");
+        LoginRequestDto loginRequestDto = new LoginRequestDto(requestId, "01012345678");
 
         // when
         ResultActions result = mockMvc.perform(MockMvcRequestBuilders.post("/v1/auth/login")
@@ -104,7 +104,7 @@ public class SecurityConfigTest {
         // then
         assertTrue(jwtProvider.validateToken(accessToken));
         Claims userInfo = jwtProvider.getUserInfoFromToken(accessToken);
-        assertEquals("01011111111", userInfo.getSubject());
+        assertEquals("01012345678", userInfo.getSubject());
 
 
         //== 토큰 인증 ==//

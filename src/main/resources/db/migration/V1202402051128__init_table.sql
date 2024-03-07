@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS users
 (
     created_at   DATETIME(6),
     updated_at   DATETIME(6),
-    user_id      BIGINT                               NOT NULL AUTO_INCREMENT,
+    user_id      VARCHAR(255)                               NOT NULL AUTO_INCREMENT,
     phone_number VARCHAR(255)                         NOT NULL,
     user_name    VARCHAR(255)                         NOT NULL,
     user_role    ENUM ('PARENTS', 'ACADEMY', 'ADMIN') NOT NULL,

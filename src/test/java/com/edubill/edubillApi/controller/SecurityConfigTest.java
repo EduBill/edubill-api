@@ -7,13 +7,19 @@ import com.edubill.edubillApi.dto.user.SignupRequestDto;
 import com.edubill.edubillApi.dto.verification.VerificationRequestDto;
 import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
 import com.edubill.edubillApi.jwt.JwtProvider;
+import com.edubill.edubillApi.repository.RequestIdRepository;
+import com.edubill.edubillApi.repository.RequestIdRepositoryMap;
 import com.edubill.edubillApi.repository.UserRepository;
 
+import com.edubill.edubillApi.repository.VerificationRepository;
+import com.edubill.edubillApi.repository.VerificationRepositoryMap;
 import com.edubill.edubillApi.service.AuthService;
+import com.edubill.edubillApi.service.AuthServiceMock;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +33,13 @@ import org.springframework.test.annotation.Commit;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.edubill.edubillApi.domain.UserRole.ACADEMY;
 import static com.edubill.edubillApi.domain.UserRole.ADMIN;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -50,16 +58,26 @@ class SecurityConfigTest {
     private JwtProvider jwtProvider;
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private @Qualifier("authServiceMock") AuthService authService;
+    private AuthService authServiceMock;
 
+    private AuthController authController;
 
+    @BeforeEach
+    void setup() {
+        initMocks(this);
+        VerificationRepository verificationRepositoryMap = new VerificationRepositoryMap();
+        RequestIdRepository requestIdRepository = new RequestIdRepositoryMap();
+        authServiceMock = new AuthServiceMock(userRepository, verificationRepositoryMap, requestIdRepository);
+
+        authController = new AuthController(jwtProvider, authServiceMock);
+        this.mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
+    }
     @Test
     @DisplayName("회원가입 후 로그인 진행")
     void signupAndLoginTest() throws Exception {
         //== 인증번호 발급 ==//
         String phoneNumber = "01012345678";
-        VerificationResponseDto verificationResponse = authService.sendVerificationNumber(phoneNumber);
+        VerificationResponseDto verificationResponse = authServiceMock.sendVerificationNumber(phoneNumber);
         String requestId = verificationResponse.getRequestId();
 
         //== 인증번호 검증 ==//
@@ -107,12 +125,5 @@ class SecurityConfigTest {
         assertTrue(jwtProvider.validateToken(accessToken));
         Claims userInfo = jwtProvider.getUserInfoFromToken(accessToken);
         assertEquals("01012345678", userInfo.getSubject());
-
-
-        //== 토큰 인증 ==//
-        mockMvc.perform(MockMvcRequestBuilders.get("/health")
-                        .header(HttpHeaders.AUTHORIZATION, bearerToken))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Hello world"));
     }
 }

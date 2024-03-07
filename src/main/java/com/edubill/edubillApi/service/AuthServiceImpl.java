@@ -1,6 +1,13 @@
 package com.edubill.edubillApi.service;
 
+import com.edubill.edubillApi.domain.User;
+import com.edubill.edubillApi.domain.UserRole;
+import com.edubill.edubillApi.dto.user.LoginRequestDto;
+import com.edubill.edubillApi.dto.user.SignupRequestDto;
+import com.edubill.edubillApi.dto.user.UserDto;
 import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
+import com.edubill.edubillApi.error.exception.UserAlreadyExistsException;
+import com.edubill.edubillApi.error.exception.UserNotFoundException;
 import com.edubill.edubillApi.repository.RequestIdRepository;
 import com.edubill.edubillApi.repository.UserRepository;
 import com.edubill.edubillApi.repository.VerificationRepository;
@@ -16,7 +23,6 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
 @Qualifier("authServiceImpl")
@@ -24,19 +30,12 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final VerificationRepository redisVerificationRepository;
-    private final RequestIdRepository requestIdRepository;
+    private final RequestIdRepository redisRequestIdRepository;
 
-    @Override
-    public UserRepository getUserRepository() {
-        return this.userRepository;
-    }
-    @Override
-    public VerificationRepository getVerificationRepository() {
-        return this.redisVerificationRepository;
-    }
-    @Override
-    public RequestIdRepository getRequestIdRepository() {
-        return this.requestIdRepository;
+    public AuthServiceImpl(UserRepository userRepository, VerificationRepository redisVerificationRepository, RequestIdRepository redisRequestIdRepository) {
+        this.userRepository = userRepository;
+        this.redisVerificationRepository = redisVerificationRepository;
+        this.redisRequestIdRepository = redisRequestIdRepository;
     }
 
     @Override
@@ -56,6 +55,60 @@ public class AuthServiceImpl implements AuthService {
         return new VerificationResponseDto(requestId, verificationNumber);
     }
 
+    @Override
+    public Boolean verifyNumber(String requestId, String inputVerificationNumber) {
+        String verificationNumber = redisVerificationRepository.getVerificationNumber(requestId);
+        // 6자리 코드 같을 경우 인증
+        return verificationNumber.equals(inputVerificationNumber);     }
+
+    @Override
+    public UserDto signUp(SignupRequestDto signupRequestDto) {
+        String phoneNumber = signupRequestDto.getPhoneNumber();
+        String userName = signupRequestDto.getUserName();
+        String requestId = signupRequestDto.getRequestId();
+
+        // 사용자가 이미 존재하는지 확인
+        if (userRepository.existsByPhoneNumber(phoneNumber)) {
+            throw new UserAlreadyExistsException("사용자가 이미 존재함");
+        }
+
+        User user = User.builder()
+                .userId(phoneNumber + "@phone.auth")
+                .phoneNumber(phoneNumber)
+                .userName(userName)
+                .requestId(requestId)
+                .userRole(UserRole.ACADEMY) // 수정 필요
+                .build();
+
+        userRepository.save(user);
+
+        return UserDto.of(user);
+    }
+
+    @Override
+    public UserDto login(LoginRequestDto loginRequestDto) {
+        String phoneNumber = loginRequestDto.getPhoneNumber();
+        User user = userRepository.findByPhoneNumber(phoneNumber).orElseThrow(
+                () -> new UserNotFoundException("사용자가 없음")
+        );
+        return UserDto.of(user);
+    }
+
+    @Override
+    public Boolean isExistsUser(String phoneNumber) {
+        return userRepository.existsByPhoneNumber(phoneNumber);
+    }
+
+    @Override
+    public void requestIdForPhoneNumber(String phoneNumber, String requestId) {
+        redisRequestIdRepository.setRequestId(phoneNumber, requestId);
+    }
+
+    @Override
+    public Boolean isRequestIdValidForPhoneNumber(String phoneNumber, String clientRequestId) {
+        String storedRequestId = redisRequestIdRepository.getRequestId(phoneNumber);
+        return clientRequestId.equals(storedRequestId);
+    }
 
 
     // 인증번호 생성 (6자리)
@@ -63,12 +116,6 @@ public class AuthServiceImpl implements AuthService {
         int randomNumber = ThreadLocalRandom.current().nextInt(100000, 1000000);
         return String.valueOf(randomNumber);
     }
-
-//    private static String generateRandomNumber1() {
-//        Random random = new Random();
-//        int randomNumber = 100000 + random.nextInt(900000);
-//        return String.valueOf(randomNumber);
-//    }
 
     // 휴대폰 번호 형식 체크 메소드
     private boolean isValidPhoneNumber(String phoneNumber) {

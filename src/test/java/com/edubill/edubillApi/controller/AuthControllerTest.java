@@ -1,5 +1,6 @@
 package com.edubill.edubillApi.controller;
 
+import com.edubill.edubillApi.config.TestcontainerConfig;
 import com.edubill.edubillApi.dto.user.ExistUserRequestDto;
 import com.edubill.edubillApi.dto.user.SignupRequestDto;
 import com.edubill.edubillApi.dto.verification.VerificationRequestDto;
@@ -32,8 +33,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Slf4j
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestcontainerConfig
 @Transactional
-public class AuthControllerTest {
+class AuthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

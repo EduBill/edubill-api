@@ -20,10 +20,10 @@ import java.util.concurrent.ThreadLocalRandom;
 @Service
 @Transactional(readOnly = true)
 @Qualifier("authServiceImpl")
-public class AuthServiceImpl implements AuthService{
+public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
-    private final VerificationRepository verificationRepository;
+    private final VerificationRepository redisVerificationRepository;
     private final RequestIdRepository requestIdRepository;
 
     @Override
@@ -32,7 +32,7 @@ public class AuthServiceImpl implements AuthService{
     }
     @Override
     public VerificationRepository getVerificationRepository() {
-        return this.verificationRepository;
+        return this.redisVerificationRepository;
     }
     @Override
     public RequestIdRepository getRequestIdRepository() {
@@ -49,7 +49,7 @@ public class AuthServiceImpl implements AuthService{
         final String requestId = UUID.randomUUID().toString();
         final String verificationNumber = generateRandomNumber();
 
-        verificationRepository.setVerificationNumber(requestId, verificationNumber);
+        redisVerificationRepository.setVerificationNumber(requestId, verificationNumber);
 
         // 고유 요청 ID에 대한 인증번호를 응답
         // 실제로는 해당 전화번호를 key 값으로 sms전송

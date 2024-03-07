@@ -17,7 +17,7 @@ import java.util.UUID;
 public class AuthServiceMock implements AuthService {
 
     private final UserRepository userRepository;
-    private final VerificationRepository verificationRepository;
+    private final VerificationRepository verificationRepositoryMap;
     private final RequestIdRepository requestIdRepository;
 
     @Override
@@ -26,7 +26,7 @@ public class AuthServiceMock implements AuthService {
     }
     @Override
     public VerificationRepository getVerificationRepository() {
-        return this.verificationRepository;
+        return this.verificationRepositoryMap;
     }
     @Override
     public RequestIdRepository getRequestIdRepository() {
@@ -39,7 +39,7 @@ public class AuthServiceMock implements AuthService {
         final String verificationNumber = "123456"; // 테스트 값
         final String requestId = UUID.randomUUID().toString();
 
-        verificationRepository.setVerificationNumber(requestId, verificationNumber);
+        verificationRepositoryMap.setVerificationNumber(requestId, verificationNumber);
 
         return new VerificationResponseDto(requestId,verificationNumber);
     }

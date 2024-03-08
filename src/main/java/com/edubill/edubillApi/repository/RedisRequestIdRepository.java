@@ -1,7 +1,9 @@
 package com.edubill.edubillApi.repository;
 
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class RedisRequestIdRepository implements RequestIdRepository {
 
     private final RedisTemplate<String, String> redisTemplate;

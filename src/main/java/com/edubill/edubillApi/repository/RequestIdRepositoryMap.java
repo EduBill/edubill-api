@@ -4,7 +4,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
 
-@Repository
+//@Repository
 public class RequestIdRepositoryMap implements RequestIdRepository{
 
     private final HashMap<String, String> requestIdMap = new HashMap<>();

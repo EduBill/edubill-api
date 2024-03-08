@@ -22,13 +22,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.Commit;
+
 
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -37,9 +38,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.edubill.edubillApi.domain.UserRole.ACADEMY;
-import static com.edubill.edubillApi.domain.UserRole.ADMIN;
+
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.MockitoAnnotations.initMocks;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -59,12 +60,11 @@ class SecurityConfigTest {
     @Autowired
     private UserRepository userRepository;
     private AuthService authServiceMock;
-
     private AuthController authController;
 
     @BeforeEach
     void setup() {
-        initMocks(this);
+        MockitoAnnotations.openMocks(this);
         VerificationRepository verificationRepositoryMap = new VerificationRepositoryMap();
         RequestIdRepository requestIdRepository = new RequestIdRepositoryMap();
         authServiceMock = new AuthServiceMock(userRepository, verificationRepositoryMap, requestIdRepository);

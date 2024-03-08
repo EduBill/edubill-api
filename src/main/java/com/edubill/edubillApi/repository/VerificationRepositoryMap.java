@@ -4,7 +4,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
 
-@Repository
+//@Repository
 public class VerificationRepositoryMap implements VerificationRepository{
     private final HashMap<String, String> verificationMap = new HashMap<>();
 

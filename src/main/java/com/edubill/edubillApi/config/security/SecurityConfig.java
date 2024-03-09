@@ -1,4 +1,4 @@
-package com.edubill.edubillApi.config;
+package com.edubill.edubillApi.config.security;
 
 import com.edubill.edubillApi.error.AccessDeniedHandlerCustom;
 import com.edubill.edubillApi.error.AuthenticationEntryPointCustom;

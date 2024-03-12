@@ -86,7 +86,7 @@ class SecurityConfigTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(verificationRequest)))
                 .andExpect(status().isOk())
-                .andExpect(content().string(requestId));
+                .andExpect(jsonPath("$.data.requestId").value(requestId));
 
         //== 회원가입 ==//
         // given
@@ -97,9 +97,9 @@ class SecurityConfigTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signupRequestDto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.userName").value("edubill"))
-                .andExpect(jsonPath("$.phoneNumber").value("01012345678"))
-                .andExpect(jsonPath("$.userRole").value("ACADEMY")); // 수정 필요
+                .andExpect(jsonPath("$.data.userName").value("edubill"))
+                .andExpect(jsonPath("$.data.phoneNumber").value("01012345678"))
+                .andExpect(jsonPath("$.data.userRole").value("ACADEMY")); // 수정 필요
 
         // then
         User savedUser = userRepository.findByPhoneNumber("01012345678").orElse(null);
@@ -117,7 +117,7 @@ class SecurityConfigTest {
                         .content(objectMapper.writeValueAsString(loginRequestDto)))
                 .andExpect(status().isOk())
                 .andExpect(header().exists(HttpHeaders.AUTHORIZATION))
-                .andExpect(jsonPath("$.jwtToken.accessToken").isNotEmpty());
+                .andExpect(jsonPath("$.data.jwtToken.accessToken").isNotEmpty());
         String bearerToken = result.andReturn().getResponse().getHeader(HttpHeaders.AUTHORIZATION);
         String accessToken = bearerToken.substring(7);
 

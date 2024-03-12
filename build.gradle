@@ -53,6 +53,7 @@ dependencies {
 
 	testImplementation("org.testcontainers:mariadb:1.19.4")
 	testImplementation 'org.testcontainers:junit-jupiter:1.16.2'
+	testImplementation 'org.mockito:mockito-core:4.8.0'
 
 	// QueryDsl
 	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'

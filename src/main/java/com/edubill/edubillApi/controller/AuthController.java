@@ -25,6 +25,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -63,7 +64,7 @@ public class AuthController {
         VerificationResponseDto verificationResponseDto = authService.sendVerificationNumber(phoneNumber);
         log.info("requestId = {}, 인증번호 ={}", verificationResponseDto.getRequestId(),verificationResponseDto.getVerificationNumber());
         ResultResponse result = ResultResponse.of(ResultCode.SEND_VERIFY_NUMBER_SUCCESS, verificationResponseDto);
-        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus_code()));
+        return new ResponseEntity<>(result, HttpStatus.valueOf(ResultCode.SEND_VERIFY_NUMBER_SUCCESS.getStatus_value()));
     }
 
     // 인증번호 확인 API
@@ -90,7 +91,7 @@ public class AuthController {
             // phoneNumber를 key, requestId를 value로 하는 데이터 저장 후 signup, login 시 검증
             RequestIdResponseDto requestIdResponseDto = authService.requestIdForPhoneNumber(phoneNumber, requestId);
             ResultResponse result = ResultResponse.of(ResultCode.VERIFY_SUCCESS, requestIdResponseDto);
-            return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus_code()));
+            return new ResponseEntity<>(result, HttpStatus.valueOf(ResultCode.VERIFY_SUCCESS.getStatus_value()));
         }
         throw new BusinessException("인증번호가 일치하지 않음", INVALID_VERIFY_NUMBER);
     }
@@ -113,11 +114,11 @@ public class AuthController {
          ExistUserResponseDto existUserResponseDto = authService.isExistsUser(phoneNumber);
         if (existUserResponseDto.getExistUser()) {
             ResultResponse result = ResultResponse.of(ResultCode.EXISTS_USER, existUserResponseDto);
-            return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus_code()));
+            return new ResponseEntity<>(result, HttpStatusCode.valueOf(ResultCode.EXISTS_USER.getStatus_value()));
         }
         // 기존회원이 없기때문에 새로 회원을 가입시킬 수 있음.
         ResultResponse result = ResultResponse.of(ResultCode.NOT_EXISTS_USER, existUserResponseDto);
-        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus_code()));
+        return new ResponseEntity<>(result, HttpStatus.valueOf(ResultCode.NOT_EXISTS_USER.getStatus_value()));
     }
 
     // 회원가입 API
@@ -140,7 +141,7 @@ public class AuthController {
         if (authService.isRequestIdValidForPhoneNumber(phoneNumber, requestId)) {
             UserDto signupUser = authService.signUp(signupRequestDto);
             ResultResponse result = ResultResponse.of(ResultCode.SIGNUP_SUCCESS, signupUser);
-            return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus_code()));
+            return new ResponseEntity<>(result, HttpStatus.valueOf(ResultCode.SIGNUP_SUCCESS.getStatus_value()));
         }
         throw new NoAuthorityException("phoneNumber 에 해당하는 requestId 가 일치하지 않습니다.");
     }
@@ -170,7 +171,7 @@ public class AuthController {
             LoginResponseDto loginResponseDto = new LoginResponseDto(token, loginUser);
 
             ResultResponse result = ResultResponse.of(ResultCode.LOGIN_SUCCESS, loginResponseDto);
-            return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus_code()));
+            return new ResponseEntity<>(result, HttpStatus.valueOf(ResultCode.LOGIN_SUCCESS.getStatus_value()));
         }
         throw new NoAuthorityException("phoneNumber 에 해당하는 requestId 가 일치하지 않습니다.");
     }

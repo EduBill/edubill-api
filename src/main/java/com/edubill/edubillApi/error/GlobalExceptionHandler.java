@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<ErrorResponse> businessExHandle(BusinessException e) {
         final ErrorCode errorCode = e.getErrorCode();
         final ErrorResponse response = ErrorResponse.of(errorCode);
-        return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus_code()));
+        return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus_value()));
     }
 
     // 그 밖에 발생하는 모든 예외처리가 이곳으로 모인다.

@@ -19,7 +19,7 @@ public class ErrorResponse {
     private Object data;
     private String message;
     private String status;
-    private int status_code;
+    private String status_code;
 //    private List<FieldError> errors;
 //
 //    private ErrorResponse(final ErrorCode code, final List<FieldError> errors) {

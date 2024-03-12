@@ -1,5 +1,7 @@
 package com.edubill.edubillApi.controller;
 
+import com.edubill.edubillApi.dto.result.ResultCode;
+import com.edubill.edubillApi.dto.result.ResultResponse;
 import com.edubill.edubillApi.dto.user.*;
 import com.edubill.edubillApi.dto.verification.VerificationRequestDto;
 import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
@@ -22,6 +24,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -47,7 +50,7 @@ public class AuthController {
     // 인증번호 발송 API
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "성공",
-                    content = @Content(schema = @Schema(implementation = VerificationResponseDto.class))),
+                    content = @Content(schema = @Schema(implementation = ResultResponse.class))),
             @ApiResponse(responseCode = "400", description = "휴대폰 번호 양식이 맞지 않습니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "서버 오류",
@@ -55,17 +58,18 @@ public class AuthController {
     })
     @Operation(summary = "인증번호 발송", description = "휴대폰 번호를 통해 인증번호를 발급받는다.")
     @PostMapping("/phone")
-    public ResponseEntity<VerificationResponseDto> sendVerificationNumber(@Schema(description = "휴대폰번호", type = "String", example = "01012345678") @RequestBody String phoneNumber) {
+    public ResponseEntity<ResultResponse> sendVerificationNumber(@Schema(description = "휴대폰번호", type = "String", example = "01012345678") @RequestBody String phoneNumber) {
 
         VerificationResponseDto verificationResponseDto = authService.sendVerificationNumber(phoneNumber);
         log.info("requestId = {}, 인증번호 ={}", verificationResponseDto.getRequestId(),verificationResponseDto.getVerificationNumber());
-        return ResponseEntity.ok(verificationResponseDto);
+        ResultResponse result = ResultResponse.of(ResultCode.SEND_VERIFY_NUMBER_SUCCESS, verificationResponseDto);
+        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus_code()));
     }
 
     // 인증번호 확인 API
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "성공",
-                    content = @Content(schema = @Schema(description = "requestId", type = "String", example = "5cdf2372-d3c2-42ac-b517-0bad88fcbbf7"))),
+                    content = @Content(schema = @Schema(implementation = ResultResponse.class))),
             @ApiResponse(responseCode = "400", description = "binding error가 발생했습니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))), // @Valided 에 걸리는 경우
             @ApiResponse(responseCode = "401", description = "인증번호가 일치하지 않습니다.",
@@ -75,7 +79,7 @@ public class AuthController {
     })
     @Operation(summary = "인증번호 확인", description = "발급받은 인증번호를 입력한 것을 확인한다.")
     @PostMapping("/verify")
-    public ResponseEntity<String> verifyNumber(@Validated @RequestBody VerificationRequestDto verificationRequestDto) {
+    public ResponseEntity<ResultResponse> verifyNumber(@Validated @RequestBody VerificationRequestDto verificationRequestDto) {
 
         String requestId = verificationRequestDto.getRequestId();
         String verificationNumber = verificationRequestDto.getVerificationNumber();
@@ -84,8 +88,9 @@ public class AuthController {
         Boolean validNumber = authService.verifyNumber(requestId, verificationNumber);
         if (validNumber) {
             // phoneNumber를 key, requestId를 value로 하는 데이터 저장 후 signup, login 시 검증
-            authService.requestIdForPhoneNumber(phoneNumber, requestId);
-            return ResponseEntity.ok(requestId);
+            RequestIdResponseDto requestIdResponseDto = authService.requestIdForPhoneNumber(phoneNumber, requestId);
+            ResultResponse result = ResultResponse.of(ResultCode.VERIFY_SUCCESS, requestIdResponseDto);
+            return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus_code()));
         }
         throw new BusinessException("인증번호가 일치하지 않음", INVALID_VERIFY_NUMBER);
     }
@@ -93,29 +98,32 @@ public class AuthController {
     // 사용자 유무 확인 API
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "1. 사용자가 존재합니다.(true) \t\n 2. 사용자가 존재하지 않습니다.(false)",
-                    content = @Content(schema = @Schema(implementation = Boolean.class))),
+                    content = @Content(schema = @Schema(implementation = ResultResponse.class))),
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @Operation(summary = "사용자 유무", description = "가입된 사용자가 존재하는지 확인한다.")
     @PostMapping("/exists/user")
-    public ResponseEntity<Boolean> isExistsUser(@Validated @RequestBody ExistUserRequestDto existUserRequestDto) {
+    public ResponseEntity<ResultResponse> isExistsUser(@Validated @RequestBody ExistUserRequestDto existUserRequestDto) {
 
         String phoneNumber = existUserRequestDto.getPhoneNumber();
         String requestId = existUserRequestDto.getRequestId();
         log.info("request_id = {}", requestId);
 
-        if (authService.isExistsUser(phoneNumber)) {
-            return ResponseEntity.ok(true);
+         ExistUserResponseDto existUserResponseDto = authService.isExistsUser(phoneNumber);
+        if (existUserResponseDto.getExistUser()) {
+            ResultResponse result = ResultResponse.of(ResultCode.EXISTS_USER, existUserResponseDto);
+            return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus_code()));
         }
         // 기존회원이 없기때문에 새로 회원을 가입시킬 수 있음.
-        return ResponseEntity.ok(false);
+        ResultResponse result = ResultResponse.of(ResultCode.NOT_EXISTS_USER, existUserResponseDto);
+        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus_code()));
     }
 
     // 회원가입 API
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "성공",
-                    content = @Content(schema = @Schema(implementation = UserDto.class))),
+                    content = @Content(schema = @Schema(implementation = ResultResponse.class))),
             @ApiResponse(responseCode = "400", description = "1. binding error가 발생했습니다. \t\n 2. 사용자가 이미 존재합니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "403", description = "requestId 가 일치하지 않습니다.",
@@ -125,13 +133,14 @@ public class AuthController {
     })
     @Operation(summary = "회원가입", description = "회원이 존재하지 않을 경우 회원가입을 진행한다.")
     @PostMapping("/signup")
-    public ResponseEntity<UserDto> signUp(@Validated @RequestBody SignupRequestDto signupRequestDto) {
+    public ResponseEntity<ResultResponse> signUp(@Validated @RequestBody SignupRequestDto signupRequestDto) {
         String requestId = signupRequestDto.getRequestId();
         String phoneNumber = signupRequestDto.getPhoneNumber();
         // 클라이언트가 보내준 requestId와 phoneNumber가 가지고 있는 requestId가 일치하는지 확인(검증)
         if (authService.isRequestIdValidForPhoneNumber(phoneNumber, requestId)) {
             UserDto signupUser = authService.signUp(signupRequestDto);
-            return ResponseEntity.ok(signupUser);
+            ResultResponse result = ResultResponse.of(ResultCode.SIGNUP_SUCCESS, signupUser);
+            return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus_code()));
         }
         throw new NoAuthorityException("phoneNumber 에 해당하는 requestId 가 일치하지 않습니다.");
     }
@@ -139,7 +148,7 @@ public class AuthController {
     // 로그인 API
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "성공",
-                    content = @Content(schema = @Schema(implementation = LoginResponseDto.class))),
+                    content = @Content(schema = @Schema(implementation = ResultResponse.class))),
             @ApiResponse(responseCode = "400", description = "binding error가 발생했습니다.\t\n 2. 사용자가 존재하지 않습니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "403", description = "requestId 가 일치하지 않습니다.",
@@ -149,7 +158,7 @@ public class AuthController {
     })
     @Operation(summary = "로그인", description = "회원이 존재할 경우 그 회원으로 로그인을 진행한다.")
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@Validated @RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
+    public ResponseEntity<ResultResponse> login(@Validated @RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
         String requestId = loginRequestDto.getRequestId();
         String phoneNumber = loginRequestDto.getPhoneNumber();
 
@@ -159,7 +168,9 @@ public class AuthController {
             response.addHeader(JwtProvider.AUTHORIZATION_HEADER, token.getAccessToken());// 헤더에 access token 만 싣기
 
             LoginResponseDto loginResponseDto = new LoginResponseDto(token, loginUser);
-            return ResponseEntity.ok(loginResponseDto);
+
+            ResultResponse result = ResultResponse.of(ResultCode.LOGIN_SUCCESS, loginResponseDto);
+            return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus_code()));
         }
         throw new NoAuthorityException("phoneNumber 에 해당하는 requestId 가 일치하지 않습니다.");
     }

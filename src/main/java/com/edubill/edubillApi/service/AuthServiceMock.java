@@ -2,9 +2,7 @@ package com.edubill.edubillApi.service;
 
 import com.edubill.edubillApi.domain.User;
 import com.edubill.edubillApi.domain.UserRole;
-import com.edubill.edubillApi.dto.user.LoginRequestDto;
-import com.edubill.edubillApi.dto.user.SignupRequestDto;
-import com.edubill.edubillApi.dto.user.UserDto;
+import com.edubill.edubillApi.dto.user.*;
 import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
 import com.edubill.edubillApi.error.exception.UserAlreadyExistsException;
 import com.edubill.edubillApi.error.exception.UserNotFoundException;
@@ -82,13 +80,15 @@ public class AuthServiceMock implements AuthService {
     }
 
     @Override
-    public Boolean isExistsUser(String phoneNumber) {
-        return userRepository.existsByPhoneNumber(phoneNumber);
+    public ExistUserResponseDto isExistsUser(String phoneNumber) {
+        boolean existUser = userRepository.existsByPhoneNumber(phoneNumber);
+        return new ExistUserResponseDto(existUser);
     }
 
     @Override
-    public void requestIdForPhoneNumber(String phoneNumber, String requestId) {
+    public RequestIdResponseDto requestIdForPhoneNumber(String phoneNumber, String requestId) {
         requestIdRepositoryMap.setRequestId(phoneNumber, requestId);
+        return new RequestIdResponseDto(requestId);
     }
 
     @Override

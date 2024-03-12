@@ -2,9 +2,7 @@ package com.edubill.edubillApi.service;
 
 import com.edubill.edubillApi.domain.User;
 import com.edubill.edubillApi.domain.UserRole;
-import com.edubill.edubillApi.dto.user.LoginRequestDto;
-import com.edubill.edubillApi.dto.user.SignupRequestDto;
-import com.edubill.edubillApi.dto.user.UserDto;
+import com.edubill.edubillApi.dto.user.*;
 import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
 import com.edubill.edubillApi.error.exception.UserAlreadyExistsException;
 import com.edubill.edubillApi.error.exception.UserNotFoundException;
@@ -62,10 +60,13 @@ public class AuthServiceImpl implements AuthService {
         return verificationNumber.equals(inputVerificationNumber);     }
 
     @Override
+    @Transactional
     public UserDto signUp(SignupRequestDto signupRequestDto) {
         String phoneNumber = signupRequestDto.getPhoneNumber();
         String userName = signupRequestDto.getUserName();
         String requestId = signupRequestDto.getRequestId();
+
+        log.info("회원가입테스트={}", phoneNumber);
 
         // 사용자가 이미 존재하는지 확인
         if (userRepository.existsByPhoneNumber(phoneNumber)) {
@@ -95,13 +96,15 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Boolean isExistsUser(String phoneNumber) {
-        return userRepository.existsByPhoneNumber(phoneNumber);
+    public ExistUserResponseDto isExistsUser(String phoneNumber) {
+        boolean existUser = userRepository.existsByPhoneNumber(phoneNumber);
+        return new ExistUserResponseDto(existUser);
     }
 
     @Override
-    public void requestIdForPhoneNumber(String phoneNumber, String requestId) {
+    public RequestIdResponseDto requestIdForPhoneNumber(String phoneNumber, String requestId) {
         redisRequestIdRepository.setRequestId(phoneNumber, requestId);
+        return new RequestIdResponseDto(requestId);
     }
 
     @Override

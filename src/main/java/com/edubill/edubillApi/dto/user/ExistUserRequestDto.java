@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Schema(description = "사용자 존재 유무 확인 요청 dto")
+@Schema(description = "사용자 존재 유무 요청 dto")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter

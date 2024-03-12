@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
     // @Validated 에서 binding error 발생 시
     @ExceptionHandler
     protected ResponseEntity<ErrorResponse> bindExHandle(BindException e) {
-        final ErrorResponse response = ErrorResponse.of(INVALID_INPUT_VALUE, e.getBindingResult());
+        final ErrorResponse response = ErrorResponse.of(INVALID_INPUT_VALUE, e.getMessage());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -37,8 +37,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     protected ResponseEntity<ErrorResponse> businessExHandle(BusinessException e) {
         final ErrorCode errorCode = e.getErrorCode();
-        final ErrorResponse response = ErrorResponse.of(errorCode, e.getErrors());
-        return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus()));
+        final ErrorResponse response = ErrorResponse.of(errorCode);
+        return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus_code()));
     }
 
     // 그 밖에 발생하는 모든 예외처리가 이곳으로 모인다.

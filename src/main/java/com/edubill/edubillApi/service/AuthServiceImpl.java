@@ -62,6 +62,7 @@ public class AuthServiceImpl implements AuthService {
         return verificationNumber.equals(inputVerificationNumber);     }
 
     @Override
+    @Transactional
     public UserDto signUp(SignupRequestDto signupRequestDto) {
         String phoneNumber = signupRequestDto.getPhoneNumber();
         String userName = signupRequestDto.getUserName();

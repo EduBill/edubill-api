@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @SpringBootTest
 @Slf4j
 @TestcontainerConfig
-@Transactional
 class AuthServiceTest {
 
     @Autowired

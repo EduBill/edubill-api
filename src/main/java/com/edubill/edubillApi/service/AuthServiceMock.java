@@ -14,11 +14,14 @@ import com.edubill.edubillApi.repository.VerificationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.UUID;
 
 @Slf4j
 @Service
 @Qualifier("authServiceMock")
+@Transactional(readOnly = true)
 public class AuthServiceMock implements AuthService {
 
     private final UserRepository userRepository;
@@ -49,6 +52,7 @@ public class AuthServiceMock implements AuthService {
         return verificationNumber.equals(inputVerificationNumber);     }
 
     @Override
+    @Transactional
     public UserDto signUp(SignupRequestDto signupRequestDto) {
         String phoneNumber = signupRequestDto.getPhoneNumber();
         String userName = signupRequestDto.getUserName();

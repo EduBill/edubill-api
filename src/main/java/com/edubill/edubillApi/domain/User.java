@@ -30,9 +30,6 @@ public class User extends BaseEntity{
     private AuthInfo authInfo;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Account> accounts = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Invoice> invoices = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

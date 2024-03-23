@@ -9,9 +9,12 @@ import java.util.List;
 
 @Entity
 @Getter
-@NoArgsConstructor
 @Table(name = "STUDENTS")
 public class Student {
+
+    protected Student() {
+
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,15 +27,9 @@ public class Student {
     @Column(name = "student_number")
     private String studentNumber;
 
-    @Column(name = "student_age")
-    private Integer age;
-
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
-    private List<Payment> payments = new ArrayList<>();
+    private Long studentGroupId;
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     private List<AcademyStudent> academyStudents = new ArrayList<>();
-
-
 
 }

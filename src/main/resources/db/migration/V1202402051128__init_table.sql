@@ -17,18 +17,6 @@ CREATE TABLE IF NOT EXISTS academy_students
     PRIMARY KEY (academy_student_id)
 ) ENGINE = InnoDB;
 
-CREATE TABLE IF NOT EXISTS accounts
-(
-    created_at     DATETIME(6),
-    updated_at     DATETIME(6),
-    user_id        VARCHAR(255),
-    account_number VARCHAR(255) NOT NULL,
-    holder_name    VARCHAR(255),
-    account_status ENUM ('ACTIVE', 'INACTIVE', 'PENDING'),
-    bank_name      ENUM ('SINHAN', 'KOOKMIN', 'HANA', 'WOORI', 'NONGHYUP', 'IBK'),
-    PRIMARY KEY (account_number)
-) ENGINE = InnoDB;
-
 CREATE TABLE IF NOT EXISTS invoices
 (
     created_at            DATETIME(6),
@@ -42,25 +30,12 @@ CREATE TABLE IF NOT EXISTS invoices
     PRIMARY KEY (invoice_id)
 ) ENGINE = InnoDB;
 
-CREATE TABLE IF NOT EXISTS payments
-(
-    difference           INTEGER,
-    paid_amount          INTEGER,
-    total_payment_amount INTEGER,
-    created_at           DATETIME(6),
-    payment_id           BIGINT NOT NULL AUTO_INCREMENT,
-    student_id           BIGINT,
-    updated_at           DATETIME(6),
-    payment_status       ENUM ('PAID', 'UNPAID'),
-    PRIMARY KEY (payment_id)
-) ENGINE = InnoDB;
-
 CREATE TABLE IF NOT EXISTS students
 (
-    student_age    INTEGER,
     student_id     BIGINT NOT NULL AUTO_INCREMENT,
     student_name   VARCHAR(255),
     student_number VARCHAR(255),
+    student_group_id BIGINT,
     PRIMARY KEY (student_id)
 ) ENGINE = InnoDB;
 
@@ -74,6 +49,26 @@ CREATE TABLE IF NOT EXISTS users
     user_role    ENUM ('PARENTS', 'ACADEMY', 'ADMIN') NOT NULL,
     PRIMARY KEY (user_id)
 ) ENGINE = InnoDB;
+
+CREATE TABLE payment_history (
+                                 id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                 paid_amount INT,
+                                 student_group_id BIGINT,
+                                 deposit_date DATE,
+                                 depositor VARCHAR(255),
+                                 created_at   DATETIME(6),
+                                 updated_at   DATETIME(6)
+) ENGINE=InnoDB;
+
+CREATE TABLE student_group (
+                               id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                               tuition INT,
+                               group_name   VARCHAR(50),
+                               academy_id   BIGINT,
+                               created_at   DATETIME(6),
+                               updated_at   DATETIME(6)
+) ENGINE=InnoDB;
+
 
 ALTER TABLE IF EXISTS academy_students
     ADD CONSTRAINT UKt5hheejdtlcwym0wd73sy5wna UNIQUE (academy_id, student_id);

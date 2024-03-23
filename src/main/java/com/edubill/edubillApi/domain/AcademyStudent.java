@@ -18,12 +18,6 @@ public class AcademyStudent {
     @Column(name = "academy_student_id")
     private Long academyStudentId;
 
-    @Column(name = "academy_id")
-    private Long academyId;
-
-    @Column(name = "student_id")
-    private Long studentId;
-
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "academy_id", insertable = false, updatable = false)
     private Academy academy;
@@ -31,12 +25,6 @@ public class AcademyStudent {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "student_id", insertable = false, updatable = false)
     private Student student;
-
-
-    public AcademyStudent(Long academyId, Long studentId) {
-        this.academyId = academyId;
-        this.studentId = studentId;
-    }
 
     //==연관관계 메서드==//
     public void setAcademy(Academy academy) {

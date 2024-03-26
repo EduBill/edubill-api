@@ -47,7 +47,8 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/","/v1/auth/**","/v1/auth/signup","/v1/auth/login","/error",
-                               "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**", "/api-docs/**", "/health").permitAll()
+                               "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**", "/api-docs/**", "/health"
+                                ,"/excel/**").permitAll()
                         // Springdoc-openapi 도입 시, Swagger 리소스로의 접근이 불가능해지기 때문에 이와 관련된 엔드포인트들은 Spring security 로직을 타지 않도록 구성필요
                         .anyRequest().authenticated());
 

@@ -55,6 +55,10 @@ dependencies {
 	testImplementation 'org.testcontainers:junit-jupiter:1.16.2'
 	testImplementation 'org.mockito:mockito-core:4.8.0'
 
+	//excel upload : poi
+	implementation 'org.apache.poi:poi:5.2.2'                // .xls 확장자
+	implementation 'org.apache.poi:poi-ooxml:5.2.2'          // .xlsx 확장자
+
 	// QueryDsl
 	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
 	annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"

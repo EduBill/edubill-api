@@ -18,11 +18,15 @@ public class PaymentInfo {
     @Column(name = "payment_info_id")
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "academy_id")
+    private Academy academy;
+
     @Column(name = "transaction_date_time")
-    private LocalDateTime transactionDateTime; //거래일시
+    private String transactionDateTime; //거래일시
 
     @Column(name = "student_name")
-    private String studentName; // 학생이름
+    private String depositorName; // 입금자이름이 학생이름과 같은지 체크 필요
 
     @Column(name = "bank_name")
     private String bankName; // 은행이름
@@ -34,11 +38,17 @@ public class PaymentInfo {
     private String memo;  // 메모
 
 
-    public PaymentInfo(LocalDateTime transactionDateTime, String studentName, String bankName, int depositAmount, String memo) {
+    public PaymentInfo(String transactionDateTime, String depositorName, String bankName, int depositAmount, String memo) {
         this.transactionDateTime = transactionDateTime;
-        this.studentName = studentName;
+        this.depositorName = depositorName;
         this.bankName = bankName;
         this.depositAmount = depositAmount;
         this.memo = memo;
+    }
+
+    //연관관계 메서드
+    public void setAcademy(Academy academy) {
+        this.academy = academy;
+        academy.getPaymentInfos().add(this);
     }
 }

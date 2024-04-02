@@ -1,27 +1,44 @@
 package com.edubill.edubillApi.service;
 
+import com.edubill.edubillApi.domain.Academy;
 import com.edubill.edubillApi.domain.PaymentInfo;
 
+import com.edubill.edubillApi.domain.User;
+import com.edubill.edubillApi.error.exception.AcademyNotFoundException;
+import com.edubill.edubillApi.error.exception.UserNotFoundException;
+import com.edubill.edubillApi.repository.AcademyRepository;
 import com.edubill.edubillApi.repository.PaymentRepository;
+
+import com.edubill.edubillApi.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import org.springframework.stereotype.Service;
+
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class KBConvertService implements ConvertService {
 
     private final PaymentRepository paymentRepository;
+    private final UserRepository userRepository;
+    private final AcademyRepository academyRepository;
 
+    @Transactional(readOnly = true)
     @Override
     public void convertExcelFile(MultipartFile file) throws IOException {
 
@@ -34,34 +51,62 @@ public class KBConvertService implements ConvertService {
             workbook = new XSSFWorkbook(file.getInputStream());
         }
 
-        /**
-         * 2024.04.02
-         * 은행 별 엑셀 데이터에 대한 정보가 필요하여 수정이 필요
-         */
+        List<PaymentInfo> paymentInfoList = new ArrayList<>();
+
         Sheet sheet = workbook.getSheetAt(0);
 
-        for (int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {
+        for (int i = 6; i < sheet.getPhysicalNumberOfRows() - 1; i++) {
 
             DataFormatter formatter = new DataFormatter();
             Row row = sheet.getRow(i);
 
-            Cell localDateTimeCell = row.getCell(0);
-            LocalDateTime transactionDateTime = localDateTimeCell.getLocalDateTimeCellValue();
 
+            // 거래시간 (format 통일 : yyyyMMddHHmmss)
+            String originalDateTime = formatter.formatCellValue(row.getCell(0));
+            LocalDateTime dateTime = LocalDateTime.parse(originalDateTime, DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss"));
+            String formattedDateTime = dateTime.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
 
-            String studentName = formatter.formatCellValue(row.getCell(1));
-            String bankName = formatter.formatCellValue(row.getCell(2));
+            // 은행이름
+            String bankName = "국민은행";
 
-            Cell depositAmountCell = row.getCell(3);
+            // 입금액
+            Cell depositAmountCell = row.getCell(5);
             int depositAmount = (int) depositAmountCell.getNumericCellValue();
 
-            String memo = formatter.formatCellValue(row.getCell(4));
+            // 보낸분(입금자)
+            String depositorName = "";
+            if (depositAmount > 0) {
+                // 입금액이 양수인 경우에만 처리
+                depositorName = formatter.formatCellValue(row.getCell(2));
+            }
 
-            //Entity에 mapping
-            PaymentInfo paymentInfo = new PaymentInfo(transactionDateTime, studentName, bankName, depositAmount, memo);
+            // 메모
+            String memo = formatter.formatCellValue(row.getCell(3));
 
-            // db에 저장
-            paymentRepository.save(paymentInfo);
+
+            createPaymentList(formattedDateTime, depositorName, bankName, depositAmount, memo, paymentInfoList);
+        }
+        paymentRepository.saveAll(paymentInfoList);
+    }
+
+    private void createPaymentList(String formattedDateTime, String depositorName, String bankName, int depositAmount, String memo, List<PaymentInfo> paymentInfoList) {
+        //휴대폰번호를 통해 user를 찾고 해당 user가 속한 academy에 대한 정보를 가져와 id를 사용
+        String phoneNumber = "01012345678";
+        User user = userRepository.findByPhoneNumber(phoneNumber).orElse(null);
+
+        if (user != null) {
+            //TODO: userId를 이요해 Academy에 설정값 세팅 필요
+            Academy academy = academyRepository.findByUserId(user.getUserId());
+            if (academy != null) {
+                // PaymentInfo 생성 및 설정
+                PaymentInfo paymentInfo = new PaymentInfo(formattedDateTime, depositorName, bankName, depositAmount, memo);
+                paymentInfo.setAcademy(academy);
+                paymentInfoList.add(paymentInfo);
+            } else {
+                throw new AcademyNotFoundException("학원이 존재하지 않습니다.");
+            }
+        } else {
+            throw new UserNotFoundException("사용자가 존재하지 않습니다.");
         }
     }
 }

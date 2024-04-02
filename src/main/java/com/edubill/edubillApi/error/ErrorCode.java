@@ -21,6 +21,9 @@ public enum ErrorCode {
     USER_ALREADY_LOGOUT(400, "U007", "사용자가 이미 로그아웃하였습니다."),
     INVALID_VERIFY_NUMBER(401,"U008", "인증번호가 일치하지 않습니다."),
 
+    // Academy
+    ACADEMY_NOT_FOUND(400, "A001", "학원이 존재하지 않습니다."),
+
     // common
     INTERNAL_SERVER_ERROR(500, "C001", "서버 오류"),
     INVALID_INPUT_VALUE(400, "C002", "잘못된 일력 값을 입력하였습니다."),

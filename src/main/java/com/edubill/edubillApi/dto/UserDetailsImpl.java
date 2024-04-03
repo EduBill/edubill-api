@@ -32,7 +32,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getPhoneNumber();
+        return String.valueOf(user.getUserId());
     }
 
     @Override

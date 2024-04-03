@@ -9,7 +9,7 @@ import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
 import com.edubill.edubillApi.error.exception.UserAlreadyExistsException;
 import com.edubill.edubillApi.error.exception.UserNotFoundException;
 import com.edubill.edubillApi.repository.RequestIdRepository;
-import com.edubill.edubillApi.repository.UserRepository;
+import com.edubill.edubillApi.user.repository.UserRepository;
 import com.edubill.edubillApi.repository.VerificationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;

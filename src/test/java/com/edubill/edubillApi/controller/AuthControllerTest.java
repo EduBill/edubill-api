@@ -8,7 +8,7 @@ import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
 import com.edubill.edubillApi.jwt.JwtProvider;
 import com.edubill.edubillApi.repository.RequestIdRepository;
 import com.edubill.edubillApi.repository.RequestIdRepositoryMap;
-import com.edubill.edubillApi.repository.UserRepository;
+import com.edubill.edubillApi.user.repository.UserRepository;
 import com.edubill.edubillApi.repository.VerificationRepository;
 import com.edubill.edubillApi.repository.VerificationRepositoryMap;
 import com.edubill.edubillApi.service.AuthService;

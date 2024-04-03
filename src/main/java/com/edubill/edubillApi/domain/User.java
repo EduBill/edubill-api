@@ -1,5 +1,6 @@
 package com.edubill.edubillApi.domain;
 
+import com.edubill.edubillApi.user.enums.UserType;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.ArrayList;
@@ -26,17 +27,14 @@ public class User extends BaseEntity{
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
+    @Column(name = "user_type", columnDefinition = "varchar")
+    @Enumerated(EnumType.STRING)
+    private UserType userType;
+
     @Transient
     private AuthInfo authInfo;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Invoice> invoices = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Academy> academies = new ArrayList<>();
-
     @Builder
-    public User(String userId, String phoneNumber,String userName, String requestId, UserRole userRole) {
+    public User(String userId, String phoneNumber, String userName, String requestId, UserRole userRole) {
         this.userId = userId;
         this.phoneNumber = phoneNumber;
         this.userName = userName;

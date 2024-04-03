@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS academy
     academy_name    VARCHAR(255),
     academy_number  VARCHAR(255),
     business_number VARCHAR(255),
-    academy_type    ENUM ('MATH', 'ENGLISH', 'SCIENCE', 'ART'),
     PRIMARY KEY (academy_id)
 ) ENGINE = InnoDB;
 
@@ -46,7 +45,8 @@ CREATE TABLE IF NOT EXISTS users
     user_id      VARCHAR(255)                         NOT NULL,
     phone_number VARCHAR(255)                         NOT NULL,
     user_name    VARCHAR(255)                         NOT NULL,
-    user_role    ENUM ('PARENTS', 'ACADEMY', 'ADMIN') NOT NULL,
+    user_type    VARCHAR(50),
+    user_role    VARCHAR(50) NOT NULL,
     PRIMARY KEY (user_id)
 ) ENGINE = InnoDB;
 

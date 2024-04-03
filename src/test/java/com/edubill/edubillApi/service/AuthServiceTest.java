@@ -5,14 +5,13 @@ import com.edubill.edubillApi.domain.User;
 import com.edubill.edubillApi.dto.user.SignupRequestDto;
 import com.edubill.edubillApi.dto.user.UserDto;
 import com.edubill.edubillApi.dto.user.ExistUserRequestDto;
-import com.edubill.edubillApi.repository.UserRepository;
+import com.edubill.edubillApi.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 

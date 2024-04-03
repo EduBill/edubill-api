@@ -33,11 +33,4 @@ public class Invoice extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-
-
-    //==연관관계 메서드==//
-    public void setUser(User user) {
-        this.user = user;
-        user.getInvoices().add(this);
-    }
 }

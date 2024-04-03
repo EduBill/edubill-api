@@ -1,4 +1,4 @@
-package com.edubill.edubillApi.repository;
+package com.edubill.edubillApi.user.repository;
 
 import com.edubill.edubillApi.domain.User;
 import com.edubill.edubillApi.dto.user.UserUpdateRequestDto;

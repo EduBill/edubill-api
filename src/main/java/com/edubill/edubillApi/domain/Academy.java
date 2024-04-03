@@ -27,22 +27,9 @@ public class Academy {
     @Column(name = "business_number")
     private String businessNumber;
 
-    @Column(name = "academy_type")
-    @Enumerated(EnumType.STRING)
-    private AcademyType academyType;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Column(name = "user_id")
+    private String userId;
 
     @OneToMany(mappedBy = "academy", cascade = CascadeType.ALL)
     private List<AcademyStudent> academyStudents = new ArrayList<>();
-
-
-    //==연관관계 메서드==//
-    public void setUser(User user) {
-        this.user = user;
-        user.getAcademies().add(this);
-    }
-
 }

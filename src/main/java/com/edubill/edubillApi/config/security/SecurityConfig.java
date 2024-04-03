@@ -24,6 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
+    private final JwtAuthFilter jwtAuthFilter;
     private final AuthenticationEntryPointCustom authenticationEntryPointCustom;
     private final AccessDeniedHandlerCustom accessDeniedHandlerCustom;
 
@@ -56,7 +57,7 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandlerCustom)); // 403 Error 처리, 인증과는 별개로 추가적인 권한이 충족되지 않는 경우
 
         http
-                .addFilterBefore(new JwtAuthFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

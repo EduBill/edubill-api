@@ -10,18 +10,25 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
 @Slf4j
+@Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
+
+    private final UserDetailsService userDetailsServiceImpl;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
@@ -44,7 +51,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     //세션에 사용자 등록
     private void setAuthentication(String phoneNumber) {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
-        Authentication authentication = jwtProvider.createUserAuthentication(phoneNumber);
+        Authentication authentication = createUserAuthentication(phoneNumber);
         context.setAuthentication(authentication);
         SecurityContextHolder.setContext(context);
     }
@@ -62,5 +69,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         } catch (IOException e) {
             throw new RuntimeException("Error while processing JSON", e);
         }
+    }
+
+    public Authentication createUserAuthentication(String phoneNumber) {
+        UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(phoneNumber);
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 }

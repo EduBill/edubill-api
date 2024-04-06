@@ -1,4 +1,4 @@
-package com.edubill.edubillApi.repository;
+package com.edubill.edubillApi.payment.repository;
 
 import com.edubill.edubillApi.domain.PaymentInfo;
 import org.springframework.data.jpa.repository.JpaRepository;

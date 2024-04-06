@@ -1,10 +1,7 @@
 package com.edubill.edubillApi.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -17,10 +14,6 @@ public class PaymentInfo {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "payment_info_id")
     private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "academy_id")
-    private Academy academy;
 
     @Column(name = "transaction_date_time")
     private String transactionDateTime; //거래일시
@@ -37,18 +30,16 @@ public class PaymentInfo {
     @Column(name = "memo")
     private String memo;  // 메모
 
+    @Column(name = "student_group_id")  // 외래 키
+    private Long studentGroupId;
 
-    public PaymentInfo(String transactionDateTime, String depositorName, String bankName, int depositAmount, String memo) {
+
+    public PaymentInfo(String transactionDateTime, String depositorName, String bankName, int depositAmount, String memo, Long studentGroupId) {
         this.transactionDateTime = transactionDateTime;
         this.depositorName = depositorName;
         this.bankName = bankName;
         this.depositAmount = depositAmount;
         this.memo = memo;
-    }
-
-    //연관관계 메서드
-    public void setAcademy(Academy academy) {
-        this.academy = academy;
-        academy.getPaymentInfos().add(this);
+        this.studentGroupId = studentGroupId;
     }
 }

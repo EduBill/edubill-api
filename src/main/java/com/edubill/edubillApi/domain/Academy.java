@@ -1,6 +1,7 @@
 package com.edubill.edubillApi.domain;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,7 +17,7 @@ public class Academy {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "academy_id")
-    private Long id;
+    private Long academyId;
 
     @Column(name = "academy_name")
     private String academyName;
@@ -33,6 +34,13 @@ public class Academy {
     @OneToMany(mappedBy = "academy", cascade = CascadeType.ALL)
     private List<AcademyStudent> academyStudents = new ArrayList<>();
 
-    @OneToMany(mappedBy = "academy")
-    private List<PaymentInfo> paymentInfos = new ArrayList<>();
+
+
+    @Builder
+    public Academy(String academyName, String academyNumber, String businessNumber, String userId) {
+        this.academyName = academyName;
+        this.academyNumber = academyNumber;
+        this.businessNumber = businessNumber;
+        this.userId = userId;
+    }
 }

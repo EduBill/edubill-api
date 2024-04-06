@@ -20,7 +20,7 @@ public class StudentGroup extends BaseEntity {
 
     private String groupName;
 
-    private Long academyId;
+    private String managerId;
 
     private Integer tuition;
 }

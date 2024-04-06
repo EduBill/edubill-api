@@ -51,7 +51,7 @@ CREATE TABLE student_group (
                                id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                tuition INT,
                                group_name   VARCHAR(50),
-                               academy_id   BIGINT,
+                               manager_id   VARCHAR(50),
                                created_at   DATETIME(6),
                                updated_at   DATETIME(6)
 ) ENGINE=InnoDB;

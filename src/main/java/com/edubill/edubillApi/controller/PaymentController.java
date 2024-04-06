@@ -32,6 +32,7 @@ public class PaymentController {
     }
 
     @GetMapping("/status/{yearMonth}")
+
     @Operation(summary = "납부 현황 가져오기",
             description = "주어진 연도와 달에 해당하는 납부 상태를 가져온다.",
             parameters = {

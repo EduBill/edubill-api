@@ -33,15 +33,4 @@ public class SwaggerConfig {
                 .components(new Components().addSecuritySchemes("bearerAuth", securityScheme))
                 .security(Arrays.asList(securityRequirement));
     }
-
-    @Bean
-    public GroupedOpenApi authApi() {
-        String[] paths = {"/v1/auth/**", "/v1/user/**"};
-
-        return GroupedOpenApi.builder()
-                .group("authAPI v1")
-                .pathsToMatch(paths)
-                .build();
-    }
-
 }

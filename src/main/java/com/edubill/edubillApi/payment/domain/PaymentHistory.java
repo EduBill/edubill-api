@@ -1,5 +1,6 @@
-package com.edubill.edubillApi.domain;
+package com.edubill.edubillApi.payment.domain;
 
+import com.edubill.edubillApi.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

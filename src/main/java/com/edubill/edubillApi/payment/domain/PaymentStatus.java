@@ -1,4 +1,4 @@
-package com.edubill.edubillApi.domain;
+package com.edubill.edubillApi.payment.domain;
 
 import lombok.Getter;
 

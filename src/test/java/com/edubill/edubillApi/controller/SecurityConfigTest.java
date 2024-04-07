@@ -104,7 +104,7 @@ class SecurityConfigTest {
         // then
         User savedUser = userRepository.findByPhoneNumber("01012345678").orElse(null);
         assertEquals("edubill", savedUser.getUserName());
-        assertEquals(AuthRole.USER, savedUser.getUserRole());
+        assertEquals(AuthRole.USER, savedUser.getAuthRole());
 
 
         //== 로그인 및 토큰 생성 ==//

@@ -19,39 +19,32 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentListCreationService {
 
-    private final UserRepository userRepository;
+
     private final StudentGroupRepository studentGroupRepository;
 
-    public void createPaymentInfoList(String formattedDateTime, String depositorName, String bankName, int depositAmount, String memo, List<PaymentInfo> paymentInfoList) {
+    public void createPaymentInfoList(String formattedDateTime, String depositorName, String bankName, int depositAmount, String memo, List<PaymentInfo> paymentInfoList, String userId) {
 
-        //TODO: Principal을 통해 userId를 가져오도록 수정
-        String phoneNumber = "01012345678";
-        User user = userRepository.findByPhoneNumber(phoneNumber).orElse(null);
 
-        if (user != null) {
-            List<StudentGroup> studentGroups = studentGroupRepository.getUserGroupsByUserId(user.getUserId());
+        List<StudentGroup> studentGroups = studentGroupRepository.getUserGroupsByUserId(userId);
 
-            if (studentGroups != null && !studentGroups.isEmpty()) {
-                //TODO: StudentGroupId에 대한 정보를 받고 해당하는 Id에 따라 paymentInfo를 저장하도록 수정
-                StudentGroup studentGroup = studentGroups.get(0);
+        if (studentGroups != null && !studentGroups.isEmpty()) {
+            //TODO: StudentGroupId에 대한 정보를 받고 해당하는 Id에 따라 paymentInfo를 저장하도록 수정
+            StudentGroup studentGroup = studentGroups.get(0);
 
-                PaymentInfo paymentInfo = new PaymentInfo(formattedDateTime, depositorName, bankName, depositAmount, memo, studentGroup.getId());
-                paymentInfoList.add(paymentInfo);
+            PaymentInfo paymentInfo = new PaymentInfo(formattedDateTime, depositorName, bankName, depositAmount, memo, studentGroup.getId());
+            paymentInfoList.add(paymentInfo);
 
-            } else {
-                StudentGroup newStudentGroup = StudentGroup.builder()
-                        .groupName("중등 A반")
-                        .managerId(user.getUserId())
-                        .tuition(300000)
-                        .totalStudentCount(20)
-                        .build();
-                studentGroupRepository.save(newStudentGroup);
-
-                PaymentInfo paymentInfo = new PaymentInfo(formattedDateTime, depositorName, bankName, depositAmount, memo, newStudentGroup.getId());
-                paymentInfoList.add(paymentInfo);
-            }
         } else {
-            throw new UserNotFoundException("사용자가 존재하지 않습니다.");
+            StudentGroup newStudentGroup = StudentGroup.builder()
+                    .groupName("중등 A반")
+                    .managerId(userId)
+                    .tuition(300000)
+                    .totalStudentCount(20)
+                    .build();
+            studentGroupRepository.save(newStudentGroup);
+
+            PaymentInfo paymentInfo = new PaymentInfo(formattedDateTime, depositorName, bankName, depositAmount, memo, newStudentGroup.getId());
+            paymentInfoList.add(paymentInfo);
         }
     }
 }

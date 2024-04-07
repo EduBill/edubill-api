@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 
 @Service
@@ -69,8 +70,13 @@ public class KBConvertService implements ConvertService {
             if (depositAmount > 0) {
                 // 입금액이 양수인 경우에만 처리
                 depositorName = formatter.formatCellValue(row.getCell(2));
+                // 한글 이외의 영어, 숫자, 문자가 포함된 경우 해당 행의 데이터를 전달하지 않음
+                if (depositorName.matches(".*[a-zA-Z0-9].*")) {
+                    continue;
+                }
+            } else {
+                continue;
             }
-
             // 메모
             String memo = formatter.formatCellValue(row.getCell(3));
 

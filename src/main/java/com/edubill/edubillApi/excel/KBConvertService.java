@@ -82,7 +82,7 @@ public class KBConvertService implements ConvertService {
             // 메모
             String memo = formatter.formatCellValue(row.getCell(3));
 
-            paymentListCreationService.createPaymentInfoList(depositDate, depositorName, BANK_NAME, depositAmount, memo, paymentHistories, userId);
+            paymentListCreationService.createPaymentHistoryList(depositDate, depositorName, BANK_NAME, depositAmount, memo, paymentHistories, userId);
         }
         return paymentHistories;
     }

@@ -32,7 +32,7 @@ public class KBConvertService implements ConvertService {
 
     @Transactional
     @Override
-    public List<PaymentInfo> convertBankExcelDataToPaymentInfo(MultipartFile file) throws IOException {
+    public List<PaymentInfo> convertBankExcelDataToPaymentInfo(MultipartFile file, String userId) throws IOException {
 
         String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
         Workbook workbook = null;
@@ -41,7 +41,10 @@ public class KBConvertService implements ConvertService {
             workbook = new HSSFWorkbook(file.getInputStream());
         } else if (fileExtension.equals("xlsx")) {
             workbook = new XSSFWorkbook(file.getInputStream());
+        } else {
+            throw new IllegalArgumentException("지원되지 않는 파일 형식입니다. xls 및 xlsx 파일만 지원됩니다.");
         }
+
 
         List<PaymentInfo> paymentInfos = new ArrayList<>();
 
@@ -71,7 +74,7 @@ public class KBConvertService implements ConvertService {
             // 메모
             String memo = formatter.formatCellValue(row.getCell(3));
 
-            paymentListCreationService.createPaymentInfoList(formattedDateTime, depositorName, BANK_NAME, depositAmount, memo, paymentInfos);
+            paymentListCreationService.createPaymentInfoList(formattedDateTime, depositorName, BANK_NAME, depositAmount, memo, paymentInfos, userId);
         }
         return paymentInfos;
     }

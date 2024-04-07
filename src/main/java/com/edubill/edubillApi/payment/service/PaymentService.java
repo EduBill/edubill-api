@@ -1,5 +1,6 @@
 package com.edubill.edubillApi.payment.service;
 
+import com.edubill.edubillApi.domain.PaymentInfo;
 import com.edubill.edubillApi.domain.StudentGroup;
 import com.edubill.edubillApi.payment.domain.PaymentHistory;
 import com.edubill.edubillApi.payment.repository.PaymentHistoryRepository;
@@ -20,10 +21,16 @@ public class PaymentService {
     private final PaymentHistoryRepository paymentHistoryRepository;
 
     private final StudentGroupRepository studentGroupRepository;
+    private final PaymentRepository paymentRepository;
 
-    public PaymentService(PaymentHistoryRepository paymentHistoryRepository, StudentGroupRepository studentGroupRepository) {
+    public PaymentService(PaymentHistoryRepository paymentHistoryRepository, StudentGroupRepository studentGroupRepository, PaymentRepository paymentRepository) {
         this.paymentHistoryRepository = paymentHistoryRepository;
         this.studentGroupRepository = studentGroupRepository;
+        this.paymentRepository = paymentRepository;
+    }
+
+    public void savePaymentInfos(List<PaymentInfo> paymentInfos) {
+        paymentRepository.saveAll(paymentInfos);
     }
 
     @Transactional

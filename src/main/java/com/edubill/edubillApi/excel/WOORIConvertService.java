@@ -10,7 +10,7 @@ import java.util.List;
 @Service
 public class WOORIConvertService implements ConvertService {
     @Override
-    public List<PaymentInfo> convertBankExcelDataToPaymentInfo(MultipartFile file){
+    public List<PaymentInfo> convertBankExcelDataToPaymentInfo(MultipartFile file, String userId){
 
         return null;
     }

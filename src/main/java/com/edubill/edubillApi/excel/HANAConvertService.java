@@ -10,7 +10,7 @@ import java.util.List;
 @Service
 public class HANAConvertService implements ConvertService {
     @Override
-    public List<PaymentInfo> convertBankExcelDataToPaymentInfo(MultipartFile file) throws IOException {
+    public List<PaymentInfo> convertBankExcelDataToPaymentInfo(MultipartFile file, String userId) throws IOException {
 
         return null;
     }

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.Principal;
 
 @Slf4j
 @RestController
@@ -31,22 +32,25 @@ public class ExcelController {
             description = "각 은행별 엑셀을 받아 하나의 Entity에 매핑하여 동일한 DB에 저장될 수 있도록 한다.",
             parameters = {
                     @Parameter(name = "file",
-                            description = "엑셀파일을 입력받는다. 포멧: .xls, .xlsx",
+                            description = "엑셀파일을 입력받는다.",
                             required = true,
-                            example = "KB거래내역조회.xls",
-                            schema = @Schema(type = "MultipartFile",format = "binary"),
+                            example = "은행거래내역.xls",
+                            schema = @Schema(type = "String",format = "binary"),
                             content = @Content(mediaType = "multipart/form-data")),
                     @Parameter(name="bankCode",
-                            description = "bankCode",
+                            description = "은행코드를 입력받는다.",
                             required = true,
                             example = "004",
                             schema = @Schema(type = "String", example = "004"),
-                            content = @Content(examples = @ExampleObject(name = "bankCodeExample", value = "004"))
+                            content = @Content(examples = @ExampleObject(name = "은행코드", value = "004"))
                     )
             })
     @PostMapping("/upload")
-    public ResponseEntity<String> readExcel(@RequestParam("file") MultipartFile file, @RequestParam("bankCode") String bankCode) throws IOException {
-        excelService.convertExcelDataByBankCode(file, bankCode);
+    public ResponseEntity<String> readExcel(@RequestParam("file") MultipartFile file, @RequestParam("bankCode") String bankCode, Principal principal) throws IOException {
+
+        final String userId = principal.getName();
+        excelService.convertExcelDataByBankCode(file, bankCode, userId);
+
         return ResponseEntity.ok("excel upload 완료");
     }
 }

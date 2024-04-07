@@ -1,6 +1,5 @@
 package com.edubill.edubillApi.dto.user;
 
-import com.edubill.edubillApi.domain.UserRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -25,7 +24,4 @@ public class SignupRequestDto {
     @Pattern(regexp =  "^01(?:0|1|[6-9])(\\d{3,4})(\\d{4})$",message = "-을 제외한 11자리 번호를 입력해주세요")
     private String phoneNumber;
 
-
-//    @NotNull(message = "권한 입력은 필수입니다.")
-//    private UserRole userRole;
 }

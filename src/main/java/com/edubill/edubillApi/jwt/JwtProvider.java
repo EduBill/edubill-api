@@ -1,6 +1,6 @@
 package com.edubill.edubillApi.jwt;
 
-import com.edubill.edubillApi.domain.UserRole;
+import com.edubill.edubillApi.domain.AuthRole;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -51,12 +51,12 @@ public class JwtProvider {
         return null;
     }
 
-    public JwtToken createTokenByLogin(String phoneNumber, UserRole role) {
+    public JwtToken createTokenByLogin(String phoneNumber, AuthRole role) {
         String accessToken = createToken(phoneNumber, role, ACCESS_TOKEN_TIME);
         return new JwtToken(accessToken);
     }
 
-    private String createToken(String phoneNumber, UserRole role, Long tokenExpireTime) {
+    private String createToken(String phoneNumber, AuthRole role, Long tokenExpireTime) {
 
         return BEARER_PREFIX + Jwts.builder()
                 .claim(AUTHORIZATION_KEY, role)

@@ -156,7 +156,7 @@ public class AuthController {
 
         if (authService.isRequestIdValidForPhoneNumber(phoneNumber, requestId)) {
             UserDto loginUser = authService.login(loginRequestDto);
-            JwtToken token = jwtProvider.createTokenByLogin(loginUser.getPhoneNumber(), loginUser.getUserRole());
+            JwtToken token = jwtProvider.createTokenByLogin(loginUser.getPhoneNumber(), loginUser.getAuthRole());
             response.addHeader(JwtProvider.AUTHORIZATION_HEADER, token.getAccessToken());// 헤더에 access token 만 싣기
 
             LoginResponseDto loginResponseDto = new LoginResponseDto(token, loginUser);

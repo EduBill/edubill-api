@@ -1,6 +1,7 @@
 package com.edubill.edubillApi.controller;
 
 import com.edubill.edubillApi.config.TestcontainerConfig;
+import com.edubill.edubillApi.domain.AuthRole;
 import com.edubill.edubillApi.domain.User;
 import com.edubill.edubillApi.dto.user.LoginRequestDto;
 import com.edubill.edubillApi.dto.user.SignupRequestDto;
@@ -37,7 +38,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.edubill.edubillApi.domain.UserRole.ACADEMY;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -104,7 +104,7 @@ class SecurityConfigTest {
         // then
         User savedUser = userRepository.findByPhoneNumber("01012345678").orElse(null);
         assertEquals("edubill", savedUser.getUserName());
-        assertEquals(ACADEMY, savedUser.getUserRole());
+        assertEquals(AuthRole.USER, savedUser.getUserRole());
 
 
         //== 로그인 및 토큰 생성 ==//

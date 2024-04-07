@@ -16,11 +16,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentListCreationService {
 
-
     private final StudentGroupRepository studentGroupRepository;
 
-    public void createPaymentInfoList(LocalDate depositDate, String depositorName, String bankName, int depositAmount, String memo, List<PaymentHistory> paymentHistories, String userId) {
-
+    public void createPaymentHistoryList(LocalDate depositDate, String depositorName, String bankName, int depositAmount, String memo, List<PaymentHistory> paymentHistories, String userId) {
 
         List<StudentGroup> studentGroups = studentGroupRepository.getUserGroupsByUserId(userId);
 

@@ -1,11 +1,11 @@
 package com.edubill.edubillApi.excel;
 
-import com.edubill.edubillApi.domain.PaymentInfo;
+import com.edubill.edubillApi.payment.domain.PaymentHistory;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
 
 public interface ConvertService {
-    List<PaymentInfo> convertBankExcelDataToPaymentInfo(MultipartFile file, String UserId) throws IOException;
+    List<PaymentHistory> convertBankExcelDataToPaymentInfo(MultipartFile file, String UserId) throws IOException;
 }

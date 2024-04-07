@@ -1,6 +1,6 @@
 package com.edubill.edubillApi.excel;
 
-import com.edubill.edubillApi.domain.PaymentInfo;
+import com.edubill.edubillApi.payment.domain.PaymentHistory;
 import com.edubill.edubillApi.payment.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,25 +21,25 @@ public class ExcelService {
 
 
     public void convertExcelDataByBankCode(MultipartFile file, String bankCode, final String userId) throws IOException {
-        List<PaymentInfo> paymentInfos;
+        List<PaymentHistory> paymentHistories;
 
         switch (bankCode) {
             case "004":
-                paymentInfos = kbConvertService.convertBankExcelDataToPaymentInfo(file, userId);
+                paymentHistories = kbConvertService.convertBankExcelDataToPaymentInfo(file, userId);
                 break;
             case "088":
-                paymentInfos = shinhanConvertService.convertBankExcelDataToPaymentInfo(file, userId);
+                paymentHistories = shinhanConvertService.convertBankExcelDataToPaymentInfo(file, userId);
                 break;
             case "020":
-                paymentInfos = wooriConvertService.convertBankExcelDataToPaymentInfo(file, userId);
+                paymentHistories = wooriConvertService.convertBankExcelDataToPaymentInfo(file, userId);
                 break;
             case "081":
-                paymentInfos = hanaConvertService.convertBankExcelDataToPaymentInfo(file, userId);
+                paymentHistories = hanaConvertService.convertBankExcelDataToPaymentInfo(file, userId);
                 break;
 
             default:
                 throw new IllegalArgumentException("Unsupported bank code");
         }
-        paymentService.savePaymentInfos(paymentInfos);
+        paymentService.savePaymentHistories(paymentHistories);
     }
 }

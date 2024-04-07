@@ -1,7 +1,7 @@
 package com.edubill.edubillApi.service;
 
 import com.edubill.edubillApi.domain.User;
-import com.edubill.edubillApi.domain.UserRole;
+import com.edubill.edubillApi.domain.AuthRole;
 import com.edubill.edubillApi.dto.user.LoginRequestDto;
 import com.edubill.edubillApi.dto.user.SignupRequestDto;
 import com.edubill.edubillApi.dto.user.UserDto;
@@ -77,7 +77,7 @@ public class AuthServiceImpl implements AuthService {
                 .phoneNumber(phoneNumber)
                 .userName(userName)
                 .requestId(requestId)
-                .userRole(UserRole.ACADEMY) // 수정 필요
+                .authRole(AuthRole.USER) //TODO: 관리자권한으로 저장하는 signup과 구분필요
                 .build();
 
         userRepository.save(user);

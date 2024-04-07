@@ -1,7 +1,7 @@
 package com.edubill.edubillApi.dto;
 
 import com.edubill.edubillApi.domain.User;
-import com.edubill.edubillApi.domain.UserRole;
+import com.edubill.edubillApi.domain.AuthRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -17,7 +17,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        UserRole role = user.getUserRole();
+        AuthRole role = user.getAuthRole();
         //String authority = role.getAuthority();
         SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(role.getCode());
         Collection<GrantedAuthority>authorities = new ArrayList<>();

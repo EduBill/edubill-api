@@ -1,6 +1,7 @@
 package com.edubill.edubillApi.excel;
 
-import com.edubill.edubillApi.domain.PaymentInfo;
+import com.edubill.edubillApi.payment.domain.PaymentHistory;
+
 
 import com.edubill.edubillApi.payment.service.PaymentListCreationService;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 
 @Service
@@ -33,7 +35,7 @@ public class KBConvertService implements ConvertService {
 
     @Transactional
     @Override
-    public List<PaymentInfo> convertBankExcelDataToPaymentInfo(MultipartFile file, String userId) throws IOException {
+    public List<PaymentHistory> convertBankExcelDataToPaymentInfo(MultipartFile file, String userId) throws IOException {
 
         String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
         Workbook workbook = null;
@@ -46,8 +48,7 @@ public class KBConvertService implements ConvertService {
             throw new IllegalArgumentException("지원되지 않는 파일 형식입니다. xls 및 xlsx 파일만 지원됩니다.");
         }
 
-
-        List<PaymentInfo> paymentInfos = new ArrayList<>();
+        List<PaymentHistory> paymentHistories = new ArrayList<>();
 
         Sheet sheet = workbook.getSheetAt(0);
 
@@ -56,10 +57,11 @@ public class KBConvertService implements ConvertService {
             DataFormatter formatter = new DataFormatter();
             Row row = sheet.getRow(rowNumber);
 
-            // 거래시간 (format 통일 : yyyyMMddHHmmss)
+            // 거래날짜
             String originalDateTime = formatter.formatCellValue(row.getCell(0));
-            LocalDateTime dateTime = LocalDateTime.parse(originalDateTime, DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss"));
-            String formattedDateTime = dateTime.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+            LocalDateTime depositDateTime = LocalDateTime.parse(originalDateTime, DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss"));
+            LocalDate depositDate = depositDateTime.toLocalDate();
+
 
             // 입금액
             Cell depositAmountCell = row.getCell(5);
@@ -80,8 +82,8 @@ public class KBConvertService implements ConvertService {
             // 메모
             String memo = formatter.formatCellValue(row.getCell(3));
 
-            paymentListCreationService.createPaymentInfoList(formattedDateTime, depositorName, BANK_NAME, depositAmount, memo, paymentInfos, userId);
+            paymentListCreationService.createPaymentInfoList(depositDate, depositorName, BANK_NAME, depositAmount, memo, paymentHistories, userId);
         }
-        return paymentInfos;
+        return paymentHistories;
     }
 }

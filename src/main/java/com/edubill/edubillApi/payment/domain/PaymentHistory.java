@@ -1,31 +1,45 @@
 package com.edubill.edubillApi.payment.domain;
 
-import com.edubill.edubillApi.domain.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
 @Entity
-public class PaymentHistory extends BaseEntity {
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class PaymentHistory {
 
-    protected PaymentHistory() {
-
-    }
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "payment_history_id")
     private Long id;
 
-    private Integer paidAmount;
+    @Column(name = "deposit_date")
+    private LocalDate depositDate; //거래일시
 
+    @Column(name = "depositor_name")
+    private String depositorName; // 입금자이름이 학생이름과 같은지 체크 필요
+
+    @Column(name = "bank_name")
+    private String bankName; // 은행이름
+
+    @Column(name = "paid_amount")
+    private Integer paidAmount; // 입금액
+
+    @Column(name = "memo")
+    private String memo;  // 메모
+
+    @Column(name = "student_group_id")  // 외래 키
     private Long studentGroupId;
 
-    private LocalDateTime depositDate;
-
-    private String depositor;
+    public PaymentHistory(LocalDate depositDate, String depositorName, String bankName, int paidAmount, String memo, Long studentGroupId) {
+        this.depositDate = depositDate;
+        this.depositorName = depositorName;
+        this.bankName = bankName;
+        this.paidAmount = paidAmount;
+        this.memo = memo;
+        this.studentGroupId = studentGroupId;
+    }
 }

@@ -1,10 +1,10 @@
 package com.edubill.edubillApi.payment.service;
 
-import com.edubill.edubillApi.domain.PaymentInfo;
-import com.edubill.edubillApi.domain.StudentGroup;
 import com.edubill.edubillApi.payment.domain.PaymentHistory;
+
+import com.edubill.edubillApi.domain.StudentGroup;
 import com.edubill.edubillApi.payment.repository.PaymentHistoryRepository;
-import com.edubill.edubillApi.payment.response.PaymentHistoryResponse;
+import com.edubill.edubillApi.payment.repository.PaymentRepository;
 import com.edubill.edubillApi.payment.response.PaymentStatusDto;
 import com.edubill.edubillApi.user.repository.StudentGroupRepository;
 import org.springframework.data.domain.Page;
@@ -19,18 +19,16 @@ import java.util.List;
 public class PaymentService {
 
     private final PaymentHistoryRepository paymentHistoryRepository;
-
     private final StudentGroupRepository studentGroupRepository;
-    private final PaymentRepository paymentRepository;
 
-    public PaymentService(PaymentHistoryRepository paymentHistoryRepository, StudentGroupRepository studentGroupRepository, PaymentRepository paymentRepository) {
+
+    public PaymentService(PaymentHistoryRepository paymentHistoryRepository, StudentGroupRepository studentGroupRepository) {
         this.paymentHistoryRepository = paymentHistoryRepository;
         this.studentGroupRepository = studentGroupRepository;
-        this.paymentRepository = paymentRepository;
     }
 
-    public void savePaymentInfos(List<PaymentInfo> paymentInfos) {
-        paymentRepository.saveAll(paymentInfos);
+    public void savePaymentHistories(List<PaymentHistory> paymentHistories) {
+        paymentHistoryRepository.saveAll(paymentHistories);
     }
 
     @Transactional

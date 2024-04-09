@@ -63,20 +63,21 @@ public class PaymentService {
         final Page<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesByYearMonthAndManagerId(userId, yearMonth, pageable);
 
         return paymentHistories.map(paymentHistory ->
-            new PaymentHistoryResponse(paymentHistory.getDepositor(), paymentHistory.getPaidAmount(), paymentHistory.getDepositDate())
+                new PaymentHistoryResponse(paymentHistory.getDepositor(), paymentHistory.getPaidAmount(), paymentHistory.getDepositDate())
         );
     }
-    public List<PaymentHistory> createPaymentHistories(PaymentHistoryDto paymentHistoryDto, String userId) {
 
-        List<PaymentHistory> paymentHistories = new ArrayList<>();
+
+    public PaymentHistory mapToPaymentHistoryWithStudentGroup(PaymentHistoryDto paymentHistoryDto, String userId) {
+
         List<StudentGroup> studentGroups = studentGroupRepository.getUserGroupsByUserId(userId);
 
         if (studentGroups != null && !studentGroups.isEmpty()) {
             //TODO: StudentGroupId에 대한 정보를 받고 해당하는 Id에 따라 paymentHistory를 저장하도록 수정
             StudentGroup studentGroup = studentGroups.get(0);
             PaymentHistory paymentHistory = PaymentHistory.toEntity(paymentHistoryDto, studentGroup.getId());
-            paymentHistories.add(paymentHistory);
-            return paymentHistories;
+
+            return paymentHistory;
 
         } else {
             StudentGroup newStudentGroup = StudentGroup.builder()
@@ -88,8 +89,7 @@ public class PaymentService {
             studentGroupRepository.save(newStudentGroup);
 
             PaymentHistory paymentHistory = PaymentHistory.toEntity(paymentHistoryDto, newStudentGroup.getId());
-            paymentHistories.add(paymentHistory);
-            return paymentHistories;
+            return paymentHistory;
         }
     }
 }

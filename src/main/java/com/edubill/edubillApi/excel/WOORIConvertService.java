@@ -11,7 +11,7 @@ import java.util.List;
 @Service("WOORIconvertService")
 public class WOORIConvertService implements ConvertService {
     @Override
-    public List<PaymentHistory> convertBankExcelDataToPaymentInfo(MultipartFile file, String userId){
+    public List<PaymentHistory> convertBankExcelDataToPaymentHistory(MultipartFile file, String userId){
 
         return null;
     }

@@ -7,5 +7,5 @@ import java.io.IOException;
 import java.util.List;
 
 public interface ConvertService {
-    List<PaymentHistory> convertBankExcelDataToPaymentInfo(MultipartFile file, String UserId) throws IOException;
+    List<PaymentHistory> convertBankExcelDataToPaymentHistory(MultipartFile file, String UserId) throws IOException;
 }

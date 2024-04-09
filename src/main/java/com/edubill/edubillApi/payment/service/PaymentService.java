@@ -1,5 +1,6 @@
 package com.edubill.edubillApi.payment.service;
 
+import com.edubill.edubillApi.payment.dto.PaymentHistoryDto;
 import com.edubill.edubillApi.payment.domain.PaymentHistory;
 
 import com.edubill.edubillApi.domain.StudentGroup;
@@ -12,7 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -62,5 +65,31 @@ public class PaymentService {
         return paymentHistories.map(paymentHistory ->
             new PaymentHistoryResponse(paymentHistory.getDepositor(), paymentHistory.getPaidAmount(), paymentHistory.getDepositDate())
         );
+    }
+    public List<PaymentHistory> createPaymentHistories(PaymentHistoryDto paymentHistoryDto, String userId) {
+
+        List<PaymentHistory> paymentHistories = new ArrayList<>();
+        List<StudentGroup> studentGroups = studentGroupRepository.getUserGroupsByUserId(userId);
+
+        if (studentGroups != null && !studentGroups.isEmpty()) {
+            //TODO: StudentGroupId에 대한 정보를 받고 해당하는 Id에 따라 paymentHistory를 저장하도록 수정
+            StudentGroup studentGroup = studentGroups.get(0);
+            PaymentHistory paymentHistory = PaymentHistory.toEntity(paymentHistoryDto, studentGroup.getId());
+            paymentHistories.add(paymentHistory);
+            return paymentHistories;
+
+        } else {
+            StudentGroup newStudentGroup = StudentGroup.builder()
+                    .groupName("중등 A반")
+                    .managerId(userId)
+                    .tuition(300000)
+                    .totalStudentCount(20)
+                    .build();
+            studentGroupRepository.save(newStudentGroup);
+
+            PaymentHistory paymentHistory = PaymentHistory.toEntity(paymentHistoryDto, newStudentGroup.getId());
+            paymentHistories.add(paymentHistory);
+            return paymentHistories;
+        }
     }
 }

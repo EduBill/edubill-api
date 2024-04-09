@@ -1,5 +1,6 @@
 package com.edubill.edubillApi.controller;
 
+import com.edubill.edubillApi.domain.BankName;
 import com.edubill.edubillApi.excel.ExcelService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -9,6 +10,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+
+import org.apache.commons.io.FilenameUtils;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,8 +52,14 @@ public class ExcelController {
     public ResponseEntity<String> readExcel(@RequestParam("file") MultipartFile file, @RequestParam("bankCode") String bankCode, Principal principal) throws IOException {
 
         final String userId = principal.getName();
-        excelService.convertExcelDataByBankCode(file, bankCode, userId);
+        String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
 
+        if (fileExtension.equals("xls") || fileExtension.equals("xlsx")) {
+            String bankName = BankName.getBankNameByCode(bankCode);
+            excelService.convertExcelDataByBankCode(file, bankName, userId);
+        } else {
+            throw new IllegalArgumentException("지원되지 않는 파일 형식입니다. xls 및 xlsx 파일만 지원됩니다.");
+        }
         return ResponseEntity.ok("excel upload 완료");
     }
 }

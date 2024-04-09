@@ -1,10 +1,10 @@
 package com.edubill.edubillApi.payment.domain;
 
+import com.edubill.edubillApi.payment.dto.PaymentHistoryDto;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Entity
@@ -12,7 +12,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentHistory {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "payment_history_id")
     private Long id;
 
@@ -41,5 +42,16 @@ public class PaymentHistory {
         this.paidAmount = paidAmount;
         this.memo = memo;
         this.studentGroupId = studentGroupId;
+    }
+
+    public static PaymentHistory toEntity(PaymentHistoryDto paymentHistoryDto, Long studentGroupId) {
+        return new PaymentHistory(
+                paymentHistoryDto.getDepositDate(),
+                paymentHistoryDto.getDepositorName(),
+                paymentHistoryDto.getBankName(),
+                paymentHistoryDto.getDepositAmount(),
+                paymentHistoryDto.getMemo(),
+                studentGroupId
+        );
     }
 }

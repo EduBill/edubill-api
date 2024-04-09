@@ -7,7 +7,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-@Service
+
+@Service("WOORIconvertService")
 public class WOORIConvertService implements ConvertService {
     @Override
     public List<PaymentHistory> convertBankExcelDataToPaymentInfo(MultipartFile file, String userId){

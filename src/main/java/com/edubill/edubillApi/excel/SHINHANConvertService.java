@@ -27,7 +27,7 @@ public class SHINHANConvertService implements ConvertService {
 
     @Transactional
     @Override
-    public List<PaymentHistory> convertBankExcelDataToPaymentInfo(MultipartFile file, String userId) throws IOException {
+    public List<PaymentHistory> convertBankExcelDataToPaymentHistory(MultipartFile file, String userId) throws IOException {
 
         String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
         Workbook workbook = null;
@@ -75,7 +75,7 @@ public class SHINHANConvertService implements ConvertService {
 
             PaymentHistoryDto paymentHistoryDto = new PaymentHistoryDto(depositDate, depositorName, BANK_NAME, depositAmount, memo);
 
-            paymentService.createPaymentHistories(paymentHistoryDto, userId);
+            paymentService.mapToPaymentHistoryWithStudentGroup(paymentHistoryDto, userId);
         }
         return paymentHistories;
     }

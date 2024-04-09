@@ -28,7 +28,7 @@ public class ExcelService {
     public void convertExcelDataByBankCode(MultipartFile file, String bankName, final String userId) throws IOException {
 
         ConvertService convertService = beanFactory.getBean(getConvertServiceBeanName(bankName), ConvertService.class);
-        List<PaymentHistory> paymentHistories = convertService.convertBankExcelDataToPaymentInfo(file, userId);
+        List<PaymentHistory> paymentHistories = convertService.convertBankExcelDataToPaymentHistory(file, userId);
 
         paymentService.savePaymentHistories(paymentHistories);
     }

@@ -11,7 +11,7 @@ import java.util.List;
 @Service("HANAconvertService")
 public class HANAConvertService implements ConvertService {
     @Override
-    public List<PaymentHistory> convertBankExcelDataToPaymentInfo(MultipartFile file, String userId) throws IOException {
+    public List<PaymentHistory> convertBankExcelDataToPaymentHistory(MultipartFile file, String userId) throws IOException {
 
         return null;
     }

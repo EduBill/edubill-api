@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -36,11 +37,11 @@ public class KOOMINConvertService implements ConvertService {
 
     @Transactional
     @Override
-    public List<PaymentHistory> convertBankExcelDataToPaymentInfo(MultipartFile file, String userId) throws IOException {
+    public List<PaymentHistory> convertBankExcelDataToPaymentHistory(MultipartFile file, String userId) throws IOException {
 
         String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
         Workbook workbook = null;
-        List<PaymentHistory> paymentHistories = null;
+        List<PaymentHistory> paymentHistories = new ArrayList<>();
 
         if (fileExtension.equals("xls")) {
             workbook = new HSSFWorkbook(file.getInputStream());
@@ -81,7 +82,9 @@ public class KOOMINConvertService implements ConvertService {
 
             PaymentHistoryDto paymentHistoryDto = new PaymentHistoryDto(depositDate, depositorName, BANK_NAME, depositAmount, memo);
 
-            paymentHistories = paymentService.createPaymentHistories(paymentHistoryDto, userId);
+            PaymentHistory paymentHistory = paymentService.mapToPaymentHistoryWithStudentGroup(paymentHistoryDto, userId);
+
+            paymentHistories.add(paymentHistory);
         }
         return paymentHistories;
     }

@@ -1,30 +1,31 @@
 package com.edubill.edubillApi.excel;
 
+import com.edubill.edubillApi.payment.dto.PaymentHistoryDto;
 import com.edubill.edubillApi.payment.domain.PaymentHistory;
 
-import com.edubill.edubillApi.payment.service.PaymentListCreationService;
+import com.edubill.edubillApi.payment.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
 @RequiredArgsConstructor
+@Service("SHINHANconvertService")
 public class SHINHANConvertService implements ConvertService {
 
-    private final PaymentListCreationService paymentListCreationService;
+    private final PaymentService paymentService;
     private static final String BANK_NAME = "신한은행";
 
+    @Transactional
     @Override
     public List<PaymentHistory> convertBankExcelDataToPaymentInfo(MultipartFile file, String userId) throws IOException {
 
@@ -72,7 +73,9 @@ public class SHINHANConvertService implements ConvertService {
             // TODO: 신한은행의 경우 메모가 존재하지 않아 제거 필요
             String memo = "";
 
-            paymentListCreationService.createPaymentHistoryList(depositDate, depositorName, BANK_NAME, depositAmount, memo, paymentHistories, userId);
+            PaymentHistoryDto paymentHistoryDto = new PaymentHistoryDto(depositDate, depositorName, BANK_NAME, depositAmount, memo);
+
+            paymentService.createPaymentHistories(paymentHistoryDto, userId);
         }
         return paymentHistories;
     }

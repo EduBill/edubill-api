@@ -1,9 +1,10 @@
 package com.edubill.edubillApi.excel;
 
+import com.edubill.edubillApi.payment.dto.PaymentHistoryDto;
 import com.edubill.edubillApi.payment.domain.PaymentHistory;
 
 
-import com.edubill.edubillApi.payment.service.PaymentListCreationService;
+import com.edubill.edubillApi.payment.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -21,16 +22,16 @@ import java.time.LocalDate;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+
 import java.util.List;
 
 
-@Service
-@RequiredArgsConstructor
 @Slf4j
-public class KBConvertService implements ConvertService {
+@RequiredArgsConstructor
+@Service("KOOKMINconvertService")
+public class KOOMINConvertService implements ConvertService {
 
-    private final PaymentListCreationService paymentListCreationService;
+    private final PaymentService paymentService;
     private static final String BANK_NAME = "국민은행";
 
     @Transactional
@@ -39,17 +40,13 @@ public class KBConvertService implements ConvertService {
 
         String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
         Workbook workbook = null;
+        List<PaymentHistory> paymentHistories = null;
 
         if (fileExtension.equals("xls")) {
             workbook = new HSSFWorkbook(file.getInputStream());
         } else if (fileExtension.equals("xlsx")) {
             workbook = new XSSFWorkbook(file.getInputStream());
-        } else {
-            throw new IllegalArgumentException("지원되지 않는 파일 형식입니다. xls 및 xlsx 파일만 지원됩니다.");
         }
-
-        List<PaymentHistory> paymentHistories = new ArrayList<>();
-
         Sheet sheet = workbook.getSheetAt(0);
 
         for (int rowNumber = 6; rowNumber < sheet.getPhysicalNumberOfRows() - 1; rowNumber++) {
@@ -82,7 +79,9 @@ public class KBConvertService implements ConvertService {
             // 메모
             String memo = formatter.formatCellValue(row.getCell(3));
 
-            paymentListCreationService.createPaymentHistoryList(depositDate, depositorName, BANK_NAME, depositAmount, memo, paymentHistories, userId);
+            PaymentHistoryDto paymentHistoryDto = new PaymentHistoryDto(depositDate, depositorName, BANK_NAME, depositAmount, memo);
+
+            paymentHistories = paymentService.createPaymentHistories(paymentHistoryDto, userId);
         }
         return paymentHistories;
     }

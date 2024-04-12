@@ -1,20 +1,20 @@
 package com.edubill.edubillApi.controller;
 
 import com.edubill.edubillApi.config.TestcontainerConfig;
-import com.edubill.edubillApi.domain.User;
-import com.edubill.edubillApi.dto.user.LoginRequestDto;
-import com.edubill.edubillApi.dto.user.SignupRequestDto;
-import com.edubill.edubillApi.dto.verification.VerificationRequestDto;
-import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
-import com.edubill.edubillApi.jwt.JwtProvider;
-import com.edubill.edubillApi.repository.RequestIdRepository;
-import com.edubill.edubillApi.repository.RequestIdRepositoryMap;
+import com.edubill.edubillApi.user.domain.User;
+import com.edubill.edubillApi.user.request.LoginRequestDto;
+import com.edubill.edubillApi.user.request.SignupRequestDto;
+import com.edubill.edubillApi.user.request.VerificationRequestDto;
+import com.edubill.edubillApi.user.response.VerificationResponseDto;
+import com.edubill.edubillApi.auth.jwt.JwtProvider;
+import com.edubill.edubillApi.auth.repository.RequestIdRepository;
+import com.edubill.edubillApi.auth.repository.RequestIdRepositoryMap;
 import com.edubill.edubillApi.user.repository.UserRepository;
 
-import com.edubill.edubillApi.repository.VerificationRepository;
-import com.edubill.edubillApi.repository.VerificationRepositoryMap;
-import com.edubill.edubillApi.service.AuthService;
-import com.edubill.edubillApi.service.AuthServiceMock;
+import com.edubill.edubillApi.auth.repository.VerificationRepository;
+import com.edubill.edubillApi.auth.repository.VerificationRepositoryMap;
+import com.edubill.edubillApi.auth.service.AuthService;
+import com.edubill.edubillApi.auth.service.AuthServiceMock;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 
@@ -37,7 +37,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.edubill.edubillApi.domain.UserRole.ACADEMY;
+import static com.edubill.edubillApi.user.domain.UserRole.ACADEMY;
 
 import static org.junit.jupiter.api.Assertions.*;
 

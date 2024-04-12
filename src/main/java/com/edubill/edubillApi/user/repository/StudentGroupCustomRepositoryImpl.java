@@ -1,6 +1,6 @@
 package com.edubill.edubillApi.user.repository;
 
-import com.edubill.edubillApi.domain.StudentGroup;
+import com.edubill.edubillApi.user.domain.StudentGroup;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
 

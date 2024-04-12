@@ -1,7 +1,7 @@
 package com.edubill.edubillApi.user.repository;
 
-import com.edubill.edubillApi.domain.User;
-import com.edubill.edubillApi.dto.user.UserUpdateRequestDto;
+import com.edubill.edubillApi.user.domain.User;
+import com.edubill.edubillApi.user.request.UserUpdateRequestDto;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package com.edubill.edubillApi.user.response;
 
-import com.edubill.edubillApi.domain.User;
+import com.edubill.edubillApi.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record UserProfileDto(

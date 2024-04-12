@@ -1,6 +1,6 @@
 package com.edubill.edubillApi.user.service;
 
-import com.edubill.edubillApi.domain.User;
+import com.edubill.edubillApi.user.domain.User;
 import com.edubill.edubillApi.user.repository.UserRepositoryInterface;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;

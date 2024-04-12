@@ -1,6 +1,6 @@
 package com.edubill.edubillApi.controller;
 
-import com.edubill.edubillApi.domain.User;
+import com.edubill.edubillApi.user.domain.User;
 import com.edubill.edubillApi.user.response.UserProfileDto;
 import com.edubill.edubillApi.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;

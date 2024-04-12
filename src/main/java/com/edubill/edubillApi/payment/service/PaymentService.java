@@ -1,7 +1,6 @@
 package com.edubill.edubillApi.payment.service;
 
-import com.edubill.edubillApi.domain.StudentGroup;
-import com.edubill.edubillApi.payment.domain.PaymentHistory;
+import com.edubill.edubillApi.user.domain.StudentGroup;
 import com.edubill.edubillApi.payment.repository.PaymentHistoryRepository;
 import com.edubill.edubillApi.payment.response.PaymentStatusDto;
 import com.edubill.edubillApi.user.repository.StudentGroupRepository;

@@ -1,18 +1,18 @@
 package com.edubill.edubillApi.controller;
 
 import com.edubill.edubillApi.config.TestcontainerConfig;
-import com.edubill.edubillApi.dto.user.ExistUserRequestDto;
+import com.edubill.edubillApi.user.request.ExistUserRequestDto;
 
-import com.edubill.edubillApi.dto.verification.VerificationRequestDto;
-import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
-import com.edubill.edubillApi.jwt.JwtProvider;
-import com.edubill.edubillApi.repository.RequestIdRepository;
-import com.edubill.edubillApi.repository.RequestIdRepositoryMap;
+import com.edubill.edubillApi.user.request.VerificationRequestDto;
+import com.edubill.edubillApi.user.response.VerificationResponseDto;
+import com.edubill.edubillApi.auth.jwt.JwtProvider;
+import com.edubill.edubillApi.auth.repository.RequestIdRepository;
+import com.edubill.edubillApi.auth.repository.RequestIdRepositoryMap;
 import com.edubill.edubillApi.user.repository.UserRepository;
-import com.edubill.edubillApi.repository.VerificationRepository;
-import com.edubill.edubillApi.repository.VerificationRepositoryMap;
-import com.edubill.edubillApi.service.AuthService;
-import com.edubill.edubillApi.service.AuthServiceMock;
+import com.edubill.edubillApi.auth.repository.VerificationRepository;
+import com.edubill.edubillApi.auth.repository.VerificationRepositoryMap;
+import com.edubill.edubillApi.auth.service.AuthService;
+import com.edubill.edubillApi.auth.service.AuthServiceMock;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;

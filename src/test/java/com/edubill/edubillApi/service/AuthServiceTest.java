@@ -1,10 +1,11 @@
 package com.edubill.edubillApi.service;
 
+import com.edubill.edubillApi.auth.service.AuthService;
 import com.edubill.edubillApi.config.TestcontainerConfig;
-import com.edubill.edubillApi.domain.User;
-import com.edubill.edubillApi.dto.user.SignupRequestDto;
-import com.edubill.edubillApi.dto.user.UserDto;
-import com.edubill.edubillApi.dto.user.ExistUserRequestDto;
+import com.edubill.edubillApi.user.domain.User;
+import com.edubill.edubillApi.user.request.SignupRequestDto;
+import com.edubill.edubillApi.user.response.UserDto;
+import com.edubill.edubillApi.user.request.ExistUserRequestDto;
 import com.edubill.edubillApi.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;

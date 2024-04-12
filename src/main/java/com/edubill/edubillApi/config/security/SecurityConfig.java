@@ -2,8 +2,8 @@ package com.edubill.edubillApi.config.security;
 
 import com.edubill.edubillApi.error.AccessDeniedHandlerCustom;
 import com.edubill.edubillApi.error.AuthenticationEntryPointCustom;
-import com.edubill.edubillApi.jwt.JwtAuthFilter;
-import com.edubill.edubillApi.jwt.JwtProvider;
+import com.edubill.edubillApi.auth.jwt.JwtAuthFilter;
+import com.edubill.edubillApi.auth.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

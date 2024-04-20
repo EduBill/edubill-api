@@ -6,6 +6,7 @@ import com.edubill.edubillApi.payment.repository.PaymentHistoryRepository;
 import com.edubill.edubillApi.payment.response.PaymentStatusDto;
 import com.edubill.edubillApi.user.repository.StudentGroupRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.YearMonth;
 import java.util.List;
@@ -22,8 +23,11 @@ public class PaymentService {
         this.studentGroupRepository = studentGroupRepository;
     }
 
+    @Transactional
     public PaymentStatusDto getPaymentStatusForManagerInMonth(final String managerId, final YearMonth yearMonth) {
         final long paidStudentsCountInMonth = paymentHistoryRepository.countPaidUserGroupsForUserInMonth(managerId, yearMonth);
+
+        List<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesByYearMonthAndManagerId(managerId, yearMonth);
 
         List<StudentGroup> studentGroups = studentGroupRepository.getUserGroupsByUserId(managerId);
 
@@ -33,7 +37,15 @@ public class PaymentService {
 
         final long unpaidStudentsCount = totalNumberOfStudentsToPay - paidStudentsCountInMonth;
 
-        return new PaymentStatusDto(paidStudentsCountInMonth, unpaidStudentsCount);
+        final long totalPaidAmount = paymentHistories.stream().mapToInt(PaymentHistory::getPaidAmount).sum();
+
+        final long totalTuition = studentGroups.stream()
+                .mapToInt(group -> group.getTuition() * group.getTotalStudentCount())
+                .sum();
+
+        final long totalUnpaidAmount = totalTuition - totalPaidAmount;
+
+        return new PaymentStatusDto(paidStudentsCountInMonth, unpaidStudentsCount, totalPaidAmount, totalUnpaidAmount);
     }
 
 }

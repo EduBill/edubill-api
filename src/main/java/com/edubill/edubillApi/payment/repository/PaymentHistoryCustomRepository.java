@@ -6,7 +6,7 @@ import java.time.YearMonth;
 import java.util.List;
 
 public interface PaymentHistoryCustomRepository {
-    List<PaymentHistory> findPaymentHistoriesByYearMonthAndManagerId(String managerId, YearMonth yearMonth);
+    List<PaymentHistory> findPaymentHistoriesByYearMonthAndManagerId(String userId, YearMonth yearMonth);
 
     long countPaidUserGroupsForUserInMonth(String userId, YearMonth yearMonth);
 }

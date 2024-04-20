@@ -3,8 +3,11 @@ package com.edubill.edubillApi.payment.service;
 import com.edubill.edubillApi.domain.StudentGroup;
 import com.edubill.edubillApi.payment.domain.PaymentHistory;
 import com.edubill.edubillApi.payment.repository.PaymentHistoryRepository;
+import com.edubill.edubillApi.payment.response.PaymentHistoryResponse;
 import com.edubill.edubillApi.payment.response.PaymentStatusDto;
 import com.edubill.edubillApi.user.repository.StudentGroupRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,4 +51,11 @@ public class PaymentService {
         return new PaymentStatusDto(paidStudentsCountInMonth, unpaidStudentsCount, totalPaidAmount, totalUnpaidAmount);
     }
 
+    public Page<PaymentHistoryResponse> getPaidHistoriesForManagerInMonth(String userId, YearMonth yearMonth, Pageable pageable) {
+        final Page<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesByYearMonthAndManagerId(userId, yearMonth, pageable);
+
+        return paymentHistories.map(paymentHistory ->
+            new PaymentHistoryResponse(paymentHistory.getDepositor(), paymentHistory.getPaidAmount(), paymentHistory.getDepositDate())
+        );
+    }
 }

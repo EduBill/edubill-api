@@ -1,5 +1,6 @@
 package com.edubill.edubillApi.controller;
 
+import com.edubill.edubillApi.payment.response.PaymentHistories;
 import com.edubill.edubillApi.payment.response.PaymentStatusDto;
 import com.edubill.edubillApi.payment.service.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -7,6 +8,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,5 +43,10 @@ public class PaymentController {
         final String userId = principal.getName();
 
         return ResponseEntity.ok(paymentService.getPaymentStatusForManagerInMonth(userId, yearMonth));
+    }
+
+    @GetMapping("/paidHistories")
+    public ResponseEntity<PaymentHistories> getPaidHistories(@Param()) {
+
     }
 }

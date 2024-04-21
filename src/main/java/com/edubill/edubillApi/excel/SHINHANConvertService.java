@@ -15,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,8 +52,15 @@ public class SHINHANConvertService implements ConvertService {
             Row row = sheet.getRow(rowNumber);
 
             // 거래날짜
-            String originalDateTime = formatter.formatCellValue(row.getCell(0));
-            LocalDate depositDate = LocalDate.parse(originalDateTime);
+            String originalDate = formatter.formatCellValue(row.getCell(0));
+            LocalDate depositDate = LocalDate.parse(originalDate);
+
+            // 거래시간
+            String originalTime = formatter.formatCellValue(row.getCell(1));
+            LocalTime depositTime = LocalTime.parse(originalTime);
+
+            // LocalDateTime으로 합치기
+            LocalDateTime depositDateTime = depositDate.atTime(depositTime);
 
             // 입금액
             Cell depositAmountCell = row.getCell(4);
@@ -73,7 +82,7 @@ public class SHINHANConvertService implements ConvertService {
             // TODO: 신한은행의 경우 메모가 존재하지 않아 제거 필요
             String memo = "";
 
-            PaymentHistoryDto paymentHistoryDto = new PaymentHistoryDto(depositDate, depositorName, BANK_NAME, depositAmount, memo);
+            PaymentHistoryDto paymentHistoryDto = new PaymentHistoryDto(depositDateTime, depositorName, BANK_NAME, depositAmount, memo);
 
             paymentService.mapToPaymentHistoryWithStudentGroup(paymentHistoryDto, userId);
         }

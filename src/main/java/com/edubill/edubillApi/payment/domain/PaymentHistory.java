@@ -1,16 +1,18 @@
 package com.edubill.edubillApi.payment.domain;
 
+import com.edubill.edubillApi.domain.BaseEntity;
 import com.edubill.edubillApi.payment.dto.PaymentHistoryDto;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PaymentHistory {
+public class PaymentHistory extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,7 +20,7 @@ public class PaymentHistory {
     private Long id;
 
     @Column(name = "deposit_date")
-    private LocalDate depositDate; //거래일시
+    private LocalDateTime depositDate; //거래일시
 
     @Column(name = "depositor_name")
     private String depositorName; // 입금자이름이 학생이름과 같은지 체크 필요
@@ -35,7 +37,7 @@ public class PaymentHistory {
     @Column(name = "student_group_id")  // 외래 키
     private Long studentGroupId;
 
-    public PaymentHistory(LocalDate depositDate, String depositorName, String bankName, int paidAmount, String memo, Long studentGroupId) {
+    public PaymentHistory(LocalDateTime depositDate, String depositorName, String bankName, int paidAmount, String memo, Long studentGroupId) {
         this.depositDate = depositDate;
         this.depositorName = depositorName;
         this.bankName = bankName;

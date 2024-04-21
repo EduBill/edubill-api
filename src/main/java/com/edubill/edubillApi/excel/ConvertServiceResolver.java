@@ -26,23 +26,13 @@ public class ConvertServiceResolver {
 
     public ConvertService resolve(BankName bankName) {
 
-        ConvertService convertService;
-        switch (bankName) {
-            case KOOKMIN:
-                convertService = kookminConvertService;
-                break;
-            case SHINHAN:
-                convertService = shinhanConvertService;
-                break;
-            case HANA:
-                convertService = hanaConvertService;
-                break;
-            case WOORI:
-                convertService = wooriConvertService;
-                break;
-            default:
-                convertService = null;
-        }
+        ConvertService convertService = switch (bankName) {
+            case KOOKMIN -> kookminConvertService;
+            case SHINHAN -> shinhanConvertService;
+            case HANA -> hanaConvertService;
+            case WOORI -> wooriConvertService;
+            default -> throw new IllegalArgumentException("Unsupported bank code");
+        };
         return convertService;
     }
 }

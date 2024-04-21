@@ -5,7 +5,7 @@ import com.edubill.edubillApi.payment.domain.PaymentHistory;
 
 import com.edubill.edubillApi.domain.StudentGroup;
 import com.edubill.edubillApi.payment.repository.PaymentHistoryRepository;
-import com.edubill.edubillApi.payment.repository.PaymentRepository;
+import com.edubill.edubillApi.payment.response.PaymentHistoryResponse;
 import com.edubill.edubillApi.payment.response.PaymentStatusDto;
 import com.edubill.edubillApi.user.repository.StudentGroupRepository;
 import org.springframework.data.domain.Page;
@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.time.YearMonth;
-import java.util.ArrayList;
+
 import java.util.List;
 
 @Service
@@ -63,10 +63,9 @@ public class PaymentService {
         final Page<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesByYearMonthAndManagerId(userId, yearMonth, pageable);
 
         return paymentHistories.map(paymentHistory ->
-                new PaymentHistoryResponse(paymentHistory.getDepositor(), paymentHistory.getPaidAmount(), paymentHistory.getDepositDate())
+                new PaymentHistoryResponse(paymentHistory.getDepositorName(), paymentHistory.getPaidAmount(), paymentHistory.getDepositDate())
         );
     }
-
 
     public PaymentHistory mapToPaymentHistoryWithStudentGroup(PaymentHistoryDto paymentHistoryDto, String userId) {
 

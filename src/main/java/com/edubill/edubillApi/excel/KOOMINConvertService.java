@@ -58,8 +58,6 @@ public class KOOMINConvertService implements ConvertService {
             // 거래날짜
             String originalDateTime = formatter.formatCellValue(row.getCell(0));
             LocalDateTime depositDateTime = LocalDateTime.parse(originalDateTime, DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss"));
-            LocalDate depositDate = depositDateTime.toLocalDate();
-
 
             // 입금액
             Cell depositAmountCell = row.getCell(5);
@@ -80,7 +78,7 @@ public class KOOMINConvertService implements ConvertService {
             // 메모
             String memo = formatter.formatCellValue(row.getCell(3));
 
-            PaymentHistoryDto paymentHistoryDto = new PaymentHistoryDto(depositDate, depositorName, BANK_NAME, depositAmount, memo);
+            PaymentHistoryDto paymentHistoryDto = new PaymentHistoryDto(depositDateTime, depositorName, BANK_NAME, depositAmount, memo);
 
             PaymentHistory paymentHistory = paymentService.mapToPaymentHistoryWithStudentGroup(paymentHistoryDto, userId);
 

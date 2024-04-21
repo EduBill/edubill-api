@@ -1,8 +1,10 @@
 package com.edubill.edubillApi.excel;
 
+import com.edubill.edubillApi.domain.BankName;
 import com.edubill.edubillApi.payment.domain.PaymentHistory;
 import com.edubill.edubillApi.payment.service.PaymentService;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,27 +15,17 @@ import java.io.IOException;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ExcelService {
 
-    private static final String SERVICE_NAME_SUFFIX = "convertService";
-    private final BeanFactory beanFactory;
     private final PaymentService paymentService;
-
-    @Autowired
-    public ExcelService(BeanFactory beanFactory, PaymentService paymentService) {
-        this.beanFactory = beanFactory;
-        this.paymentService = paymentService;
-    }
+    private final ConvertServiceResolver convertServiceResolver;
 
     public void convertExcelDataByBankCode(MultipartFile file, String bankName, final String userId) throws IOException {
 
-        ConvertService convertService = beanFactory.getBean(getConvertServiceBeanName(bankName), ConvertService.class);
+        ConvertService convertService = convertServiceResolver.resolve(BankName.valueOf(bankName));
         List<PaymentHistory> paymentHistories = convertService.convertBankExcelDataToPaymentHistory(file, userId);
 
         paymentService.savePaymentHistories(paymentHistories);
-    }
-
-    private String getConvertServiceBeanName(String bankName) {
-        return bankName + SERVICE_NAME_SUFFIX;
     }
 }

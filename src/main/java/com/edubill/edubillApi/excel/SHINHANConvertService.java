@@ -27,7 +27,6 @@ public class SHINHANConvertService implements ConvertService {
     private final PaymentService paymentService;
     private static final String BANK_NAME = "신한은행";
 
-    @Transactional
     @Override
     public List<PaymentHistory> convertBankExcelDataToPaymentHistory(MultipartFile file, String userId) throws IOException {
 

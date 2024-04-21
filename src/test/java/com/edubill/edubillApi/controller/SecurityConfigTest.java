@@ -99,7 +99,7 @@ class SecurityConfigTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userName").value("edubill"))
                 .andExpect(jsonPath("$.phoneNumber").value("01012345678"))
-                .andExpect(jsonPath("$.userRole").value("ACADEMY")); // 수정 필요
+                .andExpect(jsonPath("$.authRole").value("USER"));
 
         // then
         User savedUser = userRepository.findByPhoneNumber("01012345678").orElse(null);

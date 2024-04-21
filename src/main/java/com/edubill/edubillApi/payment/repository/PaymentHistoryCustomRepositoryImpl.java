@@ -40,14 +40,16 @@ public class PaymentHistoryCustomRepositoryImpl implements PaymentHistoryCustomR
         // 전체 카운트를 위한 쿼리
         long total = queryFactory
                 .selectFrom(paymentHistory)
-                .join(studentGroup)
+                .innerJoin(studentGroup)
+                .on(paymentHistory.studentGroupId.eq(studentGroup.id))
                 .where(predicate)
                 .fetchCount();
 
         // 페이지 처리를 위한 결과 리스트
         List<PaymentHistory> results = queryFactory
                 .selectFrom(paymentHistory)
-                .join(studentGroup)
+                .innerJoin(studentGroup)
+                .on(paymentHistory.studentGroupId.eq(studentGroup.id))
                 .where(predicate)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())

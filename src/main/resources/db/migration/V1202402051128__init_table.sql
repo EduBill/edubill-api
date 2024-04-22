@@ -52,9 +52,8 @@ CREATE TABLE IF NOT EXISTS student_group (
     total_student_count INT,
     tuition INT,
     created_at   DATETIME(6),
-    updated_at   DATETIME(6),
+    updated_at   DATETIME(6)
 ) ENGINE=InnoDB;
-
 
 ALTER TABLE IF EXISTS academy_students
     ADD CONSTRAINT UKt5hheejdtlcwym0wd73sy5wna UNIQUE (academy_id, student_id);

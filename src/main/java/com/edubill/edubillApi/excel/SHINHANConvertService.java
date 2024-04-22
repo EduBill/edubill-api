@@ -83,7 +83,9 @@ public class SHINHANConvertService implements ConvertService {
 
             PaymentHistoryDto paymentHistoryDto = new PaymentHistoryDto(depositDateTime, depositorName, BANK_NAME, depositAmount, memo);
 
-            paymentService.mapToPaymentHistoryWithStudentGroup(paymentHistoryDto, userId);
+            PaymentHistory paymentHistory = paymentService.mapToPaymentHistoryWithStudentGroup(paymentHistoryDto, userId);
+
+            paymentHistories.add(paymentHistory);
         }
         return paymentHistories;
     }

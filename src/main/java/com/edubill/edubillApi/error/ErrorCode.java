@@ -23,7 +23,10 @@ public enum ErrorCode {
 
     // Academy
     ACADEMY_NOT_FOUND(400, "A001", "학원이 존재하지 않습니다."),
-    GROUP_NOT_FOUND(400, "U009", "반이 존재하지 않습니다."),
+    GROUP_NOT_FOUND(400, "A002", "반이 존재하지 않습니다."),
+
+    //Payment
+    PAYMENT_HISTORY_NOT_FOUND(400, "P001","납부내역이 존재하지 않습니다"),
 
     // common
     INTERNAL_SERVER_ERROR(500, "C001", "서버 오류"),

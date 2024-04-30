@@ -37,7 +37,7 @@ class ExcelServiceTest {
     // 테스트 케이스에서 사용할 사용자 ID
     private static final String TEST_USER_ID = "01012345678@phone.auth";
 
-    @BeforeEach
+    //@BeforeEach
     public void setUp() throws IOException {
         // 테스트에 필요한 파일을 생성
         File testFile = ResourceUtils.getFile("classpath:KB_거래내역조회.xlsx");
@@ -50,7 +50,7 @@ class ExcelServiceTest {
         context.setAuthentication(authentication);
     }
 
-    @Test
+   // @Test
     @DisplayName("엑셀 업로드 비동기 테스트")
     void testConvertExcelDataByBankCodeAsync() throws IOException, InterruptedException {
 

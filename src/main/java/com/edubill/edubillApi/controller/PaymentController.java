@@ -86,7 +86,7 @@ public class PaymentController {
 
     @Operation(summary = "납부 상세 내역 가져오기",
             description = "특정 납부 내역의 상세 내역을 가져옵니다.")
-    @GetMapping("/paidHistories/{paymentHistoryId}")
+    @GetMapping("/paidHistoryDetails/{paymentHistoryId}")
     public ResponseEntity<PaymentHistoryDetailResponse> getPaymentHistoryDetail(
             @Parameter(description = "특정 납부내역의 아이디", example = "1", required = true)
             @PathVariable long paymentHistoryId) {

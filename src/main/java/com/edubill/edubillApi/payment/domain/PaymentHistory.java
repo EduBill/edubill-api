@@ -40,23 +40,25 @@ public class PaymentHistory extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PaymentType paymentType; //거래방식
 
-    public PaymentHistory(LocalDateTime depositDate, String depositorName, String bankName, int paidAmount, String memo, Long studentGroupId) {
+    public PaymentHistory(LocalDateTime depositDate, String depositorName, String bankName, int paidAmount, String memo, Long studentGroupId, PaymentType paymentType) {
         this.depositDate = depositDate;
         this.depositorName = depositorName;
         this.bankName = bankName;
         this.paidAmount = paidAmount;
         this.memo = memo;
         this.studentGroupId = studentGroupId;
+        this.paymentType = paymentType;
     }
 
-    public static PaymentHistory toEntity(PaymentHistoryDto paymentHistoryDto, Long studentGroupId) {
+    public static PaymentHistory toEntity(PaymentHistoryDto paymentHistoryDto, Long studentGroupId, PaymentType paymentType) {
         return new PaymentHistory(
                 paymentHistoryDto.getDepositDate(),
                 paymentHistoryDto.getDepositorName(),
                 paymentHistoryDto.getBankName(),
                 paymentHistoryDto.getDepositAmount(),
                 paymentHistoryDto.getMemo(),
-                studentGroupId
+                studentGroupId,
+                paymentType
         );
     }
 }

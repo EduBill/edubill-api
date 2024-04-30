@@ -2,6 +2,7 @@ package com.edubill.edubillApi.payment.service;
 
 import com.edubill.edubillApi.error.exception.BusinessException;
 import com.edubill.edubillApi.error.exception.PaymentHistoryNotFoundException;
+import com.edubill.edubillApi.payment.domain.PaymentType;
 import com.edubill.edubillApi.payment.dto.PaymentHistoryDetailResponse;
 import com.edubill.edubillApi.payment.dto.PaymentHistoryDto;
 import com.edubill.edubillApi.payment.domain.PaymentHistory;
@@ -77,7 +78,7 @@ public class PaymentService {
         if (studentGroups != null && !studentGroups.isEmpty()) {
             //TODO: StudentGroupId에 대한 정보를 받고 해당하는 Id에 따라 paymentHistory를 저장하도록 수정
             StudentGroup studentGroup = studentGroups.get(0);
-            PaymentHistory paymentHistory = PaymentHistory.toEntity(paymentHistoryDto, studentGroup.getId());
+            PaymentHistory paymentHistory = PaymentHistory.toEntity(paymentHistoryDto, studentGroup.getId(), PaymentType.BANK_TRANSFER);
 
             return paymentHistory;
 
@@ -90,7 +91,7 @@ public class PaymentService {
                     .build();
             studentGroupRepository.save(newStudentGroup);
 
-            PaymentHistory paymentHistory = PaymentHistory.toEntity(paymentHistoryDto, newStudentGroup.getId());
+            PaymentHistory paymentHistory = PaymentHistory.toEntity(paymentHistoryDto, newStudentGroup.getId(), PaymentType.BANK_TRANSFER);
             return paymentHistory;
         }
     }

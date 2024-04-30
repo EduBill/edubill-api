@@ -1,5 +1,6 @@
 package com.edubill.edubillApi.controller;
 
+import com.edubill.edubillApi.payment.dto.PaymentHistoryDetailResponse;
 import com.edubill.edubillApi.payment.response.PaymentHistoryResponse;
 import com.edubill.edubillApi.payment.response.PaymentStatusDto;
 import com.edubill.edubillApi.payment.service.PaymentService;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.security.Principal;
 import java.time.YearMonth;
 
+@Tag(name = "Payment", description = "결제내역관리 API")
 @RestController
 @RequestMapping("/v1/payment")
 public class PaymentController {
@@ -79,5 +82,15 @@ public class PaymentController {
         Pageable pageable = PageRequest.of(page, size);
 
         return ResponseEntity.ok(paymentService.getPaidHistoriesForManagerInMonth(userId, yearMonth, pageable));
+    }
+
+    @Operation(summary = "납부 상세 내역 가져오기",
+            description = "특정 납부 내역의 상세 내역을 가져옵니다.")
+    @GetMapping("/paidHistories/{paymentHistoryId}")
+    public ResponseEntity<PaymentHistoryDetailResponse> getPaymentHistoryDetail(
+            @Parameter(description = "특정 납부내역의 아이디", example = "1", required = true)
+            @PathVariable long paymentHistoryId) {
+        PaymentHistoryDetailResponse paymentHistoryDetailResponse= paymentService.findPaymentHistoryById(paymentHistoryId);
+        return ResponseEntity.ok(paymentHistoryDetailResponse);
     }
 }

@@ -1,5 +1,8 @@
 package com.edubill.edubillApi.payment.service;
 
+import com.edubill.edubillApi.error.exception.BusinessException;
+import com.edubill.edubillApi.error.exception.PaymentHistoryNotFoundException;
+import com.edubill.edubillApi.payment.dto.PaymentHistoryDetailResponse;
 import com.edubill.edubillApi.payment.dto.PaymentHistoryDto;
 import com.edubill.edubillApi.payment.domain.PaymentHistory;
 
@@ -63,7 +66,7 @@ public class PaymentService {
         final Page<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesByYearMonthAndManagerId(userId, yearMonth, pageable);
 
         return paymentHistories.map(paymentHistory ->
-                new PaymentHistoryResponse(paymentHistory.getDepositorName(), paymentHistory.getPaidAmount(), paymentHistory.getDepositDate())
+                new PaymentHistoryResponse(paymentHistory.getId(),paymentHistory.getDepositorName(), paymentHistory.getPaidAmount(), paymentHistory.getDepositDate())
         );
     }
 
@@ -90,5 +93,12 @@ public class PaymentService {
             PaymentHistory paymentHistory = PaymentHistory.toEntity(paymentHistoryDto, newStudentGroup.getId());
             return paymentHistory;
         }
+    }
+
+    public PaymentHistoryDetailResponse findPaymentHistoryById(long paymentHistoryId) {
+
+        PaymentHistory paymentHistory = paymentHistoryRepository.findById(paymentHistoryId)
+                .orElseThrow(()-> new PaymentHistoryNotFoundException("납부내역 없음"));
+        return PaymentHistoryDetailResponse.of(paymentHistory);
     }
 }

@@ -37,6 +37,9 @@ public class PaymentHistory extends BaseEntity {
     @Column(name = "student_group_id")  // 외래 키
     private Long studentGroupId;
 
+    @Enumerated(EnumType.STRING)
+    private PaymentType paymentType; //거래방식
+
     public PaymentHistory(LocalDateTime depositDate, String depositorName, String bankName, int paidAmount, String memo, Long studentGroupId) {
         this.depositDate = depositDate;
         this.depositorName = depositorName;

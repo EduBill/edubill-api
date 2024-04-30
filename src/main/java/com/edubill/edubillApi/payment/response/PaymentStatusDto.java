@@ -6,6 +6,6 @@ public record PaymentStatusDto(
 
         Long totalPaidAmount,
 
-        Long totalunPaidAmount
+        Long totalUnpaidAmount
 ) {
 }

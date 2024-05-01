@@ -1,8 +1,8 @@
 package com.edubill.edubillApi.controller;
 
 import com.edubill.edubillApi.domain.User;
-import com.edubill.edubillApi.user.response.UserProfileDto;
-import com.edubill.edubillApi.user.service.UserService;
+import com.edubill.edubillApi.dto.user.UserProfileDto;
+import com.edubill.edubillApi.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

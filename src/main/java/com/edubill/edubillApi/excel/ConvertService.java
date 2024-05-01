@@ -1,6 +1,6 @@
 package com.edubill.edubillApi.excel;
 
-import com.edubill.edubillApi.payment.domain.PaymentHistory;
+import com.edubill.edubillApi.domain.PaymentHistory;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;

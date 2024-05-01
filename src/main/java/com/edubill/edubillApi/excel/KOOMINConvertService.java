@@ -47,6 +47,8 @@ public class KOOMINConvertService implements ConvertService {
             workbook = new HSSFWorkbook(file.getInputStream());
         } else if (fileExtension.equals("xlsx")) {
             workbook = new XSSFWorkbook(file.getInputStream());
+        } else {
+            throw new IllegalArgumentException("지원되지 않는 파일 형식입니다. xls 및 xlsx 파일만 지원됩니다.");
         }
         Sheet sheet = workbook.getSheetAt(0);
 

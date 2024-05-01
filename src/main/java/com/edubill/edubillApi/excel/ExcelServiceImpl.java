@@ -1,8 +1,8 @@
 package com.edubill.edubillApi.excel;
 
 import com.edubill.edubillApi.domain.BankName;
-import com.edubill.edubillApi.payment.domain.PaymentHistory;
-import com.edubill.edubillApi.payment.service.PaymentService;
+import com.edubill.edubillApi.domain.PaymentHistory;
+import com.edubill.edubillApi.service.PaymentService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

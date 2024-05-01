@@ -1,9 +1,9 @@
 package com.edubill.edubillApi.controller;
 
-import com.edubill.edubillApi.payment.dto.PaymentHistoryDetailResponse;
-import com.edubill.edubillApi.payment.response.PaymentHistoryResponse;
-import com.edubill.edubillApi.payment.response.PaymentStatusDto;
-import com.edubill.edubillApi.payment.service.PaymentService;
+import com.edubill.edubillApi.dto.payment.PaymentHistoryDetailResponse;
+import com.edubill.edubillApi.dto.payment.PaymentHistoryResponse;
+import com.edubill.edubillApi.dto.payment.PaymentStatusDto;
+import com.edubill.edubillApi.service.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

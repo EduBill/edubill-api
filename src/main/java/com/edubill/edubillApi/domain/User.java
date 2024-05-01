@@ -1,6 +1,5 @@
 package com.edubill.edubillApi.domain;
 
-import com.edubill.edubillApi.user.enums.UserType;
 import jakarta.persistence.*;
 import lombok.*;
 

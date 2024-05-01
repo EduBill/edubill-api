@@ -1,6 +1,6 @@
 package com.edubill.edubillApi.error;
 
-import com.edubill.edubillApi.dto.SecurityExceptionDto;
+import com.edubill.edubillApi.dto.auth.SecurityExceptionDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

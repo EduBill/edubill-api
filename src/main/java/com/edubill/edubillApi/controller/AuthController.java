@@ -12,7 +12,7 @@ import com.edubill.edubillApi.jwt.JwtProvider;
 import com.edubill.edubillApi.jwt.JwtToken;
 import com.edubill.edubillApi.service.AuthService;
 
-import com.edubill.edubillApi.user.request.RequestVerificationNumberDto;
+import com.edubill.edubillApi.dto.verification.VerificationNumberRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -56,9 +56,9 @@ public class AuthController {
     })
     @Operation(summary = "인증번호 발송", description = "휴대폰 번호를 통해 인증번호를 발급받는다.")
     @PostMapping("/phone")
-    public ResponseEntity<VerificationResponseDto> sendVerificationNumber(@RequestBody RequestVerificationNumberDto requestVerificationNumberDto) {
+    public ResponseEntity<VerificationResponseDto> sendVerificationNumber(@RequestBody VerificationNumberRequestDto verificationNumberRequestDto) {
 
-        VerificationResponseDto verificationResponseDto = authService.sendVerificationNumber(requestVerificationNumberDto.phoneNumber());
+        VerificationResponseDto verificationResponseDto = authService.sendVerificationNumber(verificationNumberRequestDto.phoneNumber());
         log.info("requestId = {}, 인증번호 ={}", verificationResponseDto.getRequestId(),verificationResponseDto.getVerificationNumber());
         return ResponseEntity.ok(verificationResponseDto);
     }

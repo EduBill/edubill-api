@@ -24,7 +24,8 @@ public class ExcelServiceImpl implements ExcelService {
     private final PaymentService paymentService;
     private final ConvertServiceResolver convertServiceResolver;
 
-    @Async("taskExecutor")
+    //TODO: Async 관련 오류 해결
+    //@Async("taskExecutor")
     @Override
     public void convertExcelDataByBankCode(MultipartFile file, String bankName, final String userId) throws IOException {
 

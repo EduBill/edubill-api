@@ -1,6 +1,7 @@
 package com.edubill.edubillApi.controller;
 
 import com.edubill.edubillApi.domain.BankName;
+import com.edubill.edubillApi.dto.ExcelResponseDto;
 import com.edubill.edubillApi.excel.ExcelService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.time.YearMonth;
 
 
 @Slf4j
@@ -37,7 +40,7 @@ public class ExcelController {
     @Operation(summary = "엑셀 데이터 변환",
             description = "각 은행별 엑셀을 받아 하나의 Entity에 매핑하여 동일한 DB에 저장될 수 있도록 한다.")
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> readExcel(
+    public ResponseEntity<?> readExcel(
             @Parameter(description = "업로드할 엑셀 파일", required = true)
             @RequestPart("file") MultipartFile multipartFile,
 
@@ -46,13 +49,22 @@ public class ExcelController {
 
         final String userId = principal.getName();
         String fileExtension = FilenameUtils.getExtension(multipartFile.getOriginalFilename());
+
         if (fileExtension.equals("xls") || fileExtension.equals("xlsx")) {
             String bankName = BankName.getBankNameByCode(bankCode);
             excelService.convertExcelDataByBankCode(multipartFile, bankName, userId);
+            return ResponseEntity.ok("엑셀 업로드 완료");
         } else {
             throw new IllegalArgumentException("지원되지 않는 파일 형식. xls 및 xlsx 파일만 지원됩니다.");
         }
+    }
 
-        return ResponseEntity.ok("excel upload 완료");
+    // 엑셀 업로드 후 해당 월에 대해 true 반환
+    @GetMapping(value = "/status-change/{yearMonth}")
+    public ResponseEntity<?> changeExcelUploadedStatus(@PathVariable(name = "yearMonth") YearMonth yearMonth, Principal principal) {
+        final String userId = principal.getName();
+        excelService.changeExcelUploadedStatusByYearMonthAndUserId(yearMonth, userId);
+
+        return ResponseEntity.ok("엑셀업로드 상태 true로 변경");
     }
 }

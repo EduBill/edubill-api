@@ -1,16 +1,16 @@
 package com.edubill.edubillApi.service;
 
+import com.edubill.edubillApi.domain.*;
 import com.edubill.edubillApi.error.exception.PaymentHistoryNotFoundException;
-import com.edubill.edubillApi.domain.PaymentType;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryDetailResponse;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryDto;
-import com.edubill.edubillApi.domain.PaymentHistory;
 
-import com.edubill.edubillApi.domain.StudentGroup;
-import com.edubill.edubillApi.repository.PaymentHistoryRepository;
+import com.edubill.edubillApi.excel.ExcelService;
+import com.edubill.edubillApi.repository.*;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryResponse;
 import com.edubill.edubillApi.dto.payment.PaymentStatusDto;
-import com.edubill.edubillApi.repository.StudentGroupRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,17 +20,19 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.YearMonth;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PaymentService {
 
     private final PaymentHistoryRepository paymentHistoryRepository;
     private final StudentGroupRepository studentGroupRepository;
+    private final ExcelService excelService;
 
-
-    public PaymentService(PaymentHistoryRepository paymentHistoryRepository, StudentGroupRepository studentGroupRepository) {
+    public PaymentService(PaymentHistoryRepository paymentHistoryRepository, StudentGroupRepository studentGroupRepository, @Qualifier("excelServiceImpl")ExcelService excelService) {
         this.paymentHistoryRepository = paymentHistoryRepository;
         this.studentGroupRepository = studentGroupRepository;
+        this.excelService = excelService;
     }
 
     public void savePaymentHistories(List<PaymentHistory> paymentHistories) {
@@ -42,7 +44,6 @@ public class PaymentService {
         final long paidStudentsCountInMonth = paymentHistoryRepository.countPaidUserGroupsForUserInMonth(managerId, yearMonth);
 
         List<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesByYearMonthAndManagerId(managerId, yearMonth);
-
         List<StudentGroup> studentGroups = studentGroupRepository.getUserGroupsByUserId(managerId);
 
         final long totalNumberOfStudentsToPay = studentGroups.stream()
@@ -56,10 +57,11 @@ public class PaymentService {
         final long totalTuition = studentGroups.stream()
                 .mapToInt(group -> group.getTuition() * group.getTotalStudentCount())
                 .sum();
-
         final long totalUnpaidAmount = totalTuition - totalPaidAmount;
 
-        return new PaymentStatusDto(paidStudentsCountInMonth, unpaidStudentsCount, totalPaidAmount, totalUnpaidAmount);
+        Boolean isExcelUploaded = excelService.getExcelUploadStatus(managerId, yearMonth);
+
+        return new PaymentStatusDto(paidStudentsCountInMonth, unpaidStudentsCount, totalPaidAmount, totalUnpaidAmount, isExcelUploaded);
     }
 
     public Page<PaymentHistoryResponse> getPaidHistoriesForManagerInMonth(String userId, YearMonth yearMonth, Pageable pageable) {

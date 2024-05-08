@@ -3,6 +3,7 @@ package com.edubill.edubillApi.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+@Builder
 @Entity
 @Getter
 @NoArgsConstructor
@@ -37,13 +38,5 @@ public class User extends BaseEntity{
         this.userName = userName;
         this.authInfo = new AuthInfo(requestId);
         this.authRole = authRole;
-    }
-
-    public void updateUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public void updatePhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
     }
 }

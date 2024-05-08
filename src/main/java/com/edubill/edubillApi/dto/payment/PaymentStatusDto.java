@@ -6,6 +6,8 @@ public record PaymentStatusDto(
 
         Long totalPaidAmount,
 
-        Long totalUnpaidAmount
+        Long totalUnpaidAmount,
+
+        Boolean isExcelUploaded
 ) {
 }

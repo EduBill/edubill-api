@@ -32,7 +32,10 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(500, "C001", "서버 오류"),
     INVALID_INPUT_VALUE(400, "C002", "잘못된 일력 값을 입력하였습니다."),
     INVALID_TYPE_VALUE(400, "C003", "잘못된 타입을 입력하였습니다."),
-    BAD_CREDENTIALS(400, "C005", "bad credentials");
+    BAD_CREDENTIALS(400, "C005", "bad credentials"),
+    BAD_GATEWAY_ERROR(502,"C006", "bad gateway");
+
+
 
 
     private final int status;

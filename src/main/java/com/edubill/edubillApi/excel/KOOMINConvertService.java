@@ -50,7 +50,7 @@ public class KOOMINConvertService implements ConvertService {
         }
         Sheet sheet = workbook.getSheetAt(0);
 
-        for (int rowNumber = 6; rowNumber < sheet.getPhysicalNumberOfRows() - 1; rowNumber++) {
+        for (int rowNumber = 5; rowNumber < sheet.getPhysicalNumberOfRows() - 1; rowNumber++) {
 
             DataFormatter formatter = new DataFormatter();
             Row row = sheet.getRow(rowNumber);
@@ -69,7 +69,7 @@ public class KOOMINConvertService implements ConvertService {
                 // 입금액이 양수인 경우에만 처리
                 depositorName = formatter.formatCellValue(row.getCell(2));
                 // 한글 이외의 영어, 숫자, 문자가 포함된 경우 해당 행의 데이터를 전달하지 않음
-                if (depositorName.matches(".*[a-zA-Z0-9].*")) {
+                if (depositorName.matches(".*[a-zA-Z].*")) {
                     continue;
                 }
             } else {

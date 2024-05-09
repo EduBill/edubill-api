@@ -5,7 +5,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 @Entity
-@SuperBuilder(toBuilder = true)
+@SuperBuilder(toBuilder = true) //superbuilder는 부모클래스의 컬럼 정보도 같이 가지고 옴.
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

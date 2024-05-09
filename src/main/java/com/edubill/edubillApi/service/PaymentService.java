@@ -27,12 +27,10 @@ public class PaymentService {
 
     private final PaymentHistoryRepository paymentHistoryRepository;
     private final StudentGroupRepository studentGroupRepository;
-    private final ExcelService excelService;
 
-    public PaymentService(PaymentHistoryRepository paymentHistoryRepository, StudentGroupRepository studentGroupRepository, @Qualifier("excelServiceImpl")ExcelService excelService) {
+    public PaymentService(PaymentHistoryRepository paymentHistoryRepository, StudentGroupRepository studentGroupRepository) {
         this.paymentHistoryRepository = paymentHistoryRepository;
         this.studentGroupRepository = studentGroupRepository;
-        this.excelService = excelService;
     }
 
     public void savePaymentHistories(List<PaymentHistory> paymentHistories) {
@@ -59,9 +57,13 @@ public class PaymentService {
                 .sum();
         final long totalUnpaidAmount = totalTuition - totalPaidAmount;
 
-        Boolean isExcelUploaded = excelService.getExcelUploadStatus(managerId, yearMonth);
 
-        return new PaymentStatusDto(paidStudentsCountInMonth, unpaidStudentsCount, totalPaidAmount, totalUnpaidAmount, isExcelUploaded);
+        return PaymentStatusDto.builder()
+                .paidCount(paidStudentsCountInMonth)
+                .unpaidCount(unpaidStudentsCount)
+                .totalPaidAmount(totalPaidAmount)
+                .totalUnpaidAmount(totalUnpaidAmount)
+                .build();
     }
 
     public Page<PaymentHistoryResponse> getPaidHistoriesForManagerInMonth(String userId, YearMonth yearMonth, Pageable pageable) {

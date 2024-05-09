@@ -1,13 +1,19 @@
 package com.edubill.edubillApi.dto.payment;
 
-public record PaymentStatusDto(
-        Long paidCount,   // 납부 완료 인원
-        Long unpaidCount,   // 미 납부 인원
+import lombok.*;
 
-        Long totalPaidAmount,
+@Builder(toBuilder = true)
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class PaymentStatusDto{
+        private Long paidCount;  // 납부 완료 인원
 
-        Long totalUnpaidAmount,
+        private Long unpaidCount;  // 미 납부 인원
 
-        Boolean isExcelUploaded
-) {
+        private Long totalPaidAmount;
+
+        private Long totalUnpaidAmount;
+
+        private Boolean isExcelUploaded;
 }

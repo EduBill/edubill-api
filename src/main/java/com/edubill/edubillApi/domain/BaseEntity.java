@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 @Getter
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor
+@SuperBuilder(toBuilder = true)
 public abstract class BaseEntity implements Serializable {
 
     @CreatedDate //Entity가 생성되어 저장될 때 시간이 자동 저장

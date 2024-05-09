@@ -49,21 +49,22 @@ public class ExcelServiceImpl implements ExcelService {
     @Override
     @Transactional
     public void changeExcelUploadedStatusByYearMonthAndUserId(YearMonth yearMonth, String userId) {
+        String yearMonthString = yearMonth.toString();
         User user = userRepositoryInterface.findById(userId).orElseThrow(
                 ()->new UserNotFoundException("존재하지 않는 유저입니다.  userId: "+ userId));
-        ExcelUploadStatus excelUploadStatus = excelUploadStatusRepository.findByYearMonthAndUser(yearMonth, user).orElse(null);
+        ExcelUploadStatus excelUploadStatus = excelUploadStatusRepository.findByYearMonthAndUser(yearMonthString, user).orElse(null);
 
 
         // 특정 유저와 특정 연월에 대한 엑셀업로드 여부가 없을 경우 새로 생성
         if (excelUploadStatus == null) {
-            excelUploadStatus = excelUploadStatusRepository.save(ExcelUploadStatus.builder()
+            excelUploadStatusRepository.save(ExcelUploadStatus.builder()
                     .user(user)
-                    .yearMonth(yearMonth)
+                    .yearMonth(yearMonthString)
                     .isExcelUploaded(true)
                     .build());
         }else{
-            excelUploadStatus = excelUploadStatusRepository.save(ExcelUploadStatus.builder()
-                    .isExcelUploaded(false)
+            excelUploadStatusRepository.save(excelUploadStatus.toBuilder()
+                    .isExcelUploaded(true)
                     .build());
         }
     }
@@ -71,16 +72,16 @@ public class ExcelServiceImpl implements ExcelService {
     @Override
     @Transactional
     public Boolean getExcelUploadStatus(String userId, YearMonth yearMonth) {
-
+        String yearMonthString = yearMonth.toString();
         User user = userRepositoryInterface.findById(userId).orElseThrow(
                 ()->new UserNotFoundException("존재하지 않는 유저입니다.  userId: "+ userId));
-        ExcelUploadStatus excelUploadStatus = excelUploadStatusRepository.findByYearMonthAndUser(yearMonth, user).orElse(null);
+        ExcelUploadStatus excelUploadStatus = excelUploadStatusRepository.findByYearMonthAndUser(yearMonthString, user).orElse(null);
 
         // 특정 유저와 특정 연월에 대한 엑셀업로드 여부가 없을 경우 새로 생성
         if (excelUploadStatus == null) {
             excelUploadStatus = excelUploadStatusRepository.save(ExcelUploadStatus.builder()
                     .user(user)
-                    .yearMonth(yearMonth)
+                    .yearMonth(yearMonthString)
                     .isExcelUploaded(false) //default는 업로드 안 한 상태
                     .build());
         }

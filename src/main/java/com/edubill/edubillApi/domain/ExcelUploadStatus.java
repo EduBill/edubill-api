@@ -2,13 +2,10 @@ package com.edubill.edubillApi.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-
-
-import java.time.YearMonth;
-
+import lombok.experimental.SuperBuilder;
 
 @Entity
-@Builder
+@SuperBuilder(toBuilder = true)
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,6 +24,6 @@ public class ExcelUploadStatus extends BaseEntity{
     @Builder.Default
     private Boolean isExcelUploaded = false; // 엑셀업로드 유무
 
-    @Column
-    private YearMonth yearMonth;
+    @Column(name = "year_month_str")
+    private String yearMonth;
 }

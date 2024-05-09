@@ -3,6 +3,7 @@ package com.edubill.edubillApi.controller;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryDetailResponse;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryResponse;
 import com.edubill.edubillApi.dto.payment.PaymentStatusDto;
+import com.edubill.edubillApi.excel.ExcelService;
 import com.edubill.edubillApi.service.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,9 +11,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,12 +30,15 @@ import java.time.YearMonth;
 @Tag(name = "Payment", description = "결제내역관리 API")
 @RestController
 @RequestMapping("/v1/payment")
+@Slf4j
 public class PaymentController {
 
     private final PaymentService paymentService;
+    private final ExcelService excelService;
 
-    public PaymentController(PaymentService paymentService) {
+    public PaymentController(PaymentService paymentService, @Qualifier("excelServiceImpl") ExcelService excelService) {
         this.paymentService = paymentService;
+        this.excelService = excelService;
     }
 
     @GetMapping("/status/{yearMonth}")
@@ -49,7 +56,16 @@ public class PaymentController {
     public ResponseEntity<PaymentStatusDto> getPaymentStatus(@PathVariable(name = "yearMonth") YearMonth yearMonth, Principal principal) {
         final String userId = principal.getName();
 
-        return ResponseEntity.ok(paymentService.getPaymentStatusForManagerInMonth(userId, yearMonth));
+        PaymentStatusDto paymentStatusDto = paymentService.getPaymentStatusForManagerInMonth(userId, yearMonth);
+        Boolean isExcelUploaded = excelService.getExcelUploadStatus(userId, yearMonth);
+
+        log.info("isExcelUploaded = {}", isExcelUploaded);
+
+        PaymentStatusDto updatedPaymentStatusDto = paymentStatusDto.toBuilder()
+                .isExcelUploaded(isExcelUploaded)
+                .build();
+
+        return new ResponseEntity<>(updatedPaymentStatusDto, HttpStatus.OK);
     }
 
     @GetMapping("/paidHistories/{yearMonth}")

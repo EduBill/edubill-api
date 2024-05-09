@@ -40,7 +40,7 @@ public class ExcelController {
     @Operation(summary = "엑셀 데이터 변환",
             description = "각 은행별 엑셀을 받아 하나의 Entity에 매핑하여 동일한 DB에 저장될 수 있도록 한다.")
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> readExcel(
+    public ResponseEntity<String> readExcel(
             @Parameter(description = "업로드할 엑셀 파일", required = true)
             @RequestPart("file") MultipartFile multipartFile,
 
@@ -59,12 +59,17 @@ public class ExcelController {
         }
     }
 
-    // 엑셀 업로드 후 해당 월에 대해 true 반환
+
+
+    @Operation(summary = "엑셀 업로드 상태를 수정",
+            description = "엑셀 업로드가 완료된 후 엑셀 업로드 상태를 true로 수정한다.")
     @GetMapping(value = "/status-change/{yearMonth}")
-    public ResponseEntity<?> changeExcelUploadedStatus(@PathVariable(name = "yearMonth") YearMonth yearMonth, Principal principal) {
+    public ResponseEntity<String> changeExcelUploadedStatus(
+            @Parameter(description = "납부연월", required = true, schema = @Schema(type = "YearMonth", example = "2024-04"))
+            @PathVariable(name = "yearMonth") YearMonth yearMonth, Principal principal) {
         final String userId = principal.getName();
         excelService.changeExcelUploadedStatusByYearMonthAndUserId(yearMonth, userId);
 
-        return ResponseEntity.ok("엑셀업로드 상태 true로 변경");
+        return ResponseEntity.ok("changed excelUploadStatus true");
     }
 }

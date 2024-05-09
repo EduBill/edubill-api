@@ -49,9 +49,9 @@ public class PaymentController {
                     @Parameter(name = "yearMonth",
                             description = "납부 상태를 가져오고 싶은 연도와 달. 포멧은 다음과 같다. YYYY-MM",
                             required = true,
-                            example = "2023-04",
-                            schema = @Schema(type = "string", pattern = "^\\d{4}-\\d{2}$", example = "2023-04"),
-                            content = @Content(examples = @ExampleObject(name = "yearMonthExample", value = "2023-04")))
+                            example = "2024-04",
+                            schema = @Schema(type = "string", pattern = "^\\d{4}-\\d{2}$", example = "2024-04"),
+                            content = @Content(examples = @ExampleObject(name = "yearMonthExample", value = "2024-04")))
             })
     public ResponseEntity<PaymentStatusDto> getPaymentStatus(@PathVariable(name = "yearMonth") YearMonth yearMonth, Principal principal) {
         final String userId = principal.getName();
@@ -76,7 +76,7 @@ public class PaymentController {
                             description = "납부 이력을 조회하고 싶은 연도와 달. 포맷은 다음과 같다: YYYY-MM",
                             required = true,
                             example = "2023-04",
-                            schema = @Schema(type = "string", pattern = "^\\d{4}-\\d{2}$", example = "2023-04")),
+                            schema = @Schema(type = "string", pattern = "^\\d{4}-\\d{2}$", example = "2024-04")),
                     @Parameter(name = "page",
                             description = "요청 페이지 번호 (0부터 시작)",
                             required = false,

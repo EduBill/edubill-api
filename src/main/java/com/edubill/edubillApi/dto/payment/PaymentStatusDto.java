@@ -15,5 +15,5 @@ public class PaymentStatusDto{
 
         private Long totalUnpaidAmount;
 
-        private Boolean isExcelUploaded;
+        private Boolean isExcelUploaded; //default는 false
 }

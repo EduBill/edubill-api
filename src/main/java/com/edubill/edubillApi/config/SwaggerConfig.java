@@ -20,7 +20,8 @@ import java.util.Arrays;
         info = @Info(title = "Edubill Project",
                 description = "EdubillProject API 명세입니다.",
                 version = "v1"),
-        servers = {@Server(url = "https://api.edu-bill.co.kr")})
+        servers = {@Server(url = "https://api.edu-bill.co.kr")}
+)
 @RequiredArgsConstructor
 @Configuration
 public class SwaggerConfig {

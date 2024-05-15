@@ -13,14 +13,13 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @SuperBuilder(toBuilder = true)
-public class Student extends BaseEntity{ //TODO: flyway수정
+public class Student extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "student_id")
     private Long id;
 
-    //TODO: flyway 수정
     @Column(name = "student_name")
     private String studentName;
 
@@ -33,7 +32,6 @@ public class Student extends BaseEntity{ //TODO: flyway수정
     @Column(name = "parent_phone_number")
     private String parentPhoneNumber;
 
-    //TODO: flyway수정
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_group_id")
     private StudentGroup studentGroup;

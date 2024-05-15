@@ -1,16 +1,15 @@
 package com.edubill.edubillApi.domain;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
-public class StudentGroup extends BaseEntity {
-
-    protected StudentGroup() {
-
-    }
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@SuperBuilder(toBuilder = true)
+public class StudentGroup extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,11 +27,13 @@ public class StudentGroup extends BaseEntity {
     @Column(name = "total_student_count")
     private Integer totalStudentCount;
 
-    @Builder
-    public StudentGroup(String groupName, String managerId, Integer tuition, Integer totalStudentCount) {
-        this.groupName = groupName;
-        this.managerId = managerId;
-        this.tuition = tuition;
-        this.totalStudentCount = totalStudentCount;
+
+    //====비즈니스 로직=====//
+    public void addStudent() {
+        if (this.totalStudentCount != null) {
+            this.totalStudentCount = this.totalStudentCount + 1;
+        } else {
+            this.totalStudentCount = 1; // 예외 처리 또는 기본값 설정 등
+        }
     }
 }

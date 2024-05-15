@@ -11,4 +11,4 @@ create table excel_upload_status (
 alter table if exists excel_upload_status
     add constraint FKeas338yr7k715yf07wgqv2ypy
     foreign key (user_id)
-    references users (user_id)
+    references users (user_id);

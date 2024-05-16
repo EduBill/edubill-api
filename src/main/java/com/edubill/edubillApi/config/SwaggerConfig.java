@@ -19,8 +19,8 @@ import java.util.Arrays;
 @OpenAPIDefinition(
         info = @Info(title = "Edubill Project",
                 description = "EdubillProject API 명세입니다.",
-                version = "v1"),
-        servers = {@Server(url = "https://api.edu-bill.co.kr")}
+                version = "v1")
+        //servers = {@Server(url = "https://api.edu-bill.co.kr")}
 )
 @RequiredArgsConstructor
 @Configuration

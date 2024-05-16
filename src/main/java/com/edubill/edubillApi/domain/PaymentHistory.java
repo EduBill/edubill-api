@@ -3,6 +3,7 @@ package com.edubill.edubillApi.domain;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryDto;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
 
@@ -39,25 +40,21 @@ public class PaymentHistory extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PaymentType paymentType; //거래방식
 
-    public PaymentHistory(LocalDateTime depositDate, String depositorName, String bankName, int paidAmount, String memo, Long studentGroupId, PaymentType paymentType) {
-        this.depositDate = depositDate;
-        this.depositorName = depositorName;
-        this.bankName = bankName;
-        this.paidAmount = paidAmount;
-        this.memo = memo;
-        this.studentGroupId = studentGroupId;
-        this.paymentType = paymentType;
-    }
+    //TODO: flyway추가
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private PaymentStatus paymentStatus = PaymentStatus.UNPAID; //납부확인 유무
 
-    public static PaymentHistory toEntity(PaymentHistoryDto paymentHistoryDto, Long studentGroupId, PaymentType paymentType) {
-        return new PaymentHistory(
-                paymentHistoryDto.getDepositDate(),
-                paymentHistoryDto.getDepositorName(),
-                paymentHistoryDto.getBankName(),
-                paymentHistoryDto.getDepositAmount(),
-                paymentHistoryDto.getMemo(),
-                studentGroupId,
-                paymentType
-        );
+
+    public static PaymentHistory toEntity(PaymentHistoryDto paymentHistoryDto, PaymentType paymentType) {
+        return  PaymentHistory.builder()
+                .depositDate(paymentHistoryDto.getDepositDate())
+                .depositorName(paymentHistoryDto.getDepositorName())
+                .bankName(paymentHistoryDto.getBankName())
+                .paidAmount(paymentHistoryDto.getDepositAmount())
+                .memo(paymentHistoryDto.getMemo())
+
+                .paymentType(paymentType)
+                .build();
     }
 }

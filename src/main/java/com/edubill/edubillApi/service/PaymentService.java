@@ -43,7 +43,7 @@ public class PaymentService {
         final long paidStudentsCountInMonth = paymentHistoryRepository.countPaidUserGroupsForUserInMonth(managerId, yearMonth);
 
         List<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesByYearMonthAndManagerId(managerId, yearMonth);
-        List<StudentGroup> studentGroups = studentGroupRepository.getUserGroupsByUserId(managerId);
+        List<StudentGroup> studentGroups = studentGroupRepository.getStudentGroupsByUserId(managerId);
 
         final long totalNumberOfStudentsToPay = studentGroups.stream()
                 .mapToInt(StudentGroup::getTotalStudentCount)
@@ -71,40 +71,51 @@ public class PaymentService {
         final Page<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesByYearMonthAndManagerId(userId, yearMonth, pageable);
 
         return paymentHistories.map(paymentHistory ->
-                new PaymentHistoryResponse(paymentHistory.getId(),paymentHistory.getDepositorName(), paymentHistory.getPaidAmount(), paymentHistory.getDepositDate())
+                new PaymentHistoryResponse(paymentHistory.getId(), paymentHistory.getDepositorName(), paymentHistory.getPaidAmount(), paymentHistory.getDepositDate())
         );
-    }
-
-    public PaymentHistory mapToPaymentHistoryWithStudentGroup(PaymentHistoryDto paymentHistoryDto, String userId) {
-
-        List<StudentGroup> studentGroups = studentGroupRepository.getUserGroupsByUserId(userId);
-
-        if (studentGroups != null && !studentGroups.isEmpty()) {
-            //TODO: StudentGroupId에 대한 정보를 받고 해당하는 Id에 따라 paymentHistory를 저장하도록 수정
-            StudentGroup studentGroup = studentGroups.get(0);
-            PaymentHistory paymentHistory = PaymentHistory.toEntity(paymentHistoryDto, studentGroup.getId(), PaymentType.BANK_TRANSFER);
-
-            return paymentHistory;
-
-        } else {
-            StudentGroup newStudentGroup = StudentGroup.builder()
-                    .groupName("중등 A반")
-                    .managerId(userId)
-                    .tuition(300000)
-                    .totalStudentCount(20)
-                    .build();
-            studentGroupRepository.save(newStudentGroup);
-
-            PaymentHistory paymentHistory = PaymentHistory.toEntity(paymentHistoryDto, newStudentGroup.getId(), PaymentType.BANK_TRANSFER);
-            return paymentHistory;
-        }
     }
 
     public PaymentHistoryDetailResponse findPaymentHistoryById(long paymentHistoryId) {
 
         PaymentHistory paymentHistory = paymentHistoryRepository.findById(paymentHistoryId)
-                .orElseThrow(()-> new PaymentHistoryNotFoundException("납부내역 없음"));
+                .orElseThrow(() -> new PaymentHistoryNotFoundException("납부내역 없음"));
         return PaymentHistoryDetailResponse.of(paymentHistory);
+    }
+
+    @Transactional
+    public void generatePaymentKeysAndSetPaymentStatus(YearMonth yearMonth, String userId) {
+
+        List<PaymentHistory> paymentHistoriesByYearMonth = paymentHistoryRepository.findPaymentHistoriesByYearMonthAndManagerId(userId, yearMonth);
+        List<StudentGroup> studentGroups = studentGroupRepository.getStudentGroupsByUserId(userId);
+        List<Student> students;
+
+        for (StudentGroup studentGroup : studentGroups) {
+            students = studentRepository.findAllByStudentGroup(studentGroup);
+
+            for (Student student : students) {
+
+                for (PaymentHistory paymentHistory : paymentHistoriesByYearMonth) {
+                    String depositorName = paymentHistory.getDepositorName();
+
+                    if (depositorName.equals(student.getStudentName()) || depositorName.equals(student.getParentName())) {
+                        //입금자이름이 학생이고 중복되는 학생이름이 없는경우 ---> 중요
+                        paymentHistoryRepository.save(paymentHistory.toBuilder()
+                                .studentGroupId(student.getStudentGroup().getId()) //학원반 연관관계 설정
+                                .paymentStatus(PaymentStatus.PAID) //결제완료상태로 변경
+                                .build());
+                        //결제키 생성로직(해당학생이름,  해당학생연락처, 입금금액, 은행코드, 결제방식)
+                        String paymentKey = student.getStudentName() + student.getStudentPhoneNumber() + paymentHistory.getPaidAmount() + paymentHistory.getPaymentType() + paymentHistory.getBankName();
+
+                    } else {
+                        //입금자이름이 학부모이름일때
+                        paymentHistoryRepository.save(paymentHistory.toBuilder()
+                                .paymentStatus(PaymentStatus.UNPAID) //결제완료상태로 변경
+                                .build());
+
+                    }
+                }
+            }
+        }
     }
 
     public MemoResponseDto updateMemo(MemoRequestDto memoRequestDto) {

@@ -1,6 +1,8 @@
 package com.edubill.edubillApi.controller;
 
-import com.edubill.edubillApi.dto.payment.*;
+import com.edubill.edubillApi.dto.payment.PaymentHistoryDetailResponse;
+import com.edubill.edubillApi.dto.payment.PaymentHistoryResponse;
+import com.edubill.edubillApi.dto.payment.PaymentStatusDto;
 import com.edubill.edubillApi.excel.ExcelService;
 import com.edubill.edubillApi.service.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -102,6 +104,16 @@ public class PaymentController {
             @PathVariable long paymentHistoryId) {
         PaymentHistoryDetailResponse paymentHistoryDetailResponse= paymentService.findPaymentHistoryById(paymentHistoryId);
         return ResponseEntity.ok(paymentHistoryDetailResponse);
+    }
+
+    @Operation(summary = "결제 키 생성",
+            description = "결제 확인된 내역에 대해 결제 키를 생성하고 납부상태를 완료로 체크한다.")
+    @PostMapping("/generateKeys/{yearMonth}")
+    public ResponseEntity<?> generatePaymentKeys(@PathVariable(name = "yearMonth") YearMonth yearMonth, Principal principal) {
+        final String userId = principal.getName();
+        paymentService.generatePaymentKeysAndSetPaymentStatus(yearMonth, userId);
+
+        return ResponseEntity.ok("완료");
     }
 
     @Operation(summary = "메모업데이트하기",

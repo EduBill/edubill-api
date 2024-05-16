@@ -1,5 +1,6 @@
 package com.edubill.edubillApi.excel;
 
+import com.edubill.edubillApi.domain.PaymentType;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryDto;
 import com.edubill.edubillApi.domain.PaymentHistory;
 
@@ -68,7 +69,7 @@ public class KOOMINConvertService implements ConvertService {
             if (depositAmount > 0) {
                 // 입금액이 양수인 경우에만 처리
                 depositorName = formatter.formatCellValue(row.getCell(2));
-                // 한글 이외의 영어, 숫자, 문자가 포함된 경우 해당 행의 데이터를 전달하지 않음
+                // 영어가,포함된 경우 해당 행의 데이터를 전달하지 않음
                 if (depositorName.matches(".*[a-zA-Z].*")) {
                     continue;
                 }
@@ -80,8 +81,7 @@ public class KOOMINConvertService implements ConvertService {
 
             PaymentHistoryDto paymentHistoryDto = new PaymentHistoryDto(depositDateTime, depositorName, BANK_NAME, depositAmount, memo);
 
-            PaymentHistory paymentHistory = paymentService.mapToPaymentHistoryWithStudentGroup(paymentHistoryDto, userId);
-
+            PaymentHistory paymentHistory = PaymentHistory.toEntity(paymentHistoryDto, PaymentType.BANK_TRANSFER);
             paymentHistories.add(paymentHistory);
         }
         return paymentHistories;

@@ -1,5 +1,6 @@
 package com.edubill.edubillApi.excel;
 
+import com.edubill.edubillApi.domain.PaymentType;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryDto;
 import com.edubill.edubillApi.domain.PaymentHistory;
 
@@ -82,7 +83,7 @@ public class SHINHANConvertService implements ConvertService {
 
             PaymentHistoryDto paymentHistoryDto = new PaymentHistoryDto(depositDateTime, depositorName, BANK_NAME, depositAmount, memo);
 
-            PaymentHistory paymentHistory = paymentService.mapToPaymentHistoryWithStudentGroup(paymentHistoryDto, userId);
+            PaymentHistory paymentHistory = PaymentHistory.toEntity(paymentHistoryDto, PaymentType.BANK_TRANSFER);
 
             paymentHistories.add(paymentHistory);
         }

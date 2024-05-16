@@ -18,7 +18,7 @@ public class StudentGroupCustomRepositoryImpl implements StudentGroupCustomRepos
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<StudentGroup> getUserGroupsByUserId(String managerId) {
+    public List<StudentGroup> getStudentGroupsByUserId(String managerId) {
         return queryFactory
                 .selectFrom(studentGroup)
                 .where(studentGroup.managerId.eq(managerId))

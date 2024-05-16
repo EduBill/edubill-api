@@ -36,7 +36,10 @@ public class Student extends BaseEntity{
     @JoinColumn(name = "student_group_id")
     private StudentGroup studentGroup;
 
+    //TODO: flyway설정추가
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<PaymentKey> paymentKeyList = new ArrayList<>();
+
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     private List<AcademyStudent> academyStudents = new ArrayList<>();
-
 }

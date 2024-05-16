@@ -40,7 +40,6 @@ public class PaymentHistory extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PaymentType paymentType; //거래방식
 
-    //TODO: flyway추가
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private PaymentStatus paymentStatus = PaymentStatus.UNPAID; //납부확인 유무

@@ -3,7 +3,6 @@ package com.edubill.edubillApi.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-//TODO: flyway추가
 @Getter
 @Builder
 @Entity

@@ -21,7 +21,7 @@ public class StudentService {
     @Transactional
     public void addStudentInfo(StudentInfoRequestDto studentInfoRequestDto, final String userId) {
 
-        List<StudentGroup> studentGroups = studentGroupRepository.getUserGroupsByUserId(userId);
+        List<StudentGroup> studentGroups = studentGroupRepository.getStudentGroupsByUserId(userId);
         StudentGroup studentGroup = null;
         if (!studentGroups.isEmpty()) {
             studentGroup = studentGroups.get(0); //TODO: studentGroup을 지정하지 않고 Academy에 모두 저장해야하는지 확인

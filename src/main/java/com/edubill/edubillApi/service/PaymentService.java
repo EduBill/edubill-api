@@ -97,14 +97,22 @@ public class PaymentService {
                 for (PaymentHistory paymentHistory : paymentHistoriesByYearMonth) {
                     String depositorName = paymentHistory.getDepositorName();
 
-                    if (depositorName.equals(student.getStudentName()) || depositorName.equals(student.getParentName())) {
+                    String studentName = student.getStudentName();
+                    String parentName = student.getParentName();
+
+                    if (depositorName.equals(studentName) || depositorName.equals(parentName)) {
                         //입금자이름이 학생이고 중복되는 학생이름이 없는경우 ---> 중요
+                        String studentPhoneNumber = student.getStudentPhoneNumber();
+                        String lastFourDigits = studentPhoneNumber.substring(studentPhoneNumber.length() - 4);
+                        String modifiedStudentName = student.getStudentName() + lastFourDigits;
+
                         paymentHistoryRepository.save(paymentHistory.toBuilder()
+                                .depositorName(modifiedStudentName)
                                 .studentGroupId(student.getStudentGroup().getId()) //학원반 연관관계 설정
                                 .paymentStatus(PaymentStatus.PAID) //결제완료상태로 변경
                                 .build());
                         //결제키 생성로직(해당학생이름,  해당학생연락처, 입금금액, 은행코드, 결제방식)
-                        String paymentKey = student.getStudentName() + student.getStudentPhoneNumber() + paymentHistory.getPaidAmount() + paymentHistory.getPaymentType() + paymentHistory.getBankName();
+                        String paymentKey = studentName + studentPhoneNumber + paymentHistory.getPaidAmount() + paymentHistory.getPaymentType() + paymentHistory.getBankName();
 
                     } else {
                         //입금자이름이 학부모이름일때

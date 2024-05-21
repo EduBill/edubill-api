@@ -3,12 +3,13 @@ package com.edubill.edubillApi.domain;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryDto;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
 
 @Getter
-@Builder(toBuilder = true)
+@SuperBuilder(toBuilder = true)
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -34,8 +35,11 @@ public class PaymentHistory extends BaseEntity {
     @Column(name = "memo")
     private String memo;  // 메모
 
-    @Column(name = "student_group_id")  // 외래 키
+    @Column(name = "student_group_id")
     private Long studentGroupId;
+
+    @Column(name = "manager_id")
+    private String managerId;
 
     @Enumerated(EnumType.STRING)
     private PaymentType paymentType; //거래방식
@@ -45,15 +49,15 @@ public class PaymentHistory extends BaseEntity {
     private PaymentStatus paymentStatus = PaymentStatus.UNPAID; //납부확인 유무
 
 
-    public static PaymentHistory toEntity(PaymentHistoryDto paymentHistoryDto, PaymentType paymentType) {
+    public static PaymentHistory toEntity(PaymentHistoryDto paymentHistoryDto, PaymentType paymentType, String userId) {
         return  PaymentHistory.builder()
                 .depositDate(paymentHistoryDto.getDepositDate())
                 .depositorName(paymentHistoryDto.getDepositorName())
                 .bankName(paymentHistoryDto.getBankName())
                 .paidAmount(paymentHistoryDto.getDepositAmount())
                 .memo(paymentHistoryDto.getMemo())
-
                 .paymentType(paymentType)
+                .managerId(userId)
                 .build();
     }
 }

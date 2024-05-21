@@ -11,6 +11,7 @@ import com.edubill.edubillApi.repository.*;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryResponse;
 import com.edubill.edubillApi.dto.payment.PaymentStatusDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class PaymentService {
 
     private final PaymentHistoryRepository paymentHistoryRepository;
@@ -84,8 +86,9 @@ public class PaymentService {
 
     @Transactional
     public void generatePaymentKeysAndSetPaymentStatus(YearMonth yearMonth, String userId) {
+        //paymentHistory에 userId를 추가하여 외래키로 가지고 있음.
+        List<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesWithUserId(userId, yearMonth);
 
-        List<PaymentHistory> paymentHistoriesByYearMonth = paymentHistoryRepository.findPaymentHistoriesByYearMonthAndManagerId(userId, yearMonth);
         List<StudentGroup> studentGroups = studentGroupRepository.getStudentGroupsByUserId(userId);
         List<Student> students;
 
@@ -94,17 +97,17 @@ public class PaymentService {
 
             for (Student student : students) {
 
-                for (PaymentHistory paymentHistory : paymentHistoriesByYearMonth) {
+                for (PaymentHistory paymentHistory : paymentHistories) {
                     String depositorName = paymentHistory.getDepositorName();
-
                     String studentName = student.getStudentName();
                     String parentName = student.getParentName();
 
                     if (depositorName.equals(studentName) || depositorName.equals(parentName)) {
-                        //입금자이름이 학생이고 중복되는 학생이름이 없는경우 ---> 중요
+
                         String studentPhoneNumber = student.getStudentPhoneNumber();
                         String lastFourDigits = studentPhoneNumber.substring(studentPhoneNumber.length() - 4);
                         String modifiedStudentName = student.getStudentName() + lastFourDigits;
+                        log.info("modifiedStudentName={}", modifiedStudentName);
 
                         paymentHistoryRepository.save(paymentHistory.toBuilder()
                                 .depositorName(modifiedStudentName)
@@ -114,7 +117,7 @@ public class PaymentService {
                         //결제키 생성로직(해당학생이름,  해당학생연락처, 입금금액, 은행코드, 결제방식)
                         String paymentKey = studentName + studentPhoneNumber + paymentHistory.getPaidAmount() + paymentHistory.getPaymentType() + paymentHistory.getBankName();
 
-                    } else {
+                    } else { //TODO: 조건 명시 필요
                         //입금자이름이 학부모이름일때
                         paymentHistoryRepository.save(paymentHistory.toBuilder()
                                 .paymentStatus(PaymentStatus.UNPAID) //결제완료상태로 변경

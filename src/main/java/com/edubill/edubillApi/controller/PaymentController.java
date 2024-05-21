@@ -113,7 +113,7 @@ public class PaymentController {
         final String userId = principal.getName();
         paymentService.generatePaymentKeysAndSetPaymentStatus(yearMonth, userId);
 
-        return ResponseEntity.ok("완료");
+        return ResponseEntity.ok("학생 납부처리 후 결제키 생성 완료");
     }
 
     @Operation(summary = "메모업데이트하기",

@@ -81,7 +81,7 @@ public class KOOMINConvertService implements ConvertService {
 
             PaymentHistoryDto paymentHistoryDto = new PaymentHistoryDto(depositDateTime, depositorName, BANK_NAME, depositAmount, memo);
 
-            PaymentHistory paymentHistory = PaymentHistory.toEntity(paymentHistoryDto, PaymentType.BANK_TRANSFER);
+            PaymentHistory paymentHistory = PaymentHistory.toEntity(paymentHistoryDto, PaymentType.BANK_TRANSFER, userId);
             paymentHistories.add(paymentHistory);
         }
         return paymentHistories;

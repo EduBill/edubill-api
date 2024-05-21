@@ -15,6 +15,7 @@ import java.util.List;
 
 import static com.edubill.edubillApi.domain.QPaymentHistory.paymentHistory;
 import static com.edubill.edubillApi.domain.QStudentGroup.studentGroup;
+import static com.edubill.edubillApi.domain.QUser.user;
 
 
 @Repository
@@ -72,6 +73,21 @@ public class PaymentHistoryCustomRepositoryImpl implements PaymentHistoryCustomR
                 .on(paymentHistory.studentGroupId.eq(studentGroup.id))
                 .where(paymentHistory.depositDate.between(startDateTime, endDateTime)
                         .and(studentGroup.managerId.eq(managerId)))
+                .fetch();
+    }
+
+    @Override
+    public List<PaymentHistory> findPaymentHistoriesWithUserId(String managerId, YearMonth yearMonth){
+
+        LocalDateTime startDateTime = yearMonth.atDay(1).atStartOfDay();
+        LocalDateTime endDateTime = yearMonth.atEndOfMonth().atTime(23, 59, 59, 999999999);
+
+        return queryFactory
+                .selectFrom(paymentHistory)
+                .join(user)
+                .on(paymentHistory.managerId.eq(user.userId))
+                .where(paymentHistory.depositDate.between(startDateTime, endDateTime)
+                        .and(user.userId.eq(managerId)))
                 .fetch();
     }
 

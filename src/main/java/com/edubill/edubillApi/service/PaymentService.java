@@ -30,10 +30,12 @@ public class PaymentService {
 
     private final PaymentHistoryRepository paymentHistoryRepository;
     private final StudentGroupRepository studentGroupRepository;
+    private final StudentRepository studentRepository;
 
-    public PaymentService(PaymentHistoryRepository paymentHistoryRepository, StudentGroupRepository studentGroupRepository) {
+    public PaymentService(PaymentHistoryRepository paymentHistoryRepository, StudentGroupRepository studentGroupRepository, StudentRepository studentRepository) {
         this.paymentHistoryRepository = paymentHistoryRepository;
         this.studentGroupRepository = studentGroupRepository;
+        this.studentRepository = studentRepository;
     }
 
     public void savePaymentHistories(List<PaymentHistory> paymentHistories) {
@@ -94,39 +96,45 @@ public class PaymentService {
 
         for (StudentGroup studentGroup : studentGroups) {
             students = studentRepository.findAllByStudentGroup(studentGroup);
-
             for (Student student : students) {
-
                 for (PaymentHistory paymentHistory : paymentHistories) {
                     String depositorName = paymentHistory.getDepositorName();
                     String studentName = student.getStudentName();
                     String parentName = student.getParentName();
 
-                    if (depositorName.equals(studentName) || depositorName.equals(parentName)) {
-
-                        String studentPhoneNumber = student.getStudentPhoneNumber();
-                        String lastFourDigits = studentPhoneNumber.substring(studentPhoneNumber.length() - 4);
-                        String modifiedStudentName = student.getStudentName() + lastFourDigits;
-                        log.info("modifiedStudentName={}", modifiedStudentName);
-
+                    // 입금자명이 학생정보의 학생명이나 학부모명과 일치할 경우 해당학생을 입금확인처리를 합니다.
+                    if (depositorName.equals(studentName)) {
+                        // 학생 이름과 일치하는 경우
+                        paymentStatusToPaid(student, paymentHistory, studentName);
+                        break;
+                    } else if (depositorName.equals(parentName)) {
+                        // 학부모 이름과 일치하는 경우
+                        paymentStatusToPaid(student, paymentHistory, studentName);
+                        break;
+                    }
+                    else{
                         paymentHistoryRepository.save(paymentHistory.toBuilder()
-                                .depositorName(modifiedStudentName)
-                                .studentGroupId(student.getStudentGroup().getId()) //학원반 연관관계 설정
-                                .paymentStatus(PaymentStatus.PAID) //결제완료상태로 변경
+                                .paymentStatus(PaymentStatus.UNPAID) //결제 미완료상태로 변경
                                 .build());
-                        //결제키 생성로직(해당학생이름,  해당학생연락처, 입금금액, 은행코드, 결제방식)
-                        String paymentKey = studentName + studentPhoneNumber + paymentHistory.getPaidAmount() + paymentHistory.getPaymentType() + paymentHistory.getBankName();
-
-                    } else { //TODO: 조건 명시 필요
-                        //입금자이름이 학부모이름일때
-                        paymentHistoryRepository.save(paymentHistory.toBuilder()
-                                .paymentStatus(PaymentStatus.UNPAID) //결제완료상태로 변경
-                                .build());
-
                     }
                 }
             }
         }
+    }
+    private void paymentStatusToPaid(Student student, PaymentHistory paymentHistory, String studentName) {
+        String studentPhoneNumber = student.getStudentPhoneNumber();
+        String lastFourDigits = studentPhoneNumber.substring(studentPhoneNumber.length() - 4);
+        String modifiedStudentName = student.getStudentName() + lastFourDigits;
+        log.info("modifiedStudentName={}", modifiedStudentName);
+
+        paymentHistoryRepository.save(paymentHistory.toBuilder()
+                .depositorName(modifiedStudentName)
+                .studentGroupId(student.getStudentGroup().getId()) //학원반 연관관계 설정
+                .paymentStatus(PaymentStatus.PAID) //결제완료상태로 변경
+                .build());
+
+        // 결제키 생성로직 (해당학생이름, 해당학생연락처, 입금금액, 은행코드, 결제방식)
+        String paymentKey = studentName + studentPhoneNumber + paymentHistory.getPaidAmount() + paymentHistory.getPaymentType() + paymentHistory.getBankName();
     }
 
     public MemoResponseDto updateMemo(MemoRequestDto memoRequestDto) {

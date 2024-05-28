@@ -4,15 +4,15 @@ import com.edubill.edubillApi.domain.*;
 import com.edubill.edubillApi.dto.payment.*;
 import com.edubill.edubillApi.error.exception.PaymentHistoryNotFoundException;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryDetailResponse;
-import com.edubill.edubillApi.dto.payment.PaymentHistoryDto;
 
-import com.edubill.edubillApi.excel.ExcelService;
-import com.edubill.edubillApi.repository.*;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryResponse;
 import com.edubill.edubillApi.dto.payment.PaymentStatusDto;
+import com.edubill.edubillApi.repository.payment.PaymentHistoryRepository;
+import com.edubill.edubillApi.repository.payment.PaymentKeyRepository;
+import com.edubill.edubillApi.repository.student.StudentRepository;
+import com.edubill.edubillApi.repository.studentgroup.StudentGroupRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,21 +22,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.YearMonth;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class PaymentService {
 
     private final PaymentHistoryRepository paymentHistoryRepository;
+    private final PaymentKeyRepository paymentKeyRepository;
     private final StudentGroupRepository studentGroupRepository;
     private final StudentRepository studentRepository;
-
-    public PaymentService(PaymentHistoryRepository paymentHistoryRepository, StudentGroupRepository studentGroupRepository, StudentRepository studentRepository) {
-        this.paymentHistoryRepository = paymentHistoryRepository;
-        this.studentGroupRepository = studentGroupRepository;
-        this.studentRepository = studentRepository;
-    }
 
     public void savePaymentHistories(List<PaymentHistory> paymentHistories) {
         paymentHistoryRepository.saveAll(paymentHistories);
@@ -104,12 +99,12 @@ public class PaymentService {
 
                     // 입금자명이 학생정보의 학생명이나 학부모명과 일치할 경우 해당학생을 입금확인처리를 합니다.
                     if (depositorName.equals(studentName)) {
-                        // 학생 이름과 일치하는 경우
-                        paymentStatusToPaid(student, paymentHistory, studentName);
+                        paymentStatusToPaid(student, paymentHistory);
+                        generatePaymentKeys(student, paymentHistory);
                         break;
                     } else if (depositorName.equals(parentName)) {
-                        // 학부모 이름과 일치하는 경우
-                        paymentStatusToPaid(student, paymentHistory, studentName);
+                        paymentStatusToPaid(student, paymentHistory);
+                        generatePaymentKeys(student, paymentHistory);
                         break;
                     }
                     else{
@@ -121,20 +116,28 @@ public class PaymentService {
             }
         }
     }
-    private void paymentStatusToPaid(Student student, PaymentHistory paymentHistory, String studentName) {
+
+    private void generatePaymentKeys(Student student, PaymentHistory paymentHistory) {
+        String studentPhoneNumber = student.getStudentPhoneNumber();
+        String studentName = student.getStudentName();
+        String paymentKey = studentName + studentPhoneNumber + paymentHistory.getPaidAmount() + paymentHistory.getPaymentType() + paymentHistory.getBankName();
+
+        paymentKeyRepository.save(PaymentKey.builder()
+                .paymentKey(paymentKey)
+                .student(student)
+                .build());
+    }
+
+    private void paymentStatusToPaid(Student student, PaymentHistory paymentHistory) {
         String studentPhoneNumber = student.getStudentPhoneNumber();
         String lastFourDigits = studentPhoneNumber.substring(studentPhoneNumber.length() - 4);
         String modifiedStudentName = student.getStudentName() + lastFourDigits;
-        log.info("modifiedStudentName={}", modifiedStudentName);
 
         paymentHistoryRepository.save(paymentHistory.toBuilder()
                 .depositorName(modifiedStudentName)
                 .studentGroupId(student.getStudentGroup().getId()) //학원반 연관관계 설정
                 .paymentStatus(PaymentStatus.PAID) //결제완료상태로 변경
                 .build());
-
-        // 결제키 생성로직 (해당학생이름, 해당학생연락처, 입금금액, 은행코드, 결제방식)
-        String paymentKey = studentName + studentPhoneNumber + paymentHistory.getPaidAmount() + paymentHistory.getPaymentType() + paymentHistory.getBankName();
     }
 
     public MemoResponseDto updateMemo(MemoRequestDto memoRequestDto) {

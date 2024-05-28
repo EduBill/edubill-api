@@ -1,6 +1,5 @@
-package com.edubill.edubillApi.repository;
+package com.edubill.edubillApi.repository.student;
 
-import com.edubill.edubillApi.domain.QStudent;
 import com.edubill.edubillApi.domain.Student;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;

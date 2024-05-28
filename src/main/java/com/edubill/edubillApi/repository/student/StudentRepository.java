@@ -1,4 +1,4 @@
-package com.edubill.edubillApi.repository;
+package com.edubill.edubillApi.repository.student;
 
 import com.edubill.edubillApi.domain.Student;
 import com.edubill.edubillApi.domain.StudentGroup;

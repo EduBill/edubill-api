@@ -1,4 +1,4 @@
-package com.edubill.edubillApi.repository;
+package com.edubill.edubillApi.repository.users;
 
 import com.edubill.edubillApi.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;

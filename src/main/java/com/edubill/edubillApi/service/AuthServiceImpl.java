@@ -9,7 +9,7 @@ import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
 import com.edubill.edubillApi.error.exception.UserAlreadyExistsException;
 import com.edubill.edubillApi.error.exception.UserNotFoundException;
 import com.edubill.edubillApi.repository.redis.RequestIdRepository;
-import com.edubill.edubillApi.repository.UserRepository;
+import com.edubill.edubillApi.repository.users.UserRepository;
 import com.edubill.edubillApi.repository.verification.VerificationRepository;
 
 import lombok.extern.slf4j.Slf4j;

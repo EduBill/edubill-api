@@ -1,6 +1,7 @@
-package com.edubill.edubillApi.repository;
+package com.edubill.edubillApi.repository.payment;
 
 import com.edubill.edubillApi.domain.PaymentHistory;
+import com.edubill.edubillApi.domain.PaymentStatus;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
@@ -72,7 +73,8 @@ public class PaymentHistoryCustomRepositoryImpl implements PaymentHistoryCustomR
                 .join(studentGroup)
                 .on(paymentHistory.studentGroupId.eq(studentGroup.id))
                 .where(paymentHistory.depositDate.between(startDateTime, endDateTime)
-                        .and(studentGroup.managerId.eq(managerId)))
+                        .and(studentGroup.managerId.eq(managerId))
+                        .and(paymentHistory.paymentStatus.eq(PaymentStatus.PAID))) //TODO: StudentGroupId 존재유무만으로 납부완료리스트 가져올 수 있으면 제거
                 .fetch();
     }
 

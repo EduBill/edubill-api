@@ -1,6 +1,7 @@
 package com.edubill.edubillApi.service;
 
 import com.edubill.edubillApi.domain.*;
+import com.edubill.edubillApi.dto.payment.*;
 import com.edubill.edubillApi.error.exception.PaymentHistoryNotFoundException;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryDetailResponse;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryDto;
@@ -104,5 +105,35 @@ public class PaymentService {
         PaymentHistory paymentHistory = paymentHistoryRepository.findById(paymentHistoryId)
                 .orElseThrow(()-> new PaymentHistoryNotFoundException("납부내역 없음"));
         return PaymentHistoryDetailResponse.of(paymentHistory);
+    }
+
+
+
+    public MemoResponseDto addMemo(MemoRequestDto memoRequestDto) {
+        Long paymentHistoryId = memoRequestDto.getPaymentHistoryId();
+        PaymentHistory paymentHistory = paymentHistoryRepository.findById(paymentHistoryId)
+                .orElseThrow(() -> new PaymentHistoryNotFoundException("납부내역 없음"));
+
+        PaymentHistory newPaymentHistory = paymentHistoryRepository.save(paymentHistory.toBuilder()
+                .memo(memoRequestDto.getMemoDescription())
+                .build());
+
+        return MemoResponseDto.builder()
+                .memoDescription(newPaymentHistory.getMemo())
+                .build();
+    }
+
+    public MemoResponseDto updateMemo(MemoRequestDto memoRequestDto) {
+        Long paymentHistoryId = memoRequestDto.getPaymentHistoryId();
+        PaymentHistory paymentHistory = paymentHistoryRepository.findById(paymentHistoryId)
+                .orElseThrow(() -> new PaymentHistoryNotFoundException("납부내역 없음"));
+
+        PaymentHistory updatedPaymentHistory = paymentHistoryRepository.save(paymentHistory.toBuilder()
+                .memo(memoRequestDto.getMemoDescription())
+                .build());
+
+        return MemoResponseDto.builder()
+                .memoDescription(updatedPaymentHistory.getMemo())
+                .build();
     }
 }

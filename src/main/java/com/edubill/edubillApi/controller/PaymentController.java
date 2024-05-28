@@ -1,8 +1,6 @@
 package com.edubill.edubillApi.controller;
 
-import com.edubill.edubillApi.dto.payment.PaymentHistoryDetailResponse;
-import com.edubill.edubillApi.dto.payment.PaymentHistoryResponse;
-import com.edubill.edubillApi.dto.payment.PaymentStatusDto;
+import com.edubill.edubillApi.dto.payment.*;
 import com.edubill.edubillApi.excel.ExcelService;
 import com.edubill.edubillApi.service.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,11 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.YearMonth;
@@ -101,12 +95,28 @@ public class PaymentController {
     }
 
     @Operation(summary = "납부 상세 내역 가져오기",
-            description = "특정 납부 내역의 상세 내역을 가져옵니다.")
+            description = "특정 납부 내역의 상세 내역을 가져온다.")
     @GetMapping("/paidHistoryDetails/{paymentHistoryId}")
     public ResponseEntity<PaymentHistoryDetailResponse> getPaymentHistoryDetail(
             @Parameter(description = "특정 납부내역의 아이디", example = "1", required = true)
             @PathVariable long paymentHistoryId) {
         PaymentHistoryDetailResponse paymentHistoryDetailResponse= paymentService.findPaymentHistoryById(paymentHistoryId);
         return ResponseEntity.ok(paymentHistoryDetailResponse);
+    }
+
+    @Operation(summary = "메모입력받기",
+            description = "납부 상세내역에서 입력받은 메모를 저장한다.")
+    @PostMapping("/memo")
+    public ResponseEntity<MemoResponseDto> addMemoDescription(@RequestBody MemoRequestDto memoRequestDto) {
+        MemoResponseDto memoResponseDto = paymentService.addMemo(memoRequestDto);
+        return ResponseEntity.ok(memoResponseDto);
+    }
+
+    @Operation(summary = "메모업데이트하기",
+            description = "납부 상세내역에서 기존 메모를 업데이트한다.")
+    @PutMapping("/memo")
+    public ResponseEntity<MemoResponseDto> updateMemoDescription(@RequestBody MemoRequestDto memoRequestDto) {
+        MemoResponseDto memoResponseDto = paymentService.updateMemo(memoRequestDto);
+        return ResponseEntity.ok(memoResponseDto);
     }
 }

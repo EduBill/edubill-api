@@ -2,11 +2,9 @@ package com.edubill.edubillApi.excel;
 
 import com.edubill.edubillApi.domain.ExcelUploadStatus;
 import com.edubill.edubillApi.domain.User;
-import com.edubill.edubillApi.dto.ExcelResponseDto;
 import com.edubill.edubillApi.error.exception.UserNotFoundException;
 import com.edubill.edubillApi.repository.ExcelUploadStatusRepository;
-import com.edubill.edubillApi.repository.UserRepositoryInterface;
-import com.edubill.edubillApi.service.PaymentService;
+import com.edubill.edubillApi.repository.users.UserRepositoryInterface;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;

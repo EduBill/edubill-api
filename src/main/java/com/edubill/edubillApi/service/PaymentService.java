@@ -82,10 +82,9 @@ public class PaymentService {
     }
 
     @Transactional
-    public void generatePaymentKeysAndSetPaymentStatus(YearMonth yearMonth, String userId) {
+    public void generatePaymentKeys(YearMonth yearMonth, String userId) {
         //paymentHistory에 userId를 추가하여 외래키로 가지고 있음.
         List<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesWithUserId(userId, yearMonth);
-
         List<StudentGroup> studentGroups = studentGroupRepository.getStudentGroupsByUserId(userId);
         List<Student> students;
 
@@ -98,34 +97,46 @@ public class PaymentService {
                     String parentName = student.getParentName();
 
                     // 입금자명이 학생정보의 학생명이나 학부모명과 일치할 경우 해당학생을 입금확인처리를 합니다.
-                    if (depositorName.equals(studentName)) {
-                        paymentStatusToPaid(student, paymentHistory);
-                        generatePaymentKeys(student, paymentHistory);
-                        break;
-                    } else if (depositorName.equals(parentName)) {
-                        paymentStatusToPaid(student, paymentHistory);
-                        generatePaymentKeys(student, paymentHistory);
+                    if (depositorName.equals(studentName) || depositorName.equals(parentName)) {
+                        processPaymentKey(student, paymentHistory);
                         break;
                     }
                     else{
-                        paymentHistoryRepository.save(paymentHistory.toBuilder()
-                                .paymentStatus(PaymentStatus.UNPAID) //결제 미완료상태로 변경
-                                .build());
+                        paymentStatusToUnPaid(paymentHistory);
                     }
                 }
             }
         }
     }
 
-    private void generatePaymentKeys(Student student, PaymentHistory paymentHistory) {
+    private void processPaymentKey(Student student, PaymentHistory paymentHistory) {
         String studentPhoneNumber = student.getStudentPhoneNumber();
         String studentName = student.getStudentName();
-        String paymentKey = studentName + studentPhoneNumber + paymentHistory.getPaidAmount() + paymentHistory.getPaymentType() + paymentHistory.getBankName();
+        String newPaymentKey = studentName + studentPhoneNumber + paymentHistory.getPaidAmount() + paymentHistory.getPaymentType() + paymentHistory.getBankName();
 
-        paymentKeyRepository.save(PaymentKey.builder()
-                .paymentKey(paymentKey)
-                .student(student)
-                .build());
+        List<PaymentKey> paymentKeys = paymentKeyRepository.findAllByStudent(student);
+        // 결제키가 존재하는 경우
+        if (paymentKeys != null && !paymentKeys.isEmpty()) {
+            boolean isPaid = false;
+            for (PaymentKey paymentKey : paymentKeys) {
+                // 기존키와 새로생성된 키가 같은 경우
+                if (paymentKey != null && paymentKey.getPaymentKey().equals(newPaymentKey)) {
+                    paymentStatusToPaid(student, paymentHistory);
+                    isPaid = true;
+                    break;
+                }
+            }
+            if (!isPaid) {
+                paymentStatusToUnPaid(paymentHistory);
+            }
+        } else {
+            // 결제 키가 아예 존재하지 않는 경우
+            paymentStatusToPaid(student, paymentHistory);
+            paymentKeyRepository.save(PaymentKey.builder()
+                    .paymentKey(newPaymentKey)
+                    .student(student)
+                    .build());
+        }
     }
 
     private void paymentStatusToPaid(Student student, PaymentHistory paymentHistory) {
@@ -137,6 +148,12 @@ public class PaymentService {
                 .depositorName(modifiedStudentName)
                 .studentGroupId(student.getStudentGroup().getId()) //학원반 연관관계 설정
                 .paymentStatus(PaymentStatus.PAID) //결제완료상태로 변경
+                .build());
+    }
+
+    private void paymentStatusToUnPaid(PaymentHistory paymentHistory) {
+        paymentHistoryRepository.save(paymentHistory.toBuilder()
+                .paymentStatus(PaymentStatus.UNPAID) //결제 미완료상태로 변경
                 .build());
     }
 

@@ -41,6 +41,7 @@ public class ExcelServiceImpl implements ExcelService {
         List<PaymentHistory> paymentHistories = convertService.convertBankExcelDataToPaymentHistory(file, userId);
 
         paymentService.savePaymentHistories(paymentHistories);
+        //paymentService.generatePaymentKeysAndSetPaymentStatus(yearMonth, usrId);
 
     }
 

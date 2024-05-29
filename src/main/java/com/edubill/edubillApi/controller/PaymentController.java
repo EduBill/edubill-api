@@ -106,12 +106,12 @@ public class PaymentController {
         return ResponseEntity.ok(paymentHistoryDetailResponse);
     }
 
-    @Operation(summary = "결제 키 생성",
+    @Operation(summary = "결제 키 생성 및 저장",
             description = "결제 확인된 내역에 대해 결제 키를 생성하고 납부상태를 완료로 체크한다.")
     @PostMapping("/generateKeys/{yearMonth}")
     public ResponseEntity<?> generatePaymentKeys(@PathVariable(name = "yearMonth") YearMonth yearMonth, Principal principal) {
         final String userId = principal.getName();
-        paymentService.generatePaymentKeysAndSetPaymentStatus(yearMonth, userId);
+        paymentService.generatePaymentKeys(yearMonth, userId);
 
         return ResponseEntity.ok("학생 납부처리 후 결제키 생성 완료");
     }

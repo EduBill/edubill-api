@@ -99,7 +99,7 @@ public class PaymentService {
                     // 입금자명이 학생정보의 학생명이나 학부모명과 일치할 경우 해당학생을 입금확인처리를 합니다.
                     if (depositorName.equals(studentName) || depositorName.equals(parentName)) {
                         processPaymentKey(student, paymentHistory);
-                        break;
+                        break;   //TODO: 현재는 동명이인을 고려하지 않고 최초로 검색된 paymentHistory의 depository만 확인하여 처리하고 있습니다. 이 부분 추후 수정이 필요할 것 같습니다.
                     }
                     else{
                         paymentStatusToUnPaid(paymentHistory);
@@ -115,7 +115,7 @@ public class PaymentService {
         String newPaymentKey = studentName + studentPhoneNumber + paymentHistory.getPaidAmount() + paymentHistory.getPaymentType() + paymentHistory.getBankName();
 
         List<PaymentKey> paymentKeys = paymentKeyRepository.findAllByStudent(student);
-        // 결제키가 존재하는 경우
+        // case1: 결제키가 존재하는 경우
         if (paymentKeys != null && !paymentKeys.isEmpty()) {
             boolean isPaid = false;
             for (PaymentKey paymentKey : paymentKeys) {
@@ -130,7 +130,7 @@ public class PaymentService {
                 paymentStatusToUnPaid(paymentHistory);
             }
         } else {
-            // 결제 키가 아예 존재하지 않는 경우
+            // case2: 결제 키가 아예 존재하지 않는 경우
             paymentStatusToPaid(student, paymentHistory);
             paymentKeyRepository.save(PaymentKey.builder()
                     .paymentKey(newPaymentKey)

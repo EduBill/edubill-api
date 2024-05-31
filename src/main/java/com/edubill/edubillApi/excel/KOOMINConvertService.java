@@ -30,11 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service("KOOKMINconvertService")
 public class KOOMINConvertService implements ConvertService {
-
-    private final PaymentService paymentService;
     private static final String BANK_NAME = "국민은행";
-
-
     @Override
     public List<PaymentHistory> convertBankExcelDataToPaymentHistory(MultipartFile file, String userId) throws IOException {
 

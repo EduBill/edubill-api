@@ -20,6 +20,7 @@ import org.springframework.util.ResourceUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.time.YearMonth;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -58,7 +59,9 @@ class ExcelServiceTest {
         for (int i = 0; i < 15; i++) {
             // 비동기 메서드 호출
             String bankName = "KOOKMIN";
-            excelServiceMock.convertExcelDataByBankCode(file, bankName, TEST_USER_ID);
+            String yearMonthString = "2024-04";
+            YearMonth yearMonth = YearMonth.parse(yearMonthString);
+            excelServiceMock.convertExcelDataByBankCode(file, bankName, TEST_USER_ID, yearMonth);
         }
         Thread.sleep(50000);
     }

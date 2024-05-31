@@ -45,14 +45,16 @@ public class ExcelController {
             @RequestPart("file") MultipartFile multipartFile,
 
             @Parameter(description = "은행 코드", required = true, schema = @Schema(type = "String", example = "004"))
-            @RequestPart("bankCode") String bankCode, Principal principal) throws IOException {
+            @RequestPart("bankCode") String bankCode,
+            @RequestParam YearMonth yearMonth,
+            Principal principal) throws IOException {
 
         final String userId = principal.getName();
         String fileExtension = FilenameUtils.getExtension(multipartFile.getOriginalFilename());
 
         if (fileExtension.equals("xls") || fileExtension.equals("xlsx")) {
             String bankName = BankName.getBankNameByCode(bankCode);
-            excelService.convertExcelDataByBankCode(multipartFile, bankName, userId);
+            excelService.convertExcelDataByBankCodeAndGeneratePaymentKey(multipartFile, bankName, userId, yearMonth);
             return ResponseEntity.ok("엑셀 업로드 완료");
         } else {
             throw new IllegalArgumentException("지원되지 않는 파일 형식. xls 및 xlsx 파일만 지원됩니다.");

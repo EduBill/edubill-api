@@ -79,7 +79,7 @@ public class PaymentHistoryCustomRepositoryImpl implements PaymentHistoryCustomR
     }
 
     @Override
-    public List<PaymentHistory> findPaymentHistoriesWithUserId(String managerId, YearMonth yearMonth){
+    public List<PaymentHistory> findPaymentHistoriesWithUserIdAndYearMonth(String managerId, YearMonth yearMonth){
 
         LocalDateTime startDateTime = yearMonth.atDay(1).atStartOfDay();
         LocalDateTime endDateTime = yearMonth.atEndOfMonth().atTime(23, 59, 59, 999999999);

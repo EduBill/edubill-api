@@ -28,4 +28,14 @@ public enum BankName {
         }
         throw new IllegalArgumentException("Unsupported bank code");
     }
+
+    // 은행이름으로 은행코드 반환
+    public static String getBankCodeByName(String name) {
+        for (BankName bank : BankName.values()) {
+            if (bank.name().equalsIgnoreCase(name)) {
+                return bank.getBankCode();
+            }
+        }
+        throw new IllegalArgumentException("Unsupported bank code");
+    }
 }

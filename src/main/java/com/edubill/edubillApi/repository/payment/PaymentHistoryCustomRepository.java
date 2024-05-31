@@ -16,7 +16,7 @@ public interface PaymentHistoryCustomRepository {
     /**
      * PaymentHistory의 student_group_id가 null인 케이스를 전부 포함하여 가져온다.
      */
-    List<PaymentHistory> findPaymentHistoriesWithUserId(String managerId, YearMonth yearMonth);
+    List<PaymentHistory> findPaymentHistoriesWithUserIdAndYearMonth(String managerId, YearMonth yearMonth);
 
     long countPaidUserGroupsForUserInMonth(String userId, YearMonth yearMonth);
 }

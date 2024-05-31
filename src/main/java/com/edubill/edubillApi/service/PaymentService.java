@@ -84,7 +84,7 @@ public class PaymentService {
     @Transactional
     public void generatePaymentKeys(YearMonth yearMonth, String userId) {
         //paymentHistory에 userId를 추가하여 외래키로 가지고 있음.
-        List<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesWithUserId(userId, yearMonth);
+        List<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesWithUserIdAndYearMonth(userId, yearMonth);
         List<StudentGroup> studentGroups = studentGroupRepository.getStudentGroupsByUserId(userId);
         List<Student> students;
 
@@ -92,18 +92,7 @@ public class PaymentService {
             students = studentRepository.findAllByStudentGroup(studentGroup);
             for (Student student : students) {
                 for (PaymentHistory paymentHistory : paymentHistories) {
-                    String depositorName = paymentHistory.getDepositorName();
-                    String studentName = student.getStudentName();
-                    String parentName = student.getParentName();
-
-                    // 입금자명이 학생정보의 학생명이나 학부모명과 일치할 경우 해당학생을 입금확인처리를 합니다.
-                    if (depositorName.equals(studentName) || depositorName.equals(parentName)) {
                         processPaymentKey(student, paymentHistory);
-                        break;   //TODO: 현재는 동명이인을 고려하지 않고 최초로 검색된 paymentHistory의 depository만 확인하여 처리하고 있습니다. 이 부분 추후 수정이 필요할 것 같습니다.
-                    }
-                    else{
-                        paymentStatusToUnPaid(paymentHistory);
-                    }
                 }
             }
         }
@@ -111,31 +100,37 @@ public class PaymentService {
 
     private void processPaymentKey(Student student, PaymentHistory paymentHistory) {
         String studentPhoneNumber = student.getStudentPhoneNumber();
+        int tuition = student.getStudentGroup().getTuition();
         String studentName = student.getStudentName();
-        String newPaymentKey = studentName + studentPhoneNumber + paymentHistory.getPaidAmount() + paymentHistory.getPaymentType() + paymentHistory.getBankName();
+        String parentName = student.getParentName();
+        String depositorName = paymentHistory.getDepositorName();
+        String bankCode = BankName.getBankCodeByName(paymentHistory.getBankName());
+
+        String newPaymentKey = depositorName + studentPhoneNumber + tuition + bankCode + paymentHistory.getPaymentType();
+        log.info("newPaymentKey={}", newPaymentKey);
 
         List<PaymentKey> paymentKeys = paymentKeyRepository.findAllByStudent(student);
         // case1: 결제키가 존재하는 경우
         if (paymentKeys != null && !paymentKeys.isEmpty()) {
-            boolean isPaid = false;
             for (PaymentKey paymentKey : paymentKeys) {
-                // 기존키와 새로생성된 키가 같은 경우
-                if (paymentKey != null && paymentKey.getPaymentKey().equals(newPaymentKey)) {
+                if (paymentKey == null) {
+                    log.error("Null paymentKey encountered");
+                } else if (paymentKey.getPaymentKey().equals(newPaymentKey)) {
                     paymentStatusToPaid(student, paymentHistory);
-                    isPaid = true;
                     break;
+                } else {
+                    paymentStatusToUnPaid(paymentHistory);
                 }
-            }
-            if (!isPaid) {
-                paymentStatusToUnPaid(paymentHistory);
             }
         } else {
             // case2: 결제 키가 아예 존재하지 않는 경우
-            paymentStatusToPaid(student, paymentHistory);
-            paymentKeyRepository.save(PaymentKey.builder()
-                    .paymentKey(newPaymentKey)
-                    .student(student)
-                    .build());
+            if (depositorName.equals(studentName) || depositorName.equals(parentName)) { //TODO: depositorName == parentName 제거 필요
+                paymentStatusToPaid(student, paymentHistory);
+                paymentKeyRepository.save(PaymentKey.builder()
+                        .paymentKey(newPaymentKey)
+                        .student(student)
+                        .build());
+            }
         }
     }
 

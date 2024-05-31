@@ -11,6 +11,8 @@ public interface PaymentHistoryCustomRepository {
 
     Page<PaymentHistory> findPaymentHistoriesByYearMonthAndManagerId(String userId, YearMonth yearMonth, Pageable pageable);
 
+    Page<PaymentHistory> findUnpaidHistoriesByYearMonthAndManagerId(String userId, YearMonth yearMonth, Pageable pageable);
+
     List<PaymentHistory> findPaymentHistoriesByYearMonthAndManagerId(String managerId, YearMonth yearMonth);
 
     /**

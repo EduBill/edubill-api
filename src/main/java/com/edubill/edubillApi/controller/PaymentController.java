@@ -104,14 +104,6 @@ public class PaymentController {
         return ResponseEntity.ok(paymentHistoryDetailResponse);
     }
 
-    @Operation(summary = "메모입력받기",
-            description = "납부 상세내역에서 입력받은 메모를 저장한다.")
-    @PostMapping("/memo")
-    public ResponseEntity<MemoResponseDto> addMemoDescription(@RequestBody MemoRequestDto memoRequestDto) {
-        MemoResponseDto memoResponseDto = paymentService.addMemo(memoRequestDto);
-        return ResponseEntity.ok(memoResponseDto);
-    }
-
     @Operation(summary = "메모업데이트하기",
             description = "납부 상세내역에서 기존 메모를 업데이트한다.")
     @PutMapping("/memo")

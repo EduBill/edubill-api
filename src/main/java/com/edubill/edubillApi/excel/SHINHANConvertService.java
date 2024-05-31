@@ -25,7 +25,7 @@ import java.util.List;
 public class SHINHANConvertService implements ConvertService {
 
     private final PaymentService paymentService;
-    private static final String BANK_NAME = "신한은행";
+    private static final String BANK_NAME = "SHINHAN";
 
     @Override
     public List<PaymentHistory> convertBankExcelDataToPaymentHistory(MultipartFile file, String userId) throws IOException {

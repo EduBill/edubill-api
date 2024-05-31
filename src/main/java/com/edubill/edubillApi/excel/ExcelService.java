@@ -8,7 +8,7 @@ import java.time.YearMonth;
 
 public interface ExcelService {
 
-    void convertExcelDataByBankCode(MultipartFile file, String bankName, final String userId) throws IOException;
+    void convertExcelDataByBankCodeAndGeneratePaymentKey(MultipartFile file, String bankName, final String userId, YearMonth yearMonth) throws IOException;
 
     void changeExcelUploadedStatusByYearMonthAndUserId(YearMonth yearMonth, final String userId);
 

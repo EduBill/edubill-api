@@ -35,14 +35,12 @@ public class ExcelServiceImpl implements ExcelService {
     //TODO: Async 관련 오류 해결
     //@Async("taskExecutor")
     @Override
-    public void convertExcelDataByBankCode(MultipartFile file, String bankName, final String userId) throws IOException {
+    public void convertExcelDataByBankCodeAndGeneratePaymentKey(MultipartFile file, String bankName, final String userId, YearMonth yearMonth) throws IOException {
 
         ConvertService convertService = convertServiceResolver.resolve(BankName.valueOf(bankName));
         List<PaymentHistory> paymentHistories = convertService.convertBankExcelDataToPaymentHistory(file, userId);
-
         paymentService.savePaymentHistories(paymentHistories);
-        //paymentService.generatePaymentKeysAndSetPaymentStatus(yearMonth, usrId);
-
+        paymentService.generatePaymentKeys(yearMonth, userId);
     }
 
     @Override

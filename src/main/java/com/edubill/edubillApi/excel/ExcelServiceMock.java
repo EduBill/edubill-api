@@ -30,7 +30,7 @@ public class ExcelServiceMock implements ExcelService{
 
     @Override
     @Async("taskExecutor")
-    public void convertExcelDataByBankCode(MultipartFile file, String bankName, String userId) throws IOException {
+    public void convertExcelDataByBankCodeAndGeneratePaymentKey(MultipartFile file, String bankName, String userId, YearMonth yearMonth) throws IOException {
         try {
             Thread.sleep(3500);
             int taskNumber = taskCounter.incrementAndGet(); // task 순서를 증가시키고 해당 번호를 가져옴

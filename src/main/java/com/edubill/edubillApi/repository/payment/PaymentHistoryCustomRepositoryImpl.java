@@ -62,6 +62,36 @@ public class PaymentHistoryCustomRepositoryImpl implements PaymentHistoryCustomR
     }
 
     @Override
+    public Page<PaymentHistory> findUnpaidHistoriesByYearMonthAndManagerId(String userId, YearMonth yearMonth, Pageable pageable) {
+
+        LocalDateTime startDateTime = yearMonth.atDay(1).atStartOfDay();
+        LocalDateTime endDateTime = yearMonth.atEndOfMonth().atTime(23, 59, 59, 999999999);
+
+        BooleanExpression predicate = paymentHistory.depositDate.between(startDateTime, endDateTime)
+                .and(paymentHistory.paymentStatus.eq(PaymentStatus.UNPAID))
+                .and(user.userId.eq(userId));
+
+        int total = queryFactory
+                .selectFrom(paymentHistory)
+                .join(user)
+                .on(paymentHistory.managerId.eq(user.userId))
+                .where(predicate)
+                .fetch().size();
+
+        List<PaymentHistory> pagedResults = queryFactory
+                .selectFrom(paymentHistory)
+                .join(user)
+                .on(paymentHistory.managerId.eq(user.userId))
+                .where(predicate)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        return new PageImpl<>(pagedResults, pageable, total);
+    }
+
+
+    @Override
     public List<PaymentHistory> findPaymentHistoriesByYearMonthAndManagerId(String managerId, YearMonth yearMonth) {
         // 월의 첫째 날
         LocalDateTime startDateTime = yearMonth.atDay(1).atStartOfDay(); // 해당 월의 첫 날 자정

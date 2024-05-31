@@ -74,6 +74,14 @@ public class PaymentService {
         );
     }
 
+    public Page<PaymentHistoryResponse> getUnpaidHistoriesForManagerInMonth(String userId, YearMonth yearMonth, Pageable pageable) {
+        final Page<PaymentHistory> paymentHistories = paymentHistoryRepository.findUnpaidHistoriesByYearMonthAndManagerId(userId, yearMonth, pageable);
+
+        return paymentHistories.map(paymentHistory ->
+                new PaymentHistoryResponse(paymentHistory.getId(), paymentHistory.getDepositorName(), paymentHistory.getPaidAmount(), paymentHistory.getDepositDate())
+        );
+    }
+
     public PaymentHistoryDetailResponse findPaymentHistoryById(long paymentHistoryId) {
 
         PaymentHistory paymentHistory = paymentHistoryRepository.findById(paymentHistoryId)

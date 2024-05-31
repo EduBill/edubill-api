@@ -94,6 +94,38 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.getPaidHistoriesForManagerInMonth(userId, yearMonth, pageable));
     }
 
+    @GetMapping("/unpaidHistories/{yearMonth}")
+    @Operation(summary = "미납부 이력 가져오기",
+            description = "주어진 연도와 달에 해당하는 미납부페이지를 가져온다.",
+            parameters = {
+                    @Parameter(name = "yearMonth",
+                            description = "미납부 이력을 조회하고 싶은 연도와 달. 포맷은 다음과 같다: YYYY-MM",
+                            required = true,
+                            example = "2023-04",
+                            schema = @Schema(type = "string", pattern = "^\\d{4}-\\d{2}$", example = "2024-04")),
+                    @Parameter(name = "page",
+                            description = "요청 페이지 번호 (0부터 시작)",
+                            required = false,
+                            example = "0",
+                            schema = @Schema(type = "integer", defaultValue = "0")),
+                    @Parameter(name = "size",
+                            description = "페이지당 데이터 수",
+                            required = false,
+                            example = "10",
+                            schema = @Schema(type = "integer", defaultValue = "10"))
+            })
+    public ResponseEntity<Page<PaymentHistoryResponse>> getUnpaidHistories(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @PathVariable(name = "yearMonth") YearMonth yearMonth,
+            Principal principal) {
+        final String userId = principal.getName();
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return ResponseEntity.ok(paymentService.getUnpaidHistoriesForManagerInMonth(userId, yearMonth, pageable));
+    }
+
     @Operation(summary = "납부 상세 내역 가져오기",
             description = "특정 납부 내역의 상세 내역을 가져온다.")
     @GetMapping("/paidHistoryDetails/{paymentHistoryId}")

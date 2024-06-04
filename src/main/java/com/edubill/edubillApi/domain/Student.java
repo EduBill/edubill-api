@@ -1,17 +1,19 @@
 package com.edubill.edubillApi.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
-@NoArgsConstructor
 @Table(name = "STUDENTS")
-public class Student {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@SuperBuilder(toBuilder = true)
+public class Student extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,18 +23,22 @@ public class Student {
     @Column(name = "student_name")
     private String studentName;
 
-    @Column(name = "student_number")
-    private String studentNumber;
+    @Column(name = "student_phone_number")
+    private String studentPhoneNumber;
 
-    @Column(name = "student_age")
-    private Integer age;
+    @Column(name = "parent_name")
+    private String parentName;
+
+    @Column(name = "parent_phone_number")
+    private String parentPhoneNumber;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "student_group_id")
+    private StudentGroup studentGroup;
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
-    private List<Payment> payments = new ArrayList<>();
+    private List<PaymentKey> paymentKeyList = new ArrayList<>();
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     private List<AcademyStudent> academyStudents = new ArrayList<>();
-
-
-
 }

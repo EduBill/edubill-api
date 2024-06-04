@@ -2,26 +2,37 @@ package com.edubill.edubillApi.controller;
 
 import com.edubill.edubillApi.config.TestcontainerConfig;
 import com.edubill.edubillApi.dto.user.ExistUserRequestDto;
-import com.edubill.edubillApi.dto.user.SignupRequestDto;
+
 import com.edubill.edubillApi.dto.verification.VerificationRequestDto;
 import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
+import com.edubill.edubillApi.jwt.JwtProvider;
+import com.edubill.edubillApi.repository.redis.RequestIdRepository;
+import com.edubill.edubillApi.repository.redis.RequestIdRepositoryMap;
+import com.edubill.edubillApi.repository.users.UserRepository;
+import com.edubill.edubillApi.repository.verification.VerificationRepository;
+import com.edubill.edubillApi.repository.verification.VerificationRepositoryMap;
 import com.edubill.edubillApi.service.AuthService;
+import com.edubill.edubillApi.service.AuthServiceMock;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.Commit;
+
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.*;
 
@@ -44,11 +55,28 @@ class AuthControllerTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private @Qualifier("authServiceMock") AuthService authService;
-
-    @Autowired
     private Validator validator;
 
+    @Autowired
+    private JwtProvider jwtProvider;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    private AuthService authServiceMock;
+
+    private AuthController authController;
+
+    @BeforeEach
+    void setup() {
+        MockitoAnnotations.openMocks(this);
+        VerificationRepository verificationRepositoryMap = new VerificationRepositoryMap();
+        RequestIdRepository requestIdRepository = new RequestIdRepositoryMap();
+        authServiceMock = new AuthServiceMock(userRepository, verificationRepositoryMap, requestIdRepository);
+
+        authController = new AuthController(jwtProvider, authServiceMock);
+        this.mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
+    }
 
     @Test
     @DisplayName("전화번호 유효성 검사")
@@ -77,7 +105,7 @@ class AuthControllerTest {
     void verificationTest() throws Exception {
         //given
         String phoneNumber = "01012345678";
-        VerificationResponseDto verificationResponse = authService.sendVerificationNumber(phoneNumber);
+        VerificationResponseDto verificationResponse = authServiceMock.sendVerificationNumber(phoneNumber);
         String requestId = verificationResponse.getRequestId();
 
         //when

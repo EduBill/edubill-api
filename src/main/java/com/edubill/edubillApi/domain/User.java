@@ -2,9 +2,8 @@ package com.edubill.edubillApi.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.util.ArrayList;
-import java.util.List;
 
+@Builder
 @Entity
 @Getter
 @NoArgsConstructor
@@ -22,36 +21,22 @@ public class User extends BaseEntity{
     @Column(name = "phone_number", nullable = false, unique = true)
     private String phoneNumber;
 
-    @Column(name = "user_role")
+    @Column(name = "auth_role", columnDefinition = "varchar(50)")
     @Enumerated(EnumType.STRING)
-    private UserRole userRole;
+    private AuthRole authRole;
+
+    @Column(name = "user_type", columnDefinition = "varchar(50)")
+    @Enumerated(EnumType.STRING)
+    private UserType userType;
 
     @Transient
     private AuthInfo authInfo;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Account> accounts = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Invoice> invoices = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Academy> academies = new ArrayList<>();
-
     @Builder
-    public User(String userId, String phoneNumber,String userName, String requestId, UserRole userRole) {
+    public User(String userId, String phoneNumber, String userName, String requestId, AuthRole authRole) {
         this.userId = userId;
         this.phoneNumber = phoneNumber;
         this.userName = userName;
         this.authInfo = new AuthInfo(requestId);
-        this.userRole = userRole;
-    }
-
-    public void updateUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public void updatePhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+        this.authRole = authRole;
     }
 }

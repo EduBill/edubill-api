@@ -1,6 +1,6 @@
 package com.edubill.edubillApi.jwt;
 
-import com.edubill.edubillApi.domain.UserRole;
+import com.edubill.edubillApi.domain.AuthRole;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -10,10 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -31,14 +27,13 @@ public class JwtProvider {
     private static final String AUTHORIZATION_KEY = "auth";
     // Token 식별자
     private static final String BEARER_PREFIX = "Bearer ";
-    private static final long ACCESS_TOKEN_TIME = 1000 * 60 * 30L; // 30 분
+   private static final long ACCESS_TOKEN_TIME = 1000 * 60 * 30L; // 30 분
+
 
 
     @Value("${jwt.secret.key}")
     private String secretKey;
     private Key key; //HMAC-SHA 키를 생성
-    private final UserDetailsService userDetailsService;
-
 
 
     //  HMAC-SHA 키를 생성하는 데 사용되는 Base64 인코딩된 문자열을 다시 디코딩하여 키를 초기화하는 용도로 사용
@@ -57,12 +52,12 @@ public class JwtProvider {
         return null;
     }
 
-    public JwtToken createTokenByLogin(String phoneNumber, UserRole role) {
+    public JwtToken createTokenByLogin(String phoneNumber, AuthRole role) {
         String accessToken = createToken(phoneNumber, role, ACCESS_TOKEN_TIME);
         return new JwtToken(accessToken);
     }
 
-    private String createToken(String phoneNumber, UserRole role, Long tokenExpireTime) {
+    private String createToken(String phoneNumber, AuthRole role, Long tokenExpireTime) {
 
         return BEARER_PREFIX + Jwts.builder()
                 .claim(AUTHORIZATION_KEY, role)
@@ -104,12 +99,6 @@ public class JwtProvider {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-    }
-
-    // role 제거 후 테스트 필요
-    public Authentication createUserAuthentication(String phoneNumber) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(phoneNumber);
-        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 
 }

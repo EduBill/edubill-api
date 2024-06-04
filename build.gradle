@@ -27,9 +27,6 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-	//implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-	//implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-
 	implementation("org.flywaydb:flyway-core:10.7.1")
 	implementation("org.flywaydb:flyway-mysql:10.7.1")
 
@@ -53,12 +50,21 @@ dependencies {
 
 	testImplementation("org.testcontainers:mariadb:1.19.4")
 	testImplementation 'org.testcontainers:junit-jupiter:1.16.2'
+	testImplementation 'org.mockito:mockito-core:4.8.0'
 
-	// QueryDsl
+	//excel upload : poi
+	implementation 'org.apache.poi:poi:5.2.2'                // .xls 확장자
+	implementation 'org.apache.poi:poi-ooxml:5.2.2'          // .xlsx 확장자
+
+	//querydsl
 	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
 	annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
 	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
 	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+	implementation("org.springframework.boot:spring-boot-starter-data-redis:3.2.3")
+	implementation("io.lettuce:lettuce-core:6.3.1.RELEASE")
+
 }
 
 tasks.named('test') {

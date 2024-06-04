@@ -1,8 +1,8 @@
 package com.edubill.edubillApi.service;
 
 import com.edubill.edubillApi.domain.User;
-import com.edubill.edubillApi.dto.UserDetailsImpl;
-import com.edubill.edubillApi.repository.UserRepository;
+import com.edubill.edubillApi.dto.auth.UserDetailsImpl;
+import com.edubill.edubillApi.repository.users.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

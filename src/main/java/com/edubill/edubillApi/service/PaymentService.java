@@ -115,7 +115,7 @@ public class PaymentService {
             for (PaymentKey paymentKey : paymentKeys) {
                 if (paymentKey == null) {
                     log.error("Null paymentKey encountered");
-                } else if (paymentKey.getPaymentKey().equals(newPaymentKey)) {
+                } else if (paymentKey.matches(newPaymentKey)) {
                     paymentStatusToPaid(student, paymentHistory);
                     break;
                 } else {

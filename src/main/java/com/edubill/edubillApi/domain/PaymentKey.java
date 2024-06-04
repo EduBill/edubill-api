@@ -21,4 +21,8 @@ public class PaymentKey {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id")
     private Student student;
+
+    public boolean matches(String otherPaymentKey) {
+        return this.paymentKey.equals(otherPaymentKey);
+    }
 }

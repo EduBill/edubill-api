@@ -1,11 +1,11 @@
 package com.edubill.edubillApi.excel;
 
+import com.edubill.edubillApi.Validator;
 import com.edubill.edubillApi.domain.PaymentType;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryDto;
 import com.edubill.edubillApi.domain.PaymentHistory;
 
 
-import com.edubill.edubillApi.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -31,6 +31,7 @@ import java.util.List;
 @Service("KOOKMINconvertService")
 public class KOOMINConvertService implements ConvertService {
     private static final String BANK_NAME = "KOOKMIN";
+    private final Validator validator;
     @Override
     public List<PaymentHistory> convertBankExcelDataToPaymentHistory(MultipartFile file, String userId) throws IOException {
 
@@ -66,7 +67,7 @@ public class KOOMINConvertService implements ConvertService {
                 // 입금액이 양수인 경우에만 처리
                 depositorName = formatter.formatCellValue(row.getCell(2));
                 // 영어가,포함된 경우 해당 행의 데이터를 전달하지 않음
-                if (depositorName.matches(".*[a-zA-Z].*")) {
+                if (validator.isValidDepositorName(depositorName)) {
                     continue;
                 }
             } else {

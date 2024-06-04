@@ -1,11 +1,12 @@
 package com.edubill.edubillApi.repository;
 
+import com.edubill.edubillApi.repository.redis.RequestIdRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
 
 @Repository
-public class RequestIdRepositoryMap implements RequestIdRepository{
+public class RequestIdRepositoryMap implements RequestIdRepository {
 
     private final HashMap<String, String> requestIdMap = new HashMap<>();
 

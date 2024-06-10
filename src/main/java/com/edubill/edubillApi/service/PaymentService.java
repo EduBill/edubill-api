@@ -180,12 +180,15 @@ public class PaymentService {
         Parameter : 미납 학생 ID, 미확인 입금 내역 ID
         Return : void
     */
+    @Transactional
     public void manualProcessingOfUnpaidHistory(Long studentId, Long paymentHistoryId){
+        // id로 미납 학생 찾기
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다.  userId: "+ studentId));
 
+        // id로 미확인 입금 내역 찾기
         PaymentHistory paymentHistory = paymentHistoryRepository.findById(paymentHistoryId)
-                .orElseThrow(() -> new PaymentHistoryNotFoundException("납부 내역 없음"));
+                .orElseThrow(() -> new PaymentHistoryNotFoundException("존재하지 않는 납부 내역입니다."));
 
         int tuition = student.getStudentGroup().getTuition();
         String studentPhoneNumber = student.getStudentPhoneNumber();

@@ -7,6 +7,7 @@ import com.edubill.edubillApi.dto.payment.PaymentHistoryDetailResponse;
 
 import com.edubill.edubillApi.dto.payment.PaymentHistoryResponse;
 import com.edubill.edubillApi.dto.payment.PaymentStatusDto;
+import com.edubill.edubillApi.error.exception.UserNotFoundException;
 import com.edubill.edubillApi.repository.payment.PaymentHistoryRepository;
 import com.edubill.edubillApi.repository.payment.PaymentKeyRepository;
 import com.edubill.edubillApi.repository.student.StudentRepository;
@@ -172,5 +173,40 @@ public class PaymentService {
         return MemoResponseDto.builder()
                 .memoDescription(updatedPaymentHistory.getMemo())
                 .build();
+    }
+
+    /*
+        Func : 미납내역 수동처리 -> 미납 학생 선택한 미확인 입금내역과 연결하여 완납처리
+        Parameter : 미납 학생 ID, 미확인 입금 내역 ID
+        Return : void
+    */
+    @Transactional
+    public void manualProcessingOfUnpaidHistory(Long studentId, Long paymentHistoryId){
+        // id로 미납 학생 찾기
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다.  userId: "+ studentId));
+
+        // id로 미확인 입금 내역 찾기
+        PaymentHistory paymentHistory = paymentHistoryRepository.findById(paymentHistoryId)
+                .orElseThrow(() -> new PaymentHistoryNotFoundException("존재하지 않는 납부 내역입니다."));
+
+        int tuition = student.getStudentGroup().getTuition();
+        String studentPhoneNumber = student.getStudentPhoneNumber();
+        String depositorName = paymentHistory.getDepositorName();
+        String bankCode = BankName.getBankCodeByName(paymentHistory.getBankName());
+
+        // 새로운 결제키 생성 -> 이전에 수동처리한 적 없으니 결제키 존재한 적 X
+        String newPaymentKey = depositorName + studentPhoneNumber + tuition + bankCode + paymentHistory.getPaymentType();
+
+        // 완납처리 -> 납입기록은 이때 납입완료로 처리
+        paymentStatusToPaid(student, paymentHistory);
+
+        // TODO : 미납 리스트 학생에서 해당 학생이 조회되지 않도록 처리
+
+        // 결제키 저장
+        paymentKeyRepository.save(PaymentKey.builder()
+                .paymentKey(newPaymentKey)
+                .student(student)
+                .build());
     }
 }

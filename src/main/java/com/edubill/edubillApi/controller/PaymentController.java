@@ -153,4 +153,15 @@ public class PaymentController {
         MemoResponseDto memoResponseDto = paymentService.updateMemo(memoRequestDto);
         return ResponseEntity.ok(memoResponseDto);
     }
+
+    @Operation(summary = "미납 내역 수동처리",
+            description = "미납 리스트에 있는 학생과 미확인 입금 내역을 연결하여 결제키를 생성한 후 수동으로 완납 처리 한다.")
+    @PostMapping("/manualProcessing")
+    public ResponseEntity<?> manualProcessingOfUnpaidHistory(@RequestBody UnpaidHistoryRequestDto unpaidHistoryRequestDto ){
+       Long studentId = unpaidHistoryRequestDto.getStudentId();
+       Long paymentHistoryId = unpaidHistoryRequestDto.getPaymentHistoryId();
+
+       paymentService.manualProcessingOfUnpaidHistory(studentId, paymentHistoryId);
+       return ResponseEntity.ok("미납 내역 수동처리 완료");
+    }
 }

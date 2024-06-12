@@ -3,6 +3,7 @@ package com.edubill.edubillApi.controller;
 import com.edubill.edubillApi.domain.BankName;
 
 import com.edubill.edubillApi.excel.ExcelService;
+import com.edubill.edubillApi.utils.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -46,10 +47,9 @@ public class ExcelController {
 
             @Parameter(description = "은행 코드", required = true, schema = @Schema(type = "String", example = "004"))
             @RequestPart("bankCode") String bankCode,
-            @RequestParam YearMonth yearMonth,
-            Principal principal) throws IOException {
+            @RequestParam YearMonth yearMonth) throws IOException {
 
-        final String userId = principal.getName();
+        String userId = SecurityUtils.getCurrentUserId();
         String fileExtension = FilenameUtils.getExtension(multipartFile.getOriginalFilename());
 
         if (fileExtension.equals("xls") || fileExtension.equals("xlsx")) {

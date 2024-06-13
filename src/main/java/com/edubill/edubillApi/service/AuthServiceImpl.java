@@ -1,5 +1,6 @@
 package com.edubill.edubillApi.service;
 
+import com.edubill.edubillApi.domain.AuthInfo;
 import com.edubill.edubillApi.domain.User;
 import com.edubill.edubillApi.domain.AuthRole;
 import com.edubill.edubillApi.dto.user.LoginRequestDto;
@@ -76,7 +77,7 @@ public class AuthServiceImpl implements AuthService {
                 .userId(phoneNumber + "@phone.auth")
                 .phoneNumber(phoneNumber)
                 .userName(userName)
-                .requestId(requestId)
+                .authInfo(new AuthInfo(requestId))
                 .authRole(AuthRole.USER) //TODO: 관리자권한으로 저장하는 signup과 구분필요
                 .build();
 

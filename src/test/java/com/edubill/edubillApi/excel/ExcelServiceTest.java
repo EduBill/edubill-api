@@ -61,7 +61,7 @@ class ExcelServiceTest {
             String bankName = "KOOKMIN";
             String yearMonthString = "2024-04";
             YearMonth yearMonth = YearMonth.parse(yearMonthString);
-            excelServiceMock.convertExcelDataByBankCode(file, bankName, TEST_USER_ID, yearMonth);
+            excelServiceMock.convertExcelDataByBankCodeAndGeneratePaymentKey(file, bankName, TEST_USER_ID, yearMonth);
         }
         Thread.sleep(50000);
     }

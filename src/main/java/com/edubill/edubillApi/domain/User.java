@@ -31,12 +31,4 @@ public class User extends BaseEntity{
 
     @Transient
     private AuthInfo authInfo;
-    @Builder
-    public User(String userId, String phoneNumber, String userName, String requestId, AuthRole authRole) {
-        this.userId = userId;
-        this.phoneNumber = phoneNumber;
-        this.userName = userName;
-        this.authInfo = new AuthInfo(requestId);
-        this.authRole = authRole;
-    }
 }

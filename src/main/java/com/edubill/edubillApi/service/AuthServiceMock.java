@@ -1,5 +1,6 @@
 package com.edubill.edubillApi.service;
 
+import com.edubill.edubillApi.domain.AuthInfo;
 import com.edubill.edubillApi.domain.User;
 import com.edubill.edubillApi.domain.AuthRole;
 import com.edubill.edubillApi.dto.user.LoginRequestDto;
@@ -67,7 +68,7 @@ public class AuthServiceMock implements AuthService {
                 .userId(phoneNumber + "@phone.auth")
                 .phoneNumber(phoneNumber)
                 .userName(userName)
-                .requestId(requestId)
+                .authInfo(new AuthInfo(requestId))
                 .authRole(AuthRole.USER) // 수정 필요
                 .build();
 

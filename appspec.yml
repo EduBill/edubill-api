@@ -6,6 +6,7 @@ files:
     destination: /home/ubuntu/dev/action
     overwrite: yes
 file_exists_behavior: OVERWRITE
+
 permissions:
   - object: /home/ubuntu/dev/action
     owner: ubuntu
@@ -13,7 +14,7 @@ permissions:
 
 hooks:
   AfterInstall:
-    - location: dev/action/scripts/deploy.sh
+    - location: scripts/deploy.sh
       timeout: 60
       runas : root
 

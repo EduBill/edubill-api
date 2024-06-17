@@ -99,31 +99,16 @@ public class PaymentService {
 
     @Transactional
     public void generatePaymentKeys(YearMonth yearMonth, String userId) {
-        //paymentHistory에 userId를 추가하여 외래키로 가지고 있음.
+        //paymentHistory 에 userId를 추가하여 외래키로 가지고 있음.
         List<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesWithUserIdAndYearMonth(userId, yearMonth);
         List<StudentGroup> studentGroups = studentGroupRepository.getStudentGroupsByUserId(userId);
-        List<Student> students = new ArrayList<>();
 
-        for (StudentGroup studentGroup : studentGroups) {
-            students.addAll(studentRepository.findAllByStudentGroup(studentGroup));
-        }
+        // 중복된 이름을 가진 학생들 가져오기
+        List<Student> duplicateNameStudents = studentRepository.findStudentsWithDuplicateNames(studentGroups);
 
-        // 학생을 이름별로 그룹화
-        Map<String, List<Student>> studentsGroupedByName = students.stream()
-                .collect(Collectors.groupingBy(Student::getStudentName));
+        // 유니크한 이름을 가진 학생들 가져오기
+        List<Student> uniqueStudents = studentRepository.findStudentsWithUniqueNames(studentGroups);
 
-        // 동명이인이 있는 학생과 없는 학생을 분리
-        List<Student> uniqueStudents = new ArrayList<>();
-        List<Student> duplicateNameStudents = new ArrayList<>();
-
-        for (Map.Entry<String, List<Student>> entry : studentsGroupedByName.entrySet()) {
-            List<Student> groupedStudents = entry.getValue();
-            if (groupedStudents.size() == 1) {
-                uniqueStudents.addAll(groupedStudents);
-            } else {
-                duplicateNameStudents.addAll(groupedStudents);
-            }
-        }
 
         // 유니크한 학생에 대한 처리
         for (Student student : uniqueStudents) {

@@ -24,7 +24,7 @@ public class StudentService {
         List<StudentGroup> studentGroups = studentGroupRepository.getStudentGroupsByUserId(userId);
         StudentGroup studentGroup = null;
         if (!studentGroups.isEmpty()) {
-            studentGroup = studentGroups.get(0); //TODO: studentGroup을 지정하지 않고 Academy에 모두 저장해야하는지 확인
+            studentGroup = studentGroups.get(0); //TODO: student_group이 여러개일 경우 한개만 선택하도록 student_group_id를 input 받도록 수정
         }
         else{
             studentGroup = StudentGroup.builder()

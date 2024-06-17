@@ -10,6 +10,6 @@ public class Validator {
     private String depositorNameRegex;
 
     public boolean isValidDepositorName(String name) {
-        return name != null && !name.matches(depositorNameRegex);
+        return name != null && !name.matches(depositorNameRegex); // 영어가 포함되지 않는 경우
     }
 }

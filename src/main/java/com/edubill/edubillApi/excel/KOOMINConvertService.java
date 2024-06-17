@@ -67,7 +67,7 @@ public class KOOMINConvertService implements ConvertService {
                 // 입금액이 양수인 경우에만 처리
                 depositorName = formatter.formatCellValue(row.getCell(2));
                 // 영어가,포함된 경우 해당 행의 데이터를 전달하지 않음
-                if (validator.isValidDepositorName(depositorName)) {
+                if (!validator.isValidDepositorName(depositorName)) {
                     continue;
                 }
             } else {

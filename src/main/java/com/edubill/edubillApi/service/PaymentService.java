@@ -24,8 +24,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.YearMonth;
 
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -99,19 +102,50 @@ public class PaymentService {
         //paymentHistory에 userId를 추가하여 외래키로 가지고 있음.
         List<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesWithUserIdAndYearMonth(userId, yearMonth);
         List<StudentGroup> studentGroups = studentGroupRepository.getStudentGroupsByUserId(userId);
-        List<Student> students;
+        List<Student> students = new ArrayList<>();
 
         for (StudentGroup studentGroup : studentGroups) {
-            students = studentRepository.findAllByStudentGroup(studentGroup);
-            for (Student student : students) {
-                for (PaymentHistory paymentHistory : paymentHistories) {
-                        processPaymentKey(student, paymentHistory);
-                }
+            students.addAll(studentRepository.findAllByStudentGroup(studentGroup));
+        }
+
+        // 학생을 이름별로 그룹화
+        Map<String, List<Student>> studentsGroupedByName = students.stream()
+                .collect(Collectors.groupingBy(Student::getStudentName));
+
+        // 동명이인이 있는 학생과 없는 학생을 분리
+        List<Student> uniqueStudents = new ArrayList<>();
+        List<Student> duplicateNameStudents = new ArrayList<>();
+
+        for (Map.Entry<String, List<Student>> entry : studentsGroupedByName.entrySet()) {
+            List<Student> groupedStudents = entry.getValue();
+            if (groupedStudents.size() == 1) {
+                uniqueStudents.addAll(groupedStudents);
+            } else {
+                duplicateNameStudents.addAll(groupedStudents);
+            }
+        }
+
+        // 유니크한 학생에 대한 처리
+        for (Student student : uniqueStudents) {
+            for (PaymentHistory paymentHistory : paymentHistories) {
+                processPaymentKeyGeneral(student, paymentHistory);
+            }
+        }
+
+        // 동명이인이 있는 학생에 대한 처리
+        for (Student student : duplicateNameStudents) {
+            for (PaymentHistory paymentHistory : paymentHistories) {
+                processPaymentKeyDuplicate(student, paymentHistory);
             }
         }
     }
 
-    private void processPaymentKey(Student student, PaymentHistory paymentHistory) {
+    private void processPaymentKeyDuplicate(Student student, PaymentHistory paymentHistory) {
+
+    }
+
+
+    private void processPaymentKeyGeneral(Student student, PaymentHistory paymentHistory) {
         String studentPhoneNumber = student.getStudentPhoneNumber();
         int tuition = student.getStudentGroup().getTuition();
         String studentName = student.getStudentName();
@@ -120,7 +154,6 @@ public class PaymentService {
         String bankCode = BankName.getBankCodeByName(paymentHistory.getBankName());
 
         String newPaymentKey = depositorName + studentPhoneNumber + tuition + bankCode + paymentHistory.getPaymentType();
-        log.info("newPaymentKey={}", newPaymentKey);
 
         List<PaymentKey> paymentKeys = paymentKeyRepository.findAllByStudent(student);
         // case1: 결제키가 존재하는 경우

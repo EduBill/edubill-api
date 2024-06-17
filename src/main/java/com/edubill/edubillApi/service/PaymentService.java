@@ -8,6 +8,7 @@ import com.edubill.edubillApi.dto.payment.PaymentHistoryDetailResponse;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryResponse;
 import com.edubill.edubillApi.dto.payment.PaymentStatusDto;
 import com.edubill.edubillApi.error.exception.UserNotFoundException;
+import com.edubill.edubillApi.repository.StudentPaymentRepository;
 import com.edubill.edubillApi.repository.payment.PaymentHistoryRepository;
 import com.edubill.edubillApi.repository.payment.PaymentKeyRepository;
 import com.edubill.edubillApi.repository.student.StudentRepository;
@@ -35,6 +36,7 @@ public class PaymentService {
     private final PaymentKeyRepository paymentKeyRepository;
     private final StudentGroupRepository studentGroupRepository;
     private final StudentRepository studentRepository;
+    private final StudentPaymentRepository studentPaymentRepository;
 
     public void savePaymentHistories(List<PaymentHistory> paymentHistories) {
         paymentHistoryRepository.saveAll(paymentHistories);
@@ -183,7 +185,7 @@ public class PaymentService {
         Return : void
     */
     @Transactional
-    public void manualProcessingOfUnpaidHistory(Long studentId, Long paymentHistoryId){
+    public void manualProcessingOfUnpaidHistory(Long studentId, Long paymentHistoryId, String yearMonth){
         // id로 미납 학생 찾기
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다.  userId: "+ studentId));
@@ -207,7 +209,15 @@ public class PaymentService {
         // 완납처리 -> 납입기록은 이때 납입완료로 처리
         paymentStatusToPaid(student, paymentHistory);
 
-        // TODO : 미납 리스트 학생에서 해당 학생이 조회되지 않도록 처리
+        // 미납 리스트 학생에서 해당 학생이 조회되지 않도록 처리
+        StudentPaymentHistory studentPaymentHistory = StudentPaymentHistory.builder()
+                .student(student)
+                .paymentHistory(paymentHistory)
+                .yearMonth(yearMonth)
+                .build();
+
+        studentPaymentRepository.save(studentPaymentHistory);
+
 
         // 결제키 저장
         paymentKeyRepository.save(PaymentKey.builder()

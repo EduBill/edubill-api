@@ -8,6 +8,8 @@ import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
 
+import static jakarta.persistence.FetchType.LAZY;
+
 @Getter
 @SuperBuilder(toBuilder = true)
 @Entity
@@ -47,6 +49,10 @@ public class PaymentHistory extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private PaymentStatus paymentStatus = PaymentStatus.UNPAID; //납부확인 유무
+
+    @OneToOne(fetch = LAZY)
+    @JoinColumn(name = "stdent_paymentHistory_id")
+    private StudentPaymentHistory studentPaymentHistory;
 
 
     public static PaymentHistory toEntity(PaymentHistoryDto paymentHistoryDto, PaymentType paymentType, String userId) {

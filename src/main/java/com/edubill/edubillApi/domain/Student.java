@@ -41,4 +41,7 @@ public class Student extends BaseEntity{
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     private List<AcademyStudent> academyStudents = new ArrayList<>();
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<StudentPaymentHistory> studentPaymentHistories = new ArrayList<>();
 }

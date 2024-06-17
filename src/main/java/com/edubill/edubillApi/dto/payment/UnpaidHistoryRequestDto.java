@@ -9,5 +9,8 @@ import lombok.*;
 public class UnpaidHistoryRequestDto {
 
     private Long studentId;
+
     private Long paymentHistoryId;
+
+    private String yearMonth;
 }

@@ -14,6 +14,7 @@ import com.edubill.edubillApi.repository.student.StudentRepository;
 import com.edubill.edubillApi.repository.studentgroup.StudentGroupRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Base64Util;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.YearMonth;
 
+import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -198,6 +200,10 @@ public class PaymentService {
         // 새로운 결제키 생성 -> 이전에 수동처리한 적 없으니 결제키 존재한 적 X
         String newPaymentKey = depositorName + studentPhoneNumber + tuition + bankCode + paymentHistory.getPaymentType();
 
+        // 결제키 암호화
+        Base64.Encoder encoder = Base64.getEncoder();
+        String encodedString = encoder.encodeToString(newPaymentKey.getBytes());
+
         // 완납처리 -> 납입기록은 이때 납입완료로 처리
         paymentStatusToPaid(student, paymentHistory);
 
@@ -205,7 +211,7 @@ public class PaymentService {
 
         // 결제키 저장
         paymentKeyRepository.save(PaymentKey.builder()
-                .paymentKey(newPaymentKey)
+                .paymentKey(encodedString)
                 .student(student)
                 .build());
     }

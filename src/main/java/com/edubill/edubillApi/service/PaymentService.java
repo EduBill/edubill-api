@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -105,36 +106,42 @@ public class PaymentService {
 
         // 중복된 이름을 가진 학생들 가져오기
         List<Student> duplicateNameStudents = studentRepository.findStudentsWithDuplicateNames(studentGroups);
-
         // 유니크한 이름을 가진 학생들 가져오기
         List<Student> uniqueStudents = studentRepository.findStudentsWithUniqueNames(studentGroups);
 
-
         // 유니크한 학생에 대한 처리
         for (Student student : uniqueStudents) {
+            boolean isPaymentProcessed;
             for (PaymentHistory paymentHistory : paymentHistories) {
-                processPaymentKeyGeneral(student, paymentHistory);
+                if (paymentHistory.getPaymentStatus().equals(PaymentStatus.UNPAID)) {
+                    isPaymentProcessed = processPaymentKeyGeneral(student, paymentHistory);
+                    if (isPaymentProcessed) {
+                        break;
+                    }
+                }
             }
         }
 
         // 동명이인이 있는 학생에 대한 처리
         for (Student student : duplicateNameStudents) {
+            boolean isPaymentProcessed;
             for (PaymentHistory paymentHistory : paymentHistories) {
-                processPaymentKeyDuplicate(student, paymentHistory);
+                isPaymentProcessed = processPaymentKeyDuplicate(student, paymentHistory);
             }
         }
     }
 
-    private void processPaymentKeyDuplicate(Student student, PaymentHistory paymentHistory) {
+    // 동명이인이 존재하는 케이스
+    private Boolean processPaymentKeyDuplicate(Student student, PaymentHistory paymentHistory) {
 
     }
 
 
-    private void processPaymentKeyGeneral(Student student, PaymentHistory paymentHistory) {
+    // 동명이인이 존재하지 않는 케이스
+    private boolean processPaymentKeyGeneral(Student student, PaymentHistory paymentHistory) {
         String studentPhoneNumber = student.getStudentPhoneNumber();
         int tuition = student.getStudentGroup().getTuition();
         String studentName = student.getStudentName();
-        String parentName = student.getParentName();
         String depositorName = paymentHistory.getDepositorName();
         String bankCode = BankName.getBankCodeByName(paymentHistory.getBankName());
 
@@ -148,22 +155,25 @@ public class PaymentService {
                     log.error("Null paymentKey encountered");
                 } else if (paymentKey.matches(newPaymentKey)) {
                     paymentStatusToPaid(student, paymentHistory);
-                    break;
+                    return true;  // 결제 상태가 PAID로 변경되었음을 반환
                 } else {
                     paymentStatusToUnPaid(paymentHistory);
                 }
             }
         } else {
             // case2: 결제 키가 아예 존재하지 않는 경우
-            if (depositorName.equals(studentName) || depositorName.equals(parentName)) { //TODO: depositorName == parentName 제거 필요
+            if (depositorName.equals(studentName)) {
                 paymentStatusToPaid(student, paymentHistory);
                 paymentKeyRepository.save(PaymentKey.builder()
                         .paymentKey(newPaymentKey)
                         .student(student)
                         .build());
+                return true;  // 결제 상태가 PAID로 변경되었음을 반환
             }
         }
+        return false;  // 결제 상태가 변경되지 않음
     }
+
 
     private void paymentStatusToPaid(Student student, PaymentHistory paymentHistory) {
         String studentPhoneNumber = student.getStudentPhoneNumber();

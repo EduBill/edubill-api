@@ -40,7 +40,7 @@ public class ExcelServiceImpl implements ExcelService {
         ConvertService convertService = convertServiceResolver.resolve(BankName.valueOf(bankName));
         List<PaymentHistory> paymentHistories = convertService.convertBankExcelDataToPaymentHistory(file, userId);
         paymentService.savePaymentHistories(paymentHistories);
-        paymentService.generatePaymentKeys(yearMonth, userId);
+        paymentService.handleStudentPaymentProcessing(yearMonth, userId);
     }
 
     @Override

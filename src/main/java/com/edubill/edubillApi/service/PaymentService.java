@@ -99,7 +99,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public void generatePaymentKeys(YearMonth yearMonth, String userId) {
+    public void handleStudentPaymentProcessing(YearMonth yearMonth, String userId) {
         //paymentHistory 에 userId를 추가하여 외래키로 가지고 있음.
         List<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesWithUserIdAndYearMonth(userId, yearMonth);
         List<StudentGroup> studentGroups = studentGroupRepository.getStudentGroupsByUserId(userId);

@@ -141,7 +141,7 @@ public class PaymentController {
     @PostMapping("/generateKeys/{yearMonth}")
     public ResponseEntity<?> generatePaymentKeys(@PathVariable(name = "yearMonth") YearMonth yearMonth, Principal principal) {
         final String userId = principal.getName();
-        paymentService.generatePaymentKeys(yearMonth, userId);
+        paymentService.handleStudentPaymentProcessing(yearMonth, userId);
 
         return ResponseEntity.ok("학생 납부처리 후 결제키 생성 완료");
     }

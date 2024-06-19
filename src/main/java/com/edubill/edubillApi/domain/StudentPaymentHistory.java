@@ -12,7 +12,7 @@ import static jakarta.persistence.FetchType.LAZY;
 @Getter
 @NoArgsConstructor
 @Table(name = "STUDENET_PAYMENTHISTORY", uniqueConstraints = @UniqueConstraint(columnNames = {"student_id", "paymentHistory_id"}))
-public class StudentPaymentHistory {
+public class StudentPaymentHistory extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

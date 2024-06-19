@@ -126,14 +126,43 @@ public class PaymentService {
         for (Student student : duplicateNameStudents) {
             boolean isPaymentProcessed;
             for (PaymentHistory paymentHistory : paymentHistories) {
-                isPaymentProcessed = processPaymentKeyDuplicate(student, paymentHistory);
+                if (paymentHistory.getPaymentStatus().equals(PaymentStatus.UNPAID)) {
+                    isPaymentProcessed = processPaymentKeyDuplicate(student, paymentHistory);
+                    if (isPaymentProcessed) {
+                        break;
+                    }
+                }
             }
         }
     }
 
     // 동명이인이 존재하는 케이스
     private Boolean processPaymentKeyDuplicate(Student student, PaymentHistory paymentHistory) {
+        String studentPhoneNumber = student.getStudentPhoneNumber();
+        int tuition = student.getStudentGroup().getTuition();
+        String depositorName = paymentHistory.getDepositorName();
 
+        //홍길동1111 300000 004 BANK_TRANSFER
+        //TODO: BASE64 인코딩
+        String newPaymentKey = depositorName + studentPhoneNumber + tuition + paymentHistory.getPaymentType();
+
+        List<PaymentKey> paymentKeys = paymentKeyRepository.findAllByStudent(student);
+        // case1: 결제키가 존재하는 경우
+        if (paymentKeys != null && !paymentKeys.isEmpty()) {
+            for (PaymentKey paymentKey : paymentKeys) {
+             if (paymentKey.matches(newPaymentKey)) {
+                    paymentStatusToPaid(student, paymentHistory);
+                    return true;
+                } else {
+                    paymentStatusToUnPaid(paymentHistory);
+                    return false;
+                }
+            }
+        } else {
+            // case2: 결제 키가 아예 존재하지 않는 경우
+            paymentStatusToUnPaid(paymentHistory);
+        }
+        return true;
     }
 
 
@@ -143,9 +172,8 @@ public class PaymentService {
         int tuition = student.getStudentGroup().getTuition();
         String studentName = student.getStudentName();
         String depositorName = paymentHistory.getDepositorName();
-        String bankCode = BankName.getBankCodeByName(paymentHistory.getBankName());
 
-        String newPaymentKey = depositorName + studentPhoneNumber + tuition + bankCode + paymentHistory.getPaymentType();
+        String newPaymentKey = depositorName + studentPhoneNumber + tuition + paymentHistory.getPaymentType();
 
         List<PaymentKey> paymentKeys = paymentKeyRepository.findAllByStudent(student);
         // case1: 결제키가 존재하는 경우

@@ -16,7 +16,7 @@ public class StudentPaymentHistory extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "student_paymentHistory_id")
+    @Column(name = "student_payment_history_id")
     private Long studentPaymentHistoryId;
 
     @ManyToOne(fetch = LAZY)

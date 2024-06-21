@@ -163,6 +163,6 @@ public class PaymentController {
        String yearMonth = unpaidHistoryRequestDto.getYearMonth();
 
        paymentService.manualProcessingOfUnpaidHistory(studentId, paymentHistoryId, yearMonth);
-       return ResponseEntity.ok(HttpStatus.ACCEPTED);
+       return ResponseEntity.ok(HttpStatus.OK);
     }
 }

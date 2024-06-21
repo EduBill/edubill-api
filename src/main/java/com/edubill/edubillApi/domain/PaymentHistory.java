@@ -51,7 +51,7 @@ public class PaymentHistory extends BaseEntity {
     private PaymentStatus paymentStatus = PaymentStatus.UNPAID; //납부확인 유무
 
     @OneToOne(fetch = LAZY)
-    @JoinColumn(name = "stdent_paymentHistory_id")
+    @JoinColumn(name = "student_payment_history_id")
     private StudentPaymentHistory studentPaymentHistory;
 
 

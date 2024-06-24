@@ -17,6 +17,7 @@ import com.edubill.edubillApi.repository.studentgroup.StudentGroupRepository;
 import com.edubill.edubillApi.utils.EncryptionUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -39,7 +40,8 @@ public class PaymentService {
     private final StudentRepository studentRepository;
     private final StudentPaymentRepository studentPaymentRepository;
 
-    private static final String SECRET_KEY = "1234567890123456"; // 16-byte key for AES
+    @Value("${payment.secret.key}")
+    private String SECRET_KEY; // 16-byte key for AES
 
     public void savePaymentHistories(List<PaymentHistory> paymentHistories) {
         paymentHistoryRepository.saveAll(paymentHistories);

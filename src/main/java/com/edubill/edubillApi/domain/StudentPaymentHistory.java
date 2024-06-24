@@ -11,7 +11,7 @@ import static jakarta.persistence.FetchType.LAZY;
 @Entity
 @Getter
 @NoArgsConstructor
-@Table(name = "STUDENET_PAYMENTHISTORY", uniqueConstraints = @UniqueConstraint(columnNames = {"student_id", "paymentHistory_id"}))
+@Table(name = "STUDENET_PAYMENT_HISTORY", uniqueConstraints = @UniqueConstraint(columnNames = {"student_id", "paymentHistory_id"}))
 public class StudentPaymentHistory extends BaseEntity{
 
     @Id

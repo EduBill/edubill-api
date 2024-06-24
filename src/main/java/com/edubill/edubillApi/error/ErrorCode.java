@@ -27,6 +27,8 @@ public enum ErrorCode {
 
     //Payment
     PAYMENT_HISTORY_NOT_FOUND(400, "P001","납부내역이 존재하지 않습니다"),
+    PAYMENT_KEY_NOT_ENCRYPTED(500, "P002", "결제 키가 암호화되지 않았습니다"),
+
 
     // common
     INTERNAL_SERVER_ERROR(500, "C001", "서버 오류"),
@@ -34,6 +36,8 @@ public enum ErrorCode {
     INVALID_TYPE_VALUE(400, "C003", "잘못된 타입을 입력하였습니다."),
     BAD_CREDENTIALS(400, "C005", "bad credentials"),
     BAD_GATEWAY_ERROR(502,"C006", "bad gateway");
+    
+    //
 
 
 

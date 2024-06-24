@@ -2,7 +2,7 @@ package com.edubill.edubillApi.error;
 
 import com.edubill.edubillApi.error.exception.BusinessException;
 
-import com.edubill.edubillApi.error.exception.UserAlreadyExistsException;
+import com.edubill.edubillApi.error.exception.PaymentKeyNotEncryptedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

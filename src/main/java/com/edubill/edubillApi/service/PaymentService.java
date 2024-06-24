@@ -7,15 +7,16 @@ import com.edubill.edubillApi.dto.payment.PaymentHistoryDetailResponse;
 
 import com.edubill.edubillApi.dto.payment.PaymentHistoryResponse;
 import com.edubill.edubillApi.dto.payment.PaymentStatusDto;
+import com.edubill.edubillApi.error.exception.PaymentKeyNotEncryptedException;
 import com.edubill.edubillApi.error.exception.UserNotFoundException;
 import com.edubill.edubillApi.repository.StudentPaymentRepository;
 import com.edubill.edubillApi.repository.payment.PaymentHistoryRepository;
 import com.edubill.edubillApi.repository.payment.PaymentKeyRepository;
 import com.edubill.edubillApi.repository.student.StudentRepository;
 import com.edubill.edubillApi.repository.studentgroup.StudentGroupRepository;
+import com.edubill.edubillApi.utils.EncryptionUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Base64Util;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,12 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.YearMonth;
 
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -41,6 +38,8 @@ public class PaymentService {
     private final StudentGroupRepository studentGroupRepository;
     private final StudentRepository studentRepository;
     private final StudentPaymentRepository studentPaymentRepository;
+
+    private static final String SECRET_KEY = "1234567890123456"; // 16-byte key for AES
 
     public void savePaymentHistories(List<PaymentHistory> paymentHistories) {
         paymentHistoryRepository.saveAll(paymentHistories);
@@ -143,14 +142,20 @@ public class PaymentService {
         String depositorName = paymentHistory.getDepositorName();
 
         //홍길동1111 300000 004 BANK_TRANSFER
-        //TODO: BASE64 인코딩
         String newPaymentKey = depositorName + studentPhoneNumber + tuition + paymentHistory.getPaymentType();
+        String encryptedNewPaymentKey;
+
+        try {
+            encryptedNewPaymentKey = EncryptionUtils.encrypt(newPaymentKey, SECRET_KEY);
+        } catch (Exception e) {
+            throw new PaymentKeyNotEncryptedException("암호할 할 수 없습니다.");
+        }
 
         List<PaymentKey> paymentKeys = paymentKeyRepository.findAllByStudent(student);
         // case1: 결제키가 존재하는 경우
         if (paymentKeys != null && !paymentKeys.isEmpty()) {
             for (PaymentKey paymentKey : paymentKeys) {
-             if (paymentKey.matches(newPaymentKey)) {
+             if (paymentKey.matches(encryptedNewPaymentKey)) {
                     paymentStatusToPaid(student, paymentHistory);
                     return true;
                 } else {
@@ -174,6 +179,13 @@ public class PaymentService {
         String depositorName = paymentHistory.getDepositorName();
 
         String newPaymentKey = depositorName + studentPhoneNumber + tuition + paymentHistory.getPaymentType();
+        String encryptedNewPaymentKey;
+
+        try {
+            encryptedNewPaymentKey = EncryptionUtils.encrypt(newPaymentKey, SECRET_KEY);
+        } catch (Exception e) {
+            throw new PaymentKeyNotEncryptedException("암호할 할 수 없습니다.");
+        }
 
         List<PaymentKey> paymentKeys = paymentKeyRepository.findAllByStudent(student);
         // case1: 결제키가 존재하는 경우
@@ -181,7 +193,7 @@ public class PaymentService {
             for (PaymentKey paymentKey : paymentKeys) {
                 if (paymentKey == null) {
                     log.error("Null paymentKey encountered");
-                } else if (paymentKey.matches(newPaymentKey)) {
+                } else if (paymentKey.matches(encryptedNewPaymentKey)) {
                     paymentStatusToPaid(student, paymentHistory);
                     return true;  // 결제 상태가 PAID로 변경되었음을 반환
                 } else {
@@ -193,7 +205,7 @@ public class PaymentService {
             if (depositorName.equals(studentName)) {
                 paymentStatusToPaid(student, paymentHistory);
                 paymentKeyRepository.save(PaymentKey.builder()
-                        .paymentKey(newPaymentKey)
+                        .paymentKey(encryptedNewPaymentKey)
                         .student(student)
                         .build());
                 return true;  // 결제 상태가 PAID로 변경되었음을 반환
@@ -257,10 +269,13 @@ public class PaymentService {
 
         // 새로운 결제키 생성 -> 이전에 수동처리한 적 없으니 결제키 존재한 적 X
         String newPaymentKey = depositorName + studentPhoneNumber + tuition + bankCode + paymentHistory.getPaymentType();
+        String encryptedNewPaymentKey;
 
-        // 결제키 암호화
-        Base64.Encoder encoder = Base64.getEncoder();
-        String encodedString = encoder.encodeToString(newPaymentKey.getBytes());
+        try {
+            encryptedNewPaymentKey = EncryptionUtils.encrypt(newPaymentKey, SECRET_KEY);
+        } catch (Exception e) {
+            throw new PaymentKeyNotEncryptedException("암호할 할 수 없습니다.");
+        }
 
         // 완납처리 -> 납입기록은 이때 납입완료로 처리
         paymentStatusToPaid(student, paymentHistory);
@@ -277,7 +292,7 @@ public class PaymentService {
 
         // 결제키 저장
         paymentKeyRepository.save(PaymentKey.builder()
-                .paymentKey(encodedString)
+                .paymentKey(encryptedNewPaymentKey)
                 .student(student)
                 .build());
     }

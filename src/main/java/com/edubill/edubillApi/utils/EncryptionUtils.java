@@ -1,5 +1,7 @@
 package com.edubill.edubillApi.utils;
 
+import com.edubill.edubillApi.error.exception.PaymentKeyNotEncryptedException;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;

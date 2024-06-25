@@ -274,7 +274,7 @@ public class PaymentService {
 
         PaymentHistory newPaymentHistory = paymentHistoryRepository.save(PaymentHistory.builder()
                 .depositDate(LocalDateTime.now())
-                .bankName("은행")
+                .bankName("수동입력")
                 .paidAmount(manualPaymentHistoryRequestDto.getPaidAmount())
                 .memo(manualPaymentHistoryRequestDto.getMemo())
                 .paymentType(PaymentType.getPaymentTypeByDescription(manualPaymentHistoryRequestDto.getPaymentTypeString()))

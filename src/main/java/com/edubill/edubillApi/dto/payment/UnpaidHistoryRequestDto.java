@@ -2,6 +2,8 @@ package com.edubill.edubillApi.dto.payment;
 
 import lombok.*;
 
+import java.time.YearMonth;
+
 @Builder
 @Getter
 @AllArgsConstructor
@@ -12,5 +14,5 @@ public class UnpaidHistoryRequestDto {
 
     private Long paymentHistoryId;
 
-    private String yearMonth;
+    private YearMonth yearMonth;
 }

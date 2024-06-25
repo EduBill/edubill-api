@@ -160,7 +160,7 @@ public class PaymentController {
     public ResponseEntity<HttpStatus> manualProcessingOfUnpaidHistory(@RequestBody UnpaidHistoryRequestDto unpaidHistoryRequestDto ){
        Long studentId = unpaidHistoryRequestDto.getStudentId();
        Long paymentHistoryId = unpaidHistoryRequestDto.getPaymentHistoryId();
-       String yearMonth = unpaidHistoryRequestDto.getYearMonth();
+       YearMonth yearMonth = unpaidHistoryRequestDto.getYearMonth();
 
        paymentService.manualProcessingOfUnpaidHistory(studentId, paymentHistoryId, yearMonth);
        return ResponseEntity.ok(HttpStatus.OK);

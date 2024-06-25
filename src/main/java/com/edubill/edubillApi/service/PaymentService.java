@@ -115,7 +115,7 @@ public class PaymentService {
             boolean isPaymentProcessed;
             for (PaymentHistory paymentHistory : paymentHistories) {
                 if (paymentHistory.getPaymentStatus().equals(PaymentStatus.UNPAID)) {
-                    isPaymentProcessed = processPaymentKeyGeneral(student, paymentHistory);
+                    isPaymentProcessed = processPaymentKeyGeneral(student, paymentHistory, yearMonth);
                     if (isPaymentProcessed) {
                         break;
                     }
@@ -128,7 +128,7 @@ public class PaymentService {
             boolean isPaymentProcessed;
             for (PaymentHistory paymentHistory : paymentHistories) {
                 if (paymentHistory.getPaymentStatus().equals(PaymentStatus.UNPAID)) {
-                    isPaymentProcessed = processPaymentKeyDuplicate(student, paymentHistory);
+                    isPaymentProcessed = processPaymentKeyDuplicate(student, paymentHistory, yearMonth);
                     if (isPaymentProcessed) {
                         break;
                     }
@@ -137,44 +137,8 @@ public class PaymentService {
         }
     }
 
-    // 동명이인이 존재하는 케이스
-    private Boolean processPaymentKeyDuplicate(Student student, PaymentHistory paymentHistory) {
-        String studentPhoneNumber = student.getStudentPhoneNumber();
-        int tuition = student.getStudentGroup().getTuition();
-        String depositorName = paymentHistory.getDepositorName();
-
-        //홍길동1111 300000 004 BANK_TRANSFER
-        String newPaymentKey = depositorName + studentPhoneNumber + tuition + paymentHistory.getPaymentType();
-        String encryptedNewPaymentKey;
-
-        try {
-            encryptedNewPaymentKey = EncryptionUtils.encrypt(newPaymentKey, SECRET_KEY);
-        } catch (Exception e) {
-            throw new PaymentKeyNotEncryptedException("암호할 할 수 없습니다.");
-        }
-
-        List<PaymentKey> paymentKeys = paymentKeyRepository.findAllByStudent(student);
-        // case1: 결제키가 존재하는 경우
-        if (paymentKeys != null && !paymentKeys.isEmpty()) {
-            for (PaymentKey paymentKey : paymentKeys) {
-             if (paymentKey.matches(encryptedNewPaymentKey)) {
-                    paymentStatusToPaid(student, paymentHistory);
-                    return true;
-                } else {
-                    paymentStatusToUnPaid(paymentHistory);
-                    return false;
-                }
-            }
-        } else {
-            // case2: 결제 키가 아예 존재하지 않는 경우
-            paymentStatusToUnPaid(paymentHistory);
-        }
-        return true;
-    }
-
-
     // 동명이인이 존재하지 않는 케이스
-    private boolean processPaymentKeyGeneral(Student student, PaymentHistory paymentHistory) {
+    private boolean processPaymentKeyGeneral(Student student, PaymentHistory paymentHistory, YearMonth yearMonth) {
         String studentPhoneNumber = student.getStudentPhoneNumber();
         int tuition = student.getStudentGroup().getTuition();
         String studentName = student.getStudentName();
@@ -197,6 +161,7 @@ public class PaymentService {
                     log.error("Null paymentKey encountered");
                 } else if (paymentKey.matches(encryptedNewPaymentKey)) {
                     paymentStatusToPaid(student, paymentHistory);
+                    createStudentPaymentHistory(student, paymentHistory,yearMonth);
                     return true;  // 결제 상태가 PAID로 변경되었음을 반환
                 } else {
                     paymentStatusToUnPaid(paymentHistory);
@@ -206,6 +171,7 @@ public class PaymentService {
             // case2: 결제 키가 아예 존재하지 않는 경우
             if (depositorName.equals(studentName)) {
                 paymentStatusToPaid(student, paymentHistory);
+                createStudentPaymentHistory(student, paymentHistory,yearMonth);
                 paymentKeyRepository.save(PaymentKey.builder()
                         .paymentKey(encryptedNewPaymentKey)
                         .student(student)
@@ -216,37 +182,40 @@ public class PaymentService {
         return false;  // 결제 상태가 변경되지 않음
     }
 
-
-    private void paymentStatusToPaid(Student student, PaymentHistory paymentHistory) {
+    // 동명이인이 존재하는 케이스
+    private Boolean processPaymentKeyDuplicate(Student student, PaymentHistory paymentHistory, YearMonth yearMonth) {
         String studentPhoneNumber = student.getStudentPhoneNumber();
-        String lastFourDigits = studentPhoneNumber.substring(studentPhoneNumber.length() - 4);
-        String modifiedStudentName = student.getStudentName() + lastFourDigits;
+        int tuition = student.getStudentGroup().getTuition();
+        String depositorName = paymentHistory.getDepositorName();
 
-        paymentHistoryRepository.save(paymentHistory.toBuilder()
-                .depositorName(modifiedStudentName)
-                .studentGroupId(student.getStudentGroup().getId()) //학원반 연관관계 설정
-                .paymentStatus(PaymentStatus.PAID) //결제완료상태로 변경
-                .build());
-    }
+        //홍길동1111 300000 004 BANK_TRANSFER
+        String newPaymentKey = depositorName + studentPhoneNumber + tuition + paymentHistory.getPaymentType();
+        String encryptedNewPaymentKey;
 
-    private void paymentStatusToUnPaid(PaymentHistory paymentHistory) {
-        paymentHistoryRepository.save(paymentHistory.toBuilder()
-                .paymentStatus(PaymentStatus.UNPAID) //결제 미완료상태로 변경
-                .build());
-    }
+        try {
+            encryptedNewPaymentKey = EncryptionUtils.encrypt(newPaymentKey, SECRET_KEY);
+        } catch (Exception e) {
+            throw new PaymentKeyNotEncryptedException("암호할 할 수 없습니다.");
+        }
 
-    public MemoResponseDto updateMemo(MemoRequestDto memoRequestDto) {
-        Long paymentHistoryId = memoRequestDto.getPaymentHistoryId();
-        PaymentHistory paymentHistory = paymentHistoryRepository.findById(paymentHistoryId)
-                .orElseThrow(() -> new PaymentHistoryNotFoundException("납부내역 없음"));
-
-        PaymentHistory updatedPaymentHistory = paymentHistoryRepository.save(paymentHistory.toBuilder()
-                .memo(memoRequestDto.getMemoDescription())
-                .build());
-
-        return MemoResponseDto.builder()
-                .memoDescription(updatedPaymentHistory.getMemo())
-                .build();
+        List<PaymentKey> paymentKeys = paymentKeyRepository.findAllByStudent(student);
+        // case1: 결제키가 존재하는 경우
+        if (paymentKeys != null && !paymentKeys.isEmpty()) {
+            for (PaymentKey paymentKey : paymentKeys) {
+                if (paymentKey.matches(encryptedNewPaymentKey)) {
+                    paymentStatusToPaid(student, paymentHistory);
+                    createStudentPaymentHistory(student, paymentHistory,yearMonth);
+                    return true;
+                } else {
+                    paymentStatusToUnPaid(paymentHistory);
+                    return false;
+                }
+            }
+        } else {
+            // case2: 결제 키가 아예 존재하지 않는 경우
+            paymentStatusToUnPaid(paymentHistory);
+        }
+        return true;
     }
 
     /*
@@ -255,7 +224,7 @@ public class PaymentService {
         Return : void
     */
     @Transactional
-    public void manualProcessingOfUnpaidHistory(Long studentId, Long paymentHistoryId, String yearMonth){
+    public void manualProcessingOfUnpaidHistory(Long studentId, Long paymentHistoryId, YearMonth yearMonth){
         // id로 미납 학생 찾기
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다.  userId: "+ studentId));
@@ -283,19 +252,54 @@ public class PaymentService {
         paymentStatusToPaid(student, paymentHistory);
 
         // 미납 리스트 학생에서 해당 학생이 조회되지 않도록 처리
-        StudentPaymentHistory studentPaymentHistory = StudentPaymentHistory.builder()
-                .student(student)
-                .paymentHistory(paymentHistory)
-                .yearMonth(yearMonth)
-                .build();
-
-        studentPaymentRepository.save(studentPaymentHistory);
-
+        createStudentPaymentHistory(student, paymentHistory, yearMonth);
 
         // 결제키 저장
         paymentKeyRepository.save(PaymentKey.builder()
                 .paymentKey(encryptedNewPaymentKey)
                 .student(student)
+                .build());
+    }
+
+    public MemoResponseDto updateMemo(MemoRequestDto memoRequestDto) {
+        Long paymentHistoryId = memoRequestDto.getPaymentHistoryId();
+        PaymentHistory paymentHistory = paymentHistoryRepository.findById(paymentHistoryId)
+                .orElseThrow(() -> new PaymentHistoryNotFoundException("납부내역 없음"));
+
+        PaymentHistory updatedPaymentHistory = paymentHistoryRepository.save(paymentHistory.toBuilder()
+                .memo(memoRequestDto.getMemoDescription())
+                .build());
+
+        return MemoResponseDto.builder()
+                .memoDescription(updatedPaymentHistory.getMemo())
+                .build();
+    }
+
+    private void paymentStatusToPaid(Student student, PaymentHistory paymentHistory) {
+        String studentPhoneNumber = student.getStudentPhoneNumber();
+        String lastFourDigits = studentPhoneNumber.substring(studentPhoneNumber.length() - 4);
+        String modifiedStudentName = student.getStudentName() + lastFourDigits;
+
+        paymentHistoryRepository.save(paymentHistory.toBuilder()
+                .depositorName(modifiedStudentName)
+                .studentGroupId(student.getStudentGroup().getId()) //학원반 연관관계 설정
+                .paymentStatus(PaymentStatus.PAID) //결제완료상태로 변경
+                .build());
+    }
+
+    private void paymentStatusToUnPaid(PaymentHistory paymentHistory) {
+        paymentHistoryRepository.save(paymentHistory.toBuilder()
+                .paymentStatus(PaymentStatus.UNPAID) //결제 미완료상태로 변경
+                .build());
+    }
+
+    private void createStudentPaymentHistory(Student student, PaymentHistory paymentHistory, YearMonth yearMonth) {
+        String yearMonthString = yearMonth.toString();
+
+        studentPaymentRepository.save(StudentPaymentHistory.builder()
+                .paymentHistory(paymentHistory)
+                .student(student)
+                .yearMonth(yearMonthString)
                 .build());
     }
 }

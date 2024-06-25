@@ -238,10 +238,9 @@ public class PaymentService {
         int tuition = student.getStudentGroup().getTuition();
         String studentPhoneNumber = student.getStudentPhoneNumber();
         String depositorName = paymentHistory.getDepositorName();
-        String bankCode = BankName.getBankCodeByName(paymentHistory.getBankName());
 
         // 새로운 결제키 생성 -> 이전에 수동처리한 적 없으니 결제키 존재한 적 X
-        String newPaymentKey = depositorName + studentPhoneNumber + tuition + bankCode + paymentHistory.getPaymentType();
+        String newPaymentKey = depositorName + studentPhoneNumber + tuition  + paymentHistory.getPaymentType();
         String encryptedNewPaymentKey;
 
         try {
@@ -268,6 +267,7 @@ public class PaymentService {
         String userId = SecurityUtils.getCurrentUserId();
         Long studentId = manualPaymentHistoryRequestDto.getStudentId();
         YearMonth yearMonth = manualPaymentHistoryRequestDto.getYearMonth();
+        PaymentType paymentType = PaymentType.getPaymentTypeByDescription(manualPaymentHistoryRequestDto.getPaymentTypeString());
 
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다.  userId: " + studentId));
@@ -277,14 +277,25 @@ public class PaymentService {
                 .bankName("수동입력")
                 .paidAmount(manualPaymentHistoryRequestDto.getPaidAmount())
                 .memo(manualPaymentHistoryRequestDto.getMemo())
-                .paymentType(PaymentType.getPaymentTypeByDescription(manualPaymentHistoryRequestDto.getPaymentTypeString()))
+                .paymentType(paymentType)
                 .managerId(userId)
                 .build());
 
         paymentStatusToPaid(student, newPaymentHistory);
         createStudentPaymentHistory(student, newPaymentHistory, yearMonth);
 
-
+        String newPaymentKey = student.getStudentName() + student.getStudentPhoneNumber() + student.getStudentGroup().getTuition() + paymentType;
+        String encryptedNewPaymentKey;
+        try {
+            encryptedNewPaymentKey = EncryptionUtils.encrypt(newPaymentKey, SECRET_KEY);
+        } catch (Exception e) {
+            throw new PaymentKeyNotEncryptedException("암호할 할 수 없습니다.");
+        }
+        // 결제키 저장
+        paymentKeyRepository.save(PaymentKey.builder()
+                .paymentKey(encryptedNewPaymentKey)
+                .student(student)
+                .build());
     }
 
     public MemoResponseDto updateMemo(MemoRequestDto memoRequestDto) {

@@ -169,11 +169,11 @@ public class PaymentController {
     }
 
     @Operation(summary = "미납 내역 수동처리 - 납부내역 직접 입력",
-            description = "수동으로 완납처리 시 납부내역을 직접 입력하여 연결한다..")
+            description = "수동으로 완납처리 시 납부내역을 직접 입력하여 연결한다.")
     @PutMapping("/manualProcessing/input")
     public ResponseEntity<String> manualProcessingOfUnpaidHistoryByManualInput(
             @RequestBody ManualPaymentHistoryRequestDto manualPaymentHistoryRequestDto,
-            @RequestPart MultipartFile multipartFile){
+            @RequestPart("file") MultipartFile multipartFile){
 
         paymentService.manualProcessingOfUnpaidHistoryByManualInput(manualPaymentHistoryRequestDto, multipartFile);
         return ResponseEntity.ok("납부내역 생성 완료");

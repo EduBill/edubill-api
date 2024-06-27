@@ -310,9 +310,6 @@ public class PaymentService {
                 .student(student)
                 .build());
 
-
-
-
         return new FileUrlResponseDto(s3Url);
     }
 

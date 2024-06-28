@@ -1,6 +1,7 @@
 package com.edubill.edubillApi.controller;
 
 import com.edubill.edubillApi.domain.PaymentType;
+import com.edubill.edubillApi.dto.FileUrlResponseDto;
 import com.edubill.edubillApi.dto.payment.*;
 import com.edubill.edubillApi.excel.ExcelService;
 import com.edubill.edubillApi.service.PaymentService;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.time.YearMonth;
 
@@ -171,11 +173,10 @@ public class PaymentController {
     @Operation(summary = "미납 내역 수동처리 - 납부내역 직접 입력",
             description = "수동으로 완납처리 시 납부내역을 직접 입력하여 연결한다.")
     @PutMapping("/manualProcessing/input")
-    public ResponseEntity<String> manualProcessingOfUnpaidHistoryByManualInput(
-            @RequestBody ManualPaymentHistoryRequestDto manualPaymentHistoryRequestDto,
-            @RequestPart("file") MultipartFile multipartFile){
+    public ResponseEntity<FileUrlResponseDto> manualProcessingOfUnpaidHistoryByManualInput(
+            @ModelAttribute ManualPaymentHistoryRequestDto manualPaymentHistoryRequestDto) throws IOException {
 
-        paymentService.manualProcessingOfUnpaidHistoryByManualInput(manualPaymentHistoryRequestDto, multipartFile);
-        return ResponseEntity.ok("납부내역 생성 완료");
+        FileUrlResponseDto fileUrlResponseDto = paymentService.manualProcessingOfUnpaidHistoryByManualInput(manualPaymentHistoryRequestDto);
+        return ResponseEntity.ok(fileUrlResponseDto);
     }
 }

@@ -1,6 +1,12 @@
 package com.edubill.edubillApi.service;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.edubill.edubillApi.config.S3Config;
 import com.edubill.edubillApi.domain.*;
+import com.edubill.edubillApi.dto.FileUrlResponseDto;
 import com.edubill.edubillApi.dto.payment.*;
 import com.edubill.edubillApi.error.exception.PaymentHistoryNotFoundException;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryDetailResponse;
@@ -9,7 +15,7 @@ import com.edubill.edubillApi.dto.payment.PaymentHistoryResponseDto;
 import com.edubill.edubillApi.dto.payment.PaymentStatusDto;
 import com.edubill.edubillApi.error.exception.PaymentKeyNotEncryptedException;
 import com.edubill.edubillApi.error.exception.UserNotFoundException;
-import com.edubill.edubillApi.repository.StudentPaymentRepository;
+import com.edubill.edubillApi.repository.StudentPaymentHistoryRepository;
 import com.edubill.edubillApi.repository.payment.PaymentHistoryRepository;
 import com.edubill.edubillApi.repository.payment.PaymentKeyRepository;
 import com.edubill.edubillApi.repository.student.StudentRepository;
@@ -26,10 +32,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -40,7 +48,8 @@ public class PaymentService {
     private final PaymentKeyRepository paymentKeyRepository;
     private final StudentGroupRepository studentGroupRepository;
     private final StudentRepository studentRepository;
-    private final StudentPaymentRepository studentPaymentRepository;
+    private final StudentPaymentHistoryRepository studentPaymentHistoryRepository;
+    private final S3Config s3Config;
 
     @Value("${payment.secret.key}")
     private String SECRET_KEY; // 16-byte key for AES
@@ -240,7 +249,7 @@ public class PaymentService {
         String depositorName = paymentHistory.getDepositorName();
 
         // 새로운 결제키 생성 -> 이전에 수동처리한 적 없으니 결제키 존재한 적 X
-        String newPaymentKey = depositorName + studentPhoneNumber + tuition  + paymentHistory.getPaymentType();
+        String newPaymentKey = depositorName + studentPhoneNumber + tuition + paymentHistory.getPaymentType();
         String encryptedNewPaymentKey;
 
         try {
@@ -263,7 +272,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public void manualProcessingOfUnpaidHistoryByManualInput(ManualPaymentHistoryRequestDto manualPaymentHistoryRequestDto, MultipartFile multipartFile) {
+    public FileUrlResponseDto manualProcessingOfUnpaidHistoryByManualInput(ManualPaymentHistoryRequestDto manualPaymentHistoryRequestDto) throws IOException {
         String userId = SecurityUtils.getCurrentUserId();
         Long studentId = manualPaymentHistoryRequestDto.getStudentId();
         YearMonth yearMonth = manualPaymentHistoryRequestDto.getYearMonth();
@@ -296,6 +305,34 @@ public class PaymentService {
                 .paymentKey(encryptedNewPaymentKey)
                 .student(student)
                 .build());
+
+        String s3Url = saveImageFile(manualPaymentHistoryRequestDto.getFile());
+        return new FileUrlResponseDto(s3Url);
+    }
+
+    private String saveImageFile(MultipartFile file) throws IOException {
+        //uploadPath 생성
+        String originalFilename = file.getOriginalFilename();
+        String fileExtension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
+        String uploadFilename = UUID.randomUUID() + "." + fileExtension;
+
+        log.info("File upload started: " + uploadFilename);
+
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentType(file.getContentType());
+        objectMetadata.setContentLength(file.getSize());
+
+        AmazonS3Client amazonS3Client = s3Config.amazonS3Client();
+        String bucketName = s3Config.getBucketName();
+
+        amazonS3Client.putObject(
+                new PutObjectRequest(bucketName, uploadFilename, file.getInputStream(), objectMetadata)
+                        .withCannedAcl(CannedAccessControlList.PublicRead)
+        );
+        //ex) https://edubill-prd.s3.ap-northeast-2.amazonaws.com/<uploadPath>
+        return amazonS3Client.getUrl(bucketName, uploadFilename).toString();
+
+        //TODO: db에 s3 url 저장
     }
 
     public MemoResponseDto updateMemo(MemoRequestDto memoRequestDto) {
@@ -334,8 +371,6 @@ public class PaymentService {
         String yearMonthString = yearMonth.toString();
 
         StudentPaymentHistory studentPaymentHistory = StudentPaymentHistory.builder()
-                .paymentHistory(paymentHistory)
-                .student(student)
                 .yearMonth(yearMonthString)
                 .build();
 
@@ -343,6 +378,6 @@ public class PaymentService {
         studentPaymentHistory.setStudent(student);
         studentPaymentHistory.setPaymentHistory(paymentHistory);
 
-        studentPaymentRepository.save(studentPaymentHistory);
+        studentPaymentHistoryRepository.save(studentPaymentHistory);
     }
 }

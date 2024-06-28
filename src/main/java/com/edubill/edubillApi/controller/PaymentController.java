@@ -174,6 +174,7 @@ public class PaymentController {
             description = "수동으로 완납처리 시 납부내역을 직접 입력하여 연결한다.")
     @PutMapping("/manualProcessing/input")
     public ResponseEntity<FileUrlResponseDto> manualProcessingOfUnpaidHistoryByManualInput(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "수동 납부내역 입력 요청", content = @Content(mediaType = "multipart/form-data", schema = @Schema(implementation = ManualPaymentHistoryRequestDto.class)))
             @ModelAttribute ManualPaymentHistoryRequestDto manualPaymentHistoryRequestDto) throws IOException {
 
         FileUrlResponseDto fileUrlResponseDto = paymentService.manualProcessingOfUnpaidHistoryByManualInput(manualPaymentHistoryRequestDto);

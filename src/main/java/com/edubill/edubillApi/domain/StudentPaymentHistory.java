@@ -1,9 +1,11 @@
 package com.edubill.edubillApi.domain;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.parameters.P;
 
 import static jakarta.persistence.FetchType.LAZY;
@@ -11,6 +13,8 @@ import static jakarta.persistence.FetchType.LAZY;
 @Entity
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder(toBuilder = true)
 @Table(name = "STUDENT_PAYMENT_HISTORY", uniqueConstraints = @UniqueConstraint(columnNames = {"student_id", "paymentHistory_id"}))
 public class StudentPaymentHistory extends BaseEntity{
 
@@ -20,11 +24,11 @@ public class StudentPaymentHistory extends BaseEntity{
     private Long studentPaymentHistoryId;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "student_id", insertable = false, updatable = false)
+    @JoinColumn(name = "student_id")
     private Student student;
 
     @OneToOne(fetch = LAZY)
-    @JoinColumn(name = "paymentHistory_id", insertable = false, updatable = false)
+    @JoinColumn(name = "paymentHistory_id")
     private PaymentHistory paymentHistory;
 
     @Column(name = "year_month_str")
@@ -39,13 +43,5 @@ public class StudentPaymentHistory extends BaseEntity{
     public void setPaymentHistory(PaymentHistory paymentHistory) {
         this.paymentHistory = paymentHistory;
         paymentHistory.toBuilder().studentPaymentHistory(this);
-    }
-
-    @Builder
-    public StudentPaymentHistory(Student student, PaymentHistory paymentHistory, String yearMonth)
-    {
-        this.student = student;
-        this.paymentHistory = paymentHistory;
-        this.yearMonth = yearMonth;
     }
 }

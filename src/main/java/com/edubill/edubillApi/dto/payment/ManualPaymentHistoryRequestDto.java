@@ -20,4 +20,6 @@ public class ManualPaymentHistoryRequestDto {
     private String paymentTypeString; //거래방식
     private Integer paidAmount;
     private String memo;  // 메모
+
+    private MultipartFile file;
 }

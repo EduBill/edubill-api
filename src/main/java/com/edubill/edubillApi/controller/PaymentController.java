@@ -1,5 +1,7 @@
 package com.edubill.edubillApi.controller;
 
+import com.edubill.edubillApi.domain.PaymentType;
+import com.edubill.edubillApi.dto.FileUrlResponseDto;
 import com.edubill.edubillApi.dto.payment.*;
 import com.edubill.edubillApi.excel.ExcelService;
 import com.edubill.edubillApi.service.PaymentService;
@@ -17,7 +19,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.time.YearMonth;
 
@@ -82,7 +86,7 @@ public class PaymentController {
                             example = "10",
                             schema = @Schema(type = "integer", defaultValue = "10"))
             })
-    public ResponseEntity<Page<PaymentHistoryResponse>> getPaidHistories(
+    public ResponseEntity<Page<PaymentHistoryResponseDto>> getPaidHistories(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @PathVariable(name = "yearMonth") YearMonth yearMonth,
@@ -114,7 +118,7 @@ public class PaymentController {
                             example = "10",
                             schema = @Schema(type = "integer", defaultValue = "10"))
             })
-    public ResponseEntity<Page<PaymentHistoryResponse>> getUnpaidHistories(
+    public ResponseEntity<Page<PaymentHistoryResponseDto>> getUnpaidHistories(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @PathVariable(name = "yearMonth") YearMonth yearMonth,
@@ -164,5 +168,16 @@ public class PaymentController {
 
        paymentService.manualProcessingOfUnpaidHistory(studentId, paymentHistoryId, yearMonth);
        return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    @Operation(summary = "미납 내역 수동처리 - 납부내역 직접 입력",
+            description = "수동으로 완납처리 시 납부내역을 직접 입력하여 연결한다.")
+    @PutMapping("/manualProcessing/input")
+    public ResponseEntity<FileUrlResponseDto> manualProcessingOfUnpaidHistoryByManualInput(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "수동 납부내역 입력 요청", content = @Content(mediaType = "multipart/form-data", schema = @Schema(implementation = ManualPaymentHistoryRequestDto.class)))
+            @ModelAttribute ManualPaymentHistoryRequestDto manualPaymentHistoryRequestDto) throws IOException {
+
+        FileUrlResponseDto fileUrlResponseDto = paymentService.manualProcessingOfUnpaidHistoryByManualInput(manualPaymentHistoryRequestDto);
+        return ResponseEntity.ok(fileUrlResponseDto);
     }
 }

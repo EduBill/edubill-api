@@ -2,7 +2,7 @@ package com.edubill.edubillApi.dto.payment;
 
 import java.time.LocalDateTime;
 
-public record PaymentHistoryResponse(
+public record PaymentHistoryResponseDto(
         Long paymentHistoryId,
         String studentName,
 

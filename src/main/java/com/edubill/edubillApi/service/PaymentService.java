@@ -1,20 +1,27 @@
 package com.edubill.edubillApi.service;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.edubill.edubillApi.config.S3Config;
 import com.edubill.edubillApi.domain.*;
+import com.edubill.edubillApi.dto.FileUrlResponseDto;
 import com.edubill.edubillApi.dto.payment.*;
 import com.edubill.edubillApi.error.exception.PaymentHistoryNotFoundException;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryDetailResponse;
 
-import com.edubill.edubillApi.dto.payment.PaymentHistoryResponse;
+import com.edubill.edubillApi.dto.payment.PaymentHistoryResponseDto;
 import com.edubill.edubillApi.dto.payment.PaymentStatusDto;
 import com.edubill.edubillApi.error.exception.PaymentKeyNotEncryptedException;
 import com.edubill.edubillApi.error.exception.UserNotFoundException;
-import com.edubill.edubillApi.repository.StudentPaymentRepository;
+import com.edubill.edubillApi.repository.StudentPaymentHistoryRepository;
 import com.edubill.edubillApi.repository.payment.PaymentHistoryRepository;
 import com.edubill.edubillApi.repository.payment.PaymentKeyRepository;
 import com.edubill.edubillApi.repository.student.StudentRepository;
 import com.edubill.edubillApi.repository.studentgroup.StudentGroupRepository;
 import com.edubill.edubillApi.utils.EncryptionUtils;
+import com.edubill.edubillApi.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,12 +29,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 
-import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -38,7 +48,8 @@ public class PaymentService {
     private final PaymentKeyRepository paymentKeyRepository;
     private final StudentGroupRepository studentGroupRepository;
     private final StudentRepository studentRepository;
-    private final StudentPaymentRepository studentPaymentRepository;
+    private final StudentPaymentHistoryRepository studentPaymentHistoryRepository;
+    private final S3Config s3Config;
 
     @Value("${payment.secret.key}")
     private String SECRET_KEY; // 16-byte key for AES
@@ -76,19 +87,19 @@ public class PaymentService {
                 .build();
     }
 
-    public Page<PaymentHistoryResponse> getPaidHistoriesForManagerInMonth(String userId, YearMonth yearMonth, Pageable pageable) {
+    public Page<PaymentHistoryResponseDto> getPaidHistoriesForManagerInMonth(String userId, YearMonth yearMonth, Pageable pageable) {
         final Page<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesByYearMonthAndManagerId(userId, yearMonth, pageable);
 
         return paymentHistories.map(paymentHistory ->
-                new PaymentHistoryResponse(paymentHistory.getId(), paymentHistory.getDepositorName(), paymentHistory.getPaidAmount(), paymentHistory.getDepositDate())
+                new PaymentHistoryResponseDto(paymentHistory.getId(), paymentHistory.getDepositorName(), paymentHistory.getPaidAmount(), paymentHistory.getDepositDate())
         );
     }
 
-    public Page<PaymentHistoryResponse> getUnpaidHistoriesForManagerInMonth(String userId, YearMonth yearMonth, Pageable pageable) {
+    public Page<PaymentHistoryResponseDto> getUnpaidHistoriesForManagerInMonth(String userId, YearMonth yearMonth, Pageable pageable) {
         final Page<PaymentHistory> paymentHistories = paymentHistoryRepository.findUnpaidHistoriesByYearMonthAndManagerId(userId, yearMonth, pageable);
 
         return paymentHistories.map(paymentHistory ->
-                new PaymentHistoryResponse(paymentHistory.getId(), paymentHistory.getDepositorName(), paymentHistory.getPaidAmount(), paymentHistory.getDepositDate())
+                new PaymentHistoryResponseDto(paymentHistory.getId(), paymentHistory.getDepositorName(), paymentHistory.getPaidAmount(), paymentHistory.getDepositDate())
         );
     }
 
@@ -161,7 +172,7 @@ public class PaymentService {
                     log.error("Null paymentKey encountered");
                 } else if (paymentKey.matches(encryptedNewPaymentKey)) {
                     paymentStatusToPaid(student, paymentHistory);
-                    createStudentPaymentHistory(student, paymentHistory,yearMonth);
+                    createStudentPaymentHistory(student, paymentHistory, yearMonth);
                     return true;  // 결제 상태가 PAID로 변경되었음을 반환
                 } else {
                     paymentStatusToUnPaid(paymentHistory);
@@ -171,7 +182,7 @@ public class PaymentService {
             // case2: 결제 키가 아예 존재하지 않는 경우
             if (depositorName.equals(studentName)) {
                 paymentStatusToPaid(student, paymentHistory);
-                createStudentPaymentHistory(student, paymentHistory,yearMonth);
+                createStudentPaymentHistory(student, paymentHistory, yearMonth);
                 paymentKeyRepository.save(PaymentKey.builder()
                         .paymentKey(encryptedNewPaymentKey)
                         .student(student)
@@ -204,7 +215,7 @@ public class PaymentService {
             for (PaymentKey paymentKey : paymentKeys) {
                 if (paymentKey.matches(encryptedNewPaymentKey)) {
                     paymentStatusToPaid(student, paymentHistory);
-                    createStudentPaymentHistory(student, paymentHistory,yearMonth);
+                    createStudentPaymentHistory(student, paymentHistory, yearMonth);
                     return true;
                 } else {
                     paymentStatusToUnPaid(paymentHistory);
@@ -224,10 +235,10 @@ public class PaymentService {
         Return : void
     */
     @Transactional
-    public void manualProcessingOfUnpaidHistory(Long studentId, Long paymentHistoryId, YearMonth yearMonth){
+    public void manualProcessingOfUnpaidHistory(Long studentId, Long paymentHistoryId, YearMonth yearMonth) {
         // id로 미납 학생 찾기
         Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다.  userId: "+ studentId));
+                .orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다.  userId: " + studentId));
 
         // id로 미확인 입금 내역 찾기
         PaymentHistory paymentHistory = paymentHistoryRepository.findById(paymentHistoryId)
@@ -236,10 +247,9 @@ public class PaymentService {
         int tuition = student.getStudentGroup().getTuition();
         String studentPhoneNumber = student.getStudentPhoneNumber();
         String depositorName = paymentHistory.getDepositorName();
-        String bankCode = BankName.getBankCodeByName(paymentHistory.getBankName());
 
         // 새로운 결제키 생성 -> 이전에 수동처리한 적 없으니 결제키 존재한 적 X
-        String newPaymentKey = depositorName + studentPhoneNumber + tuition + bankCode + paymentHistory.getPaymentType();
+        String newPaymentKey = depositorName + studentPhoneNumber + tuition + paymentHistory.getPaymentType();
         String encryptedNewPaymentKey;
 
         try {
@@ -259,6 +269,74 @@ public class PaymentService {
                 .paymentKey(encryptedNewPaymentKey)
                 .student(student)
                 .build());
+    }
+
+    @Transactional
+    public FileUrlResponseDto manualProcessingOfUnpaidHistoryByManualInput(ManualPaymentHistoryRequestDto manualPaymentHistoryRequestDto) throws IOException {
+        String userId = SecurityUtils.getCurrentUserId();
+        Long studentId = manualPaymentHistoryRequestDto.getStudentId();
+        YearMonth yearMonth = manualPaymentHistoryRequestDto.getYearMonth();
+        PaymentType paymentType = PaymentType.getPaymentTypeByDescription(manualPaymentHistoryRequestDto.getPaymentTypeString());
+
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다.  userId: " + studentId));
+
+        String s3Url = saveImageFile(manualPaymentHistoryRequestDto.getFile());
+
+        PaymentHistory newPaymentHistory = paymentHistoryRepository.save(PaymentHistory.builder()
+                .depositDate(LocalDateTime.now())
+                .bankName("수동입력")
+                .paidAmount(manualPaymentHistoryRequestDto.getPaidAmount())
+                .memo(manualPaymentHistoryRequestDto.getMemo())
+                .paymentType(paymentType)
+                .managerId(userId)
+                .s3Url(s3Url)
+                .build());
+
+
+        paymentStatusToPaid(student, newPaymentHistory);
+        createStudentPaymentHistory(student, newPaymentHistory, yearMonth);
+
+        String newPaymentKey = student.getStudentName() + student.getStudentPhoneNumber() + student.getStudentGroup().getTuition() + paymentType;
+        String encryptedNewPaymentKey;
+        try {
+            encryptedNewPaymentKey = EncryptionUtils.encrypt(newPaymentKey, SECRET_KEY);
+        } catch (Exception e) {
+            throw new PaymentKeyNotEncryptedException("암호할 할 수 없습니다.");
+        }
+        // 결제키 저장
+        paymentKeyRepository.save(PaymentKey.builder()
+                .paymentKey(encryptedNewPaymentKey)
+                .student(student)
+                .build());
+
+
+
+
+        return new FileUrlResponseDto(s3Url);
+    }
+
+    private String saveImageFile(MultipartFile file) throws IOException {
+        //uploadPath 생성
+        String originalFilename = file.getOriginalFilename();
+        String fileExtension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
+        String uploadFilename = UUID.randomUUID() + "." + fileExtension;
+
+        log.info("File upload started: " + uploadFilename);
+
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentType(file.getContentType());
+        objectMetadata.setContentLength(file.getSize());
+
+        AmazonS3Client amazonS3Client = s3Config.amazonS3Client();
+        String bucketName = s3Config.getBucketName();
+
+        amazonS3Client.putObject(
+                new PutObjectRequest(bucketName, uploadFilename, file.getInputStream(), objectMetadata)
+                        .withCannedAcl(CannedAccessControlList.PublicRead)
+        );
+        //ex) https://edubill-prd.s3.ap-northeast-2.amazonaws.com/<uploadPath>
+        return amazonS3Client.getUrl(bucketName, uploadFilename).toString();
     }
 
     public MemoResponseDto updateMemo(MemoRequestDto memoRequestDto) {
@@ -296,10 +374,14 @@ public class PaymentService {
     private void createStudentPaymentHistory(Student student, PaymentHistory paymentHistory, YearMonth yearMonth) {
         String yearMonthString = yearMonth.toString();
 
-        studentPaymentRepository.save(StudentPaymentHistory.builder()
-                .paymentHistory(paymentHistory)
-                .student(student)
+        StudentPaymentHistory studentPaymentHistory = StudentPaymentHistory.builder()
                 .yearMonth(yearMonthString)
-                .build());
+                .build();
+
+        // Student와 PaymentHistory 간의 연관 관계 설정
+        studentPaymentHistory.setStudent(student);
+        studentPaymentHistory.setPaymentHistory(paymentHistory);
+
+        studentPaymentHistoryRepository.save(studentPaymentHistory);
     }
 }

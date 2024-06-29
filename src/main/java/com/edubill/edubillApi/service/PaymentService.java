@@ -281,6 +281,8 @@ public class PaymentService {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다.  userId: " + studentId));
 
+        String s3Url = saveImageFile(manualPaymentHistoryRequestDto.getFile());
+
         PaymentHistory newPaymentHistory = paymentHistoryRepository.save(PaymentHistory.builder()
                 .depositDate(LocalDateTime.now())
                 .bankName("수동입력")
@@ -288,7 +290,9 @@ public class PaymentService {
                 .memo(manualPaymentHistoryRequestDto.getMemo())
                 .paymentType(paymentType)
                 .managerId(userId)
+                .s3Url(s3Url)
                 .build());
+
 
         paymentStatusToPaid(student, newPaymentHistory);
         createStudentPaymentHistory(student, newPaymentHistory, yearMonth);
@@ -306,7 +310,9 @@ public class PaymentService {
                 .student(student)
                 .build());
 
-        String s3Url = saveImageFile(manualPaymentHistoryRequestDto.getFile());
+
+
+
         return new FileUrlResponseDto(s3Url);
     }
 
@@ -331,8 +337,6 @@ public class PaymentService {
         );
         //ex) https://edubill-prd.s3.ap-northeast-2.amazonaws.com/<uploadPath>
         return amazonS3Client.getUrl(bucketName, uploadFilename).toString();
-
-        //TODO: db에 s3 url 저장
     }
 
     public MemoResponseDto updateMemo(MemoRequestDto memoRequestDto) {

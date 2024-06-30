@@ -13,4 +13,7 @@ public interface StudentCustomRepository {
 
     List<Student> findStudentsWithDuplicateNames(Collection<StudentGroup> studentGroups);
     List<Student> findStudentsWithUniqueNames(Collection<StudentGroup> studentGroups);
+
+    List<Student> findUnpaidStudentsByYearMonthAndManagerId(String userId, YearMonth yearMonth);
+
 }

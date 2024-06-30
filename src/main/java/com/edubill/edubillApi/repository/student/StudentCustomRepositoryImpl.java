@@ -16,6 +16,7 @@ import java.util.List;
 import static com.edubill.edubillApi.domain.QPaymentHistory.paymentHistory;
 import static com.edubill.edubillApi.domain.QStudent.student;
 import static com.edubill.edubillApi.domain.QStudentGroup.studentGroup;
+import static com.edubill.edubillApi.domain.QStudentPaymentHistory.studentPaymentHistory;
 
 @Repository
 @RequiredArgsConstructor
@@ -76,6 +77,24 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository{
                                         .groupBy(student.studentName)
                                         .having(student.count().eq(1L))
                         )))
+                .fetch();
+    }
+
+    public List<Student> findUnpaidStudentsByYearMonthAndManagerId(String managerId, YearMonth yearMonth) {
+
+        String sYearMonth = yearMonth.toString();
+        QStudent studentSub = new QStudent("studentSub");
+
+        return queryFactory
+                .selectFrom(student)
+                .where(student.id.notIn(
+                        JPAExpressions
+                                .select(studentSub.id)
+                                .from(studentSub, studentPaymentHistory, studentGroup)
+                                .where(studentGroup.managerId.eq(managerId)
+                                        .and(studentPaymentHistory.yearMonth.eq(sYearMonth))
+                                        .and(studentSub.id.eq(studentPaymentHistory.student.id)))
+                        ))
                 .fetch();
     }
 }

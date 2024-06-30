@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.security.Principal;
 import java.time.YearMonth;
+import java.util.List;
 
 @Tag(name = "Payment", description = "결제내역관리 API")
 @RestController
@@ -179,5 +180,15 @@ public class PaymentController {
 
         FileUrlResponseDto fileUrlResponseDto = paymentService.manualProcessingOfUnpaidHistoryByManualInput(manualPaymentHistoryRequestDto);
         return ResponseEntity.ok(fileUrlResponseDto);
+    }
+
+    @Operation(summary = "미납 학생 조회하기",
+            description = "조회하는 월에 미납한 학생들을 조회한다.")
+    @PostMapping("/unpaidStudents")
+    public ResponseEntity<List<UnpaidStudentsResponseDto>> unPaidStudents(@RequestBody UnpaidStudentsRequestDto unpaidStudentsRequestDto){
+        String managerId = unpaidStudentsRequestDto.getUserId();
+        YearMonth yearMonth = unpaidStudentsRequestDto.getYearMonth();
+
+        return ResponseEntity.ok(paymentService.getUnpaidStudentsList(managerId, yearMonth));
     }
 }

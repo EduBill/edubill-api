@@ -35,6 +35,7 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -355,5 +356,28 @@ public class PaymentService {
         studentPaymentHistory.setPaymentHistory(paymentHistory);
 
         studentPaymentHistoryRepository.save(studentPaymentHistory);
+    }
+
+    /*
+        Func : 미납 학생 조회
+        Parameter : userId, yearMonth
+        Return : List<UnpaidStudentsResponseDto>
+    */
+    public List<UnpaidStudentsResponseDto> getUnpaidStudentsList(String userId, YearMonth yearMonth){
+
+        List<Student> unPaidStudents = studentRepository.findUnpaidStudentsByYearMonthAndManagerId(userId, yearMonth);
+
+        return unPaidStudents.stream()
+                .map(student -> {
+                    String sPhoneNum = student.getStudentPhoneNumber();
+
+                    return  UnpaidStudentsResponseDto.builder()
+                            .studentId(student.getId()) // 수동처리 시 학생Id를 프론트에서 받기 위함
+                            .studentName(student.getStudentName() + " " + sPhoneNum.substring(sPhoneNum.length() - 4)) // 홍길동 1234
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+
     }
 }

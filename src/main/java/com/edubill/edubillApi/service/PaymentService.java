@@ -29,15 +29,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 
 import java.util.List;
-import java.util.UUID;
+
 
 @Service
 @Slf4j
@@ -49,7 +47,7 @@ public class PaymentService {
     private final StudentGroupRepository studentGroupRepository;
     private final StudentRepository studentRepository;
     private final StudentPaymentHistoryRepository studentPaymentHistoryRepository;
-    private final S3Config s3Config;
+    private final FileUploadService fileUploadService;
 
     @Value("${payment.secret.key}")
     private String SECRET_KEY; // 16-byte key for AES
@@ -281,7 +279,7 @@ public class PaymentService {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다.  userId: " + studentId));
 
-        String s3Url = saveImageFile(manualPaymentHistoryRequestDto.getFile());
+        String s3Url = fileUploadService.saveImageFile(manualPaymentHistoryRequestDto.getFile());
 
         PaymentHistory newPaymentHistory = paymentHistoryRepository.save(PaymentHistory.builder()
                 .depositDate(LocalDateTime.now())
@@ -310,33 +308,7 @@ public class PaymentService {
                 .student(student)
                 .build());
 
-
-
-
         return new FileUrlResponseDto(s3Url);
-    }
-
-    private String saveImageFile(MultipartFile file) throws IOException {
-        //uploadPath 생성
-        String originalFilename = file.getOriginalFilename();
-        String fileExtension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
-        String uploadFilename = UUID.randomUUID() + "." + fileExtension;
-
-        log.info("File upload started: " + uploadFilename);
-
-        ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentType(file.getContentType());
-        objectMetadata.setContentLength(file.getSize());
-
-        AmazonS3Client amazonS3Client = s3Config.amazonS3Client();
-        String bucketName = s3Config.getBucketName();
-
-        amazonS3Client.putObject(
-                new PutObjectRequest(bucketName, uploadFilename, file.getInputStream(), objectMetadata)
-                        .withCannedAcl(CannedAccessControlList.PublicRead)
-        );
-        //ex) https://edubill-prd.s3.ap-northeast-2.amazonaws.com/<uploadPath>
-        return amazonS3Client.getUrl(bucketName, uploadFilename).toString();
     }
 
     public MemoResponseDto updateMemo(MemoRequestDto memoRequestDto) {

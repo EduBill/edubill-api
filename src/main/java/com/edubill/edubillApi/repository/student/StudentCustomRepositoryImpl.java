@@ -91,10 +91,24 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository{
                         JPAExpressions
                                 .select(studentSub.id)
                                 .from(studentSub, studentPaymentHistory, studentGroup)
-                                .where(studentGroup.managerId.eq(managerId)
+                                .where(studentSub.studentGroup.managerId.eq(managerId)
                                         .and(studentPaymentHistory.yearMonth.eq(sYearMonth))
                                         .and(studentSub.id.eq(studentPaymentHistory.student.id)))
                         ))
+                .fetch();
+    }
+
+    @Override
+    public List<Student> findPaidStudentsByYearMonthAndManagerId(String managerId, YearMonth yearMonth) {
+
+        String sYearMonth = yearMonth.toString();
+
+        return queryFactory
+                .select(student)
+                .from(student, studentPaymentHistory, studentGroup)
+                .where(student.studentGroup.managerId.eq(managerId)
+                        .and(studentPaymentHistory.yearMonth.eq(sYearMonth))
+                        .and(student.id.eq(studentPaymentHistory.student.id)))
                 .fetch();
     }
 }

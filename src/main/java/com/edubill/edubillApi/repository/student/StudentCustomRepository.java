@@ -16,4 +16,5 @@ public interface StudentCustomRepository {
 
     List<Student> findUnpaidStudentsByYearMonthAndManagerId(String userId, YearMonth yearMonth);
 
+    List<Student> findPaidStudentsByYearMonthAndManagerId(String managerId, YearMonth yearMonth);
 }

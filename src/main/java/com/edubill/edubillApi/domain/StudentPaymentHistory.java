@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.security.core.parameters.P;
 
 import static jakarta.persistence.FetchType.LAZY;
@@ -29,6 +31,7 @@ public class StudentPaymentHistory extends BaseEntity{
 
     @OneToOne(fetch = LAZY)
     @JoinColumn(name = "paymentHistory_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private PaymentHistory paymentHistory;
 
     @Column(name = "year_month_str")

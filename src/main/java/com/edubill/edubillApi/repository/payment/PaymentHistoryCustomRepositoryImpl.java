@@ -3,6 +3,7 @@ package com.edubill.edubillApi.repository.payment;
 import com.edubill.edubillApi.domain.PaymentHistory;
 import com.edubill.edubillApi.domain.PaymentStatus;
 import com.querydsl.core.types.dsl.BooleanExpression;
+
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -138,5 +139,18 @@ public class PaymentHistoryCustomRepositoryImpl implements PaymentHistoryCustomR
                         .and(paymentHistory.depositDate.between(startDateTime, endDateTime)))
                 .where(studentGroup.managerId.eq(managerId))
                 .fetchCount();
+    }
+
+    @Override
+    @Transactional
+    public long deleteByUserIdAndYearMonth(String userId, YearMonth yearMonth) {
+        LocalDateTime startDateTime = yearMonth.atDay(1).atStartOfDay();
+        LocalDateTime endDateTime = yearMonth.atEndOfMonth().atTime(23, 59, 59, 999999999);
+
+        return queryFactory
+                .delete(paymentHistory)
+                .where(paymentHistory.managerId.eq(userId)
+                        .and(paymentHistory.depositDate.between(startDateTime, endDateTime)))
+                .execute();
     }
 }

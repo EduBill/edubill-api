@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface PaymentKeyRepository extends JpaRepository<PaymentKey, Long> {
+public interface PaymentKeyRepository extends JpaRepository<PaymentKey, Long>, PaymentKeyCustomRepository {
     List<PaymentKey> findAllByStudent(Student student);
 }

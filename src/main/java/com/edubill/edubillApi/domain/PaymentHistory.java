@@ -53,7 +53,7 @@ public class PaymentHistory extends BaseEntity {
     @Builder.Default
     private PaymentStatus paymentStatus = PaymentStatus.UNPAID; //납부확인 유무
 
-    @OneToOne(mappedBy = "paymentHistory")
+    @OneToOne(mappedBy = "paymentHistory", cascade = CascadeType.ALL, orphanRemoval = true)
     private StudentPaymentHistory studentPaymentHistory;
 
 

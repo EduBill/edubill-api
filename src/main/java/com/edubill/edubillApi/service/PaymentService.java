@@ -1,10 +1,5 @@
 package com.edubill.edubillApi.service;
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.edubill.edubillApi.config.S3Config;
 import com.edubill.edubillApi.domain.*;
 import com.edubill.edubillApi.dto.FileUrlResponseDto;
 import com.edubill.edubillApi.dto.payment.*;
@@ -17,6 +12,7 @@ import com.edubill.edubillApi.error.exception.PaymentKeyNotEncryptedException;
 import com.edubill.edubillApi.error.exception.UserNotFoundException;
 import com.edubill.edubillApi.repository.StudentPaymentHistoryRepository;
 import com.edubill.edubillApi.repository.payment.PaymentHistoryRepository;
+import com.edubill.edubillApi.repository.payment.PaymentKeyCustomRepository;
 import com.edubill.edubillApi.repository.payment.PaymentKeyRepository;
 import com.edubill.edubillApi.repository.student.StudentRepository;
 import com.edubill.edubillApi.repository.studentgroup.StudentGroupRepository;

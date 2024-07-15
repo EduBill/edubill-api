@@ -99,11 +99,10 @@ jobs:
           S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
         run: |
           mkdir -p scripts
+          touch scripts/start.sh
           echo "#!/bin/bash" > scripts/start.sh
           echo "aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $ECR_REGISTRY" >> scripts/start.sh
           echo "docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> scripts/start.sh
-          echo "docker stop \$(docker ps -a -q --filter name=$IMAGE_NAME)" >> scripts/start.sh
-          echo "docker rm \$(docker ps -a -q --filter name=$IMAGE_NAME)" >> scripts/start.sh
           echo "docker run -d --restart always -p 8080:8080 --name $IMAGE_NAME \\" >> scripts/start.sh
           echo "  -e SPRING_PROFILE=$SPRING_PROFILE \\" >> scripts/start.sh
           echo "  -e EDUBILL_DB_HOST=$EDUBILL_DB_HOST \\" >> scripts/start.sh
@@ -115,11 +114,15 @@ jobs:
           echo "  $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> scripts/start.sh
           chmod +x scripts/start.sh
 
-      - name: Upload deployment script to S3
-        run: aws s3 cp ./scripts/start.sh s3://$BUCKET_NAME/deploy/scripts/start.sh --region ap-northeast-2
-
-      - name: Upload zip to S3
-        run: aws s3 cp ./$GITHUB_SHA.zip s3://$BUCKET_NAME/deploy/$GITHUB_SHA.zip --region ap-northeast-2
+      - name: Upload deployment zip to S3
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          file_name: edubill-api
+          file_tag: prod
+        run: |
+          zip -r $file_name-$file_tag.zip ./scripts appspec.yml
+          aws s3 cp $file_name-$file_tag.zip s3://$BUCKET_NAME/deploy/$GITHUB_SHA.zip --region ap-northeast-2
+      
 
       - name: Code Deploy
         run: |

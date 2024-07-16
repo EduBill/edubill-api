@@ -8,5 +8,4 @@ import java.time.LocalTime;
 import java.util.Optional;
 
 public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, Long>, PaymentHistoryCustomRepository {
-    Optional<PaymentHistory> findByDepositDateAndDepositorNameAndBankName(LocalDateTime depositDate, String depositorName, String bankName);
 }

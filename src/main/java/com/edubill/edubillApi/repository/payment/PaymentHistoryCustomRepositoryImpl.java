@@ -4,6 +4,8 @@ import com.edubill.edubillApi.domain.PaymentHistory;
 import com.edubill.edubillApi.domain.PaymentStatus;
 import com.querydsl.core.types.dsl.BooleanExpression;
 
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Optional;
 
 import static com.edubill.edubillApi.domain.QPaymentHistory.paymentHistory;
 import static com.edubill.edubillApi.domain.QStudentGroup.studentGroup;
@@ -152,5 +155,25 @@ public class PaymentHistoryCustomRepositoryImpl implements PaymentHistoryCustomR
                 .where(paymentHistory.managerId.eq(userId)
                         .and(paymentHistory.depositDate.between(startDateTime, endDateTime)))
                 .execute();
+    }
+
+    @Override
+    public Optional<PaymentHistory> findByDepositDateAndDepositorNameAndBankName(LocalDateTime depositDate, String depositorName, String bankName) {
+
+        BooleanExpression depositDatePredicate = paymentHistory.depositDate.eq(depositDate);
+        BooleanExpression bankNamePredicate = paymentHistory.bankName.eq(bankName);
+        // depositorName에 대한 커스텀 SQL 함수 정의
+        StringExpression depositorNameExpression = Expressions.stringTemplate(
+                "REGEXP_REPLACE({0}, '[0-9]', '')", paymentHistory.depositorName);
+        BooleanExpression depositorNamePredicate = depositorNameExpression.eq(depositorName);
+
+        PaymentHistory result = queryFactory
+                .selectFrom(paymentHistory)
+                .where(depositDatePredicate
+                        .and(bankNamePredicate)
+                        .and(depositorNamePredicate))
+                .fetchOne();
+
+        return Optional.ofNullable(result);
     }
 }

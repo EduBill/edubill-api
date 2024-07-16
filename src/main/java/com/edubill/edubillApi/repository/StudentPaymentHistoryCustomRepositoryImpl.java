@@ -20,15 +20,12 @@ public class StudentPaymentHistoryCustomRepositoryImpl implements StudentPayment
     @Override
     @Transactional(readOnly = true)
     public List<Long> findStudentIdsByUserIdAndYearMonth(String userId, YearMonth yearMonth) {
-        LocalDateTime startDateTime = yearMonth.atDay(1).atStartOfDay();
-        LocalDateTime endDateTime = yearMonth.atEndOfMonth().atTime(23, 59, 59, 999999999);
-
         // 삭제된 paymentHistory에 해당하는 student_id들을 조회
         return queryFactory
                 .select(studentPaymentHistory.student.id)
                 .from(studentPaymentHistory)
                 .where(studentPaymentHistory.paymentHistory.managerId.eq(userId)
-                        .and(studentPaymentHistory.paymentHistory.depositDate.between(startDateTime, endDateTime)))
+                        .and(studentPaymentHistory.yearMonth.eq(String.valueOf(yearMonth))))
                 .fetch();
     }
 }

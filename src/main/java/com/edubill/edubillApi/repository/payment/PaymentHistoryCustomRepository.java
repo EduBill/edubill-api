@@ -25,4 +25,6 @@ public interface PaymentHistoryCustomRepository {
     long countPaidUserGroupsForUserInMonth(String userId, YearMonth yearMonth);
 
     long deleteByUserIdAndYearMonth(String userId, YearMonth yearMonth);
+
+    Optional<PaymentHistory> findByDepositDateAndDepositorNameAndBankName(LocalDateTime depositDate, String depositorName, String bankName);
 }

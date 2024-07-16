@@ -31,6 +31,7 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -49,8 +50,18 @@ public class PaymentService {
     @Value("${payment.secret.key}")
     private String SECRET_KEY; // 16-byte key for AES
 
+    @Transactional
     public void savePaymentHistories(List<PaymentHistory> paymentHistories) {
-        paymentHistoryRepository.saveAll(paymentHistories);
+        for (PaymentHistory paymentHistory : paymentHistories) {
+            Optional<PaymentHistory> existingPaymentHistory = paymentHistoryRepository.findByDepositDateAndDepositorNameAndBankName(paymentHistory.getDepositDate(), paymentHistory.getDepositorName(), paymentHistory.getBankName());
+
+            if (existingPaymentHistory.isPresent()) {
+                PaymentHistory existing = existingPaymentHistory.get();
+                paymentHistoryRepository.save(existing);
+            } else {
+                paymentHistoryRepository.save(paymentHistory);
+            }
+        }
     }
 
     @Transactional
@@ -359,7 +370,7 @@ public class PaymentService {
         Parameter : userId, yearMonth
         Return : List<UnpaidStudentsResponseDto>
     */
-    public List<UnpaidStudentsResponseDto> getUnpaidStudentsList(String userId, YearMonth yearMonth){
+    public List<UnpaidStudentsResponseDto> getUnpaidStudentsList(String userId, YearMonth yearMonth) {
 
         List<Student> unPaidStudents = studentRepository.findUnpaidStudentsByYearMonthAndManagerId(userId, yearMonth);
 
@@ -367,7 +378,7 @@ public class PaymentService {
                 .map(student -> {
                     String sPhoneNum = student.getStudentPhoneNumber();
 
-                    return  UnpaidStudentsResponseDto.builder()
+                    return UnpaidStudentsResponseDto.builder()
                             .studentId(student.getId()) // 수동처리 시 학생Id를 프론트에서 받기 위함
                             .studentName(student.getStudentName() + " " + sPhoneNum.substring(sPhoneNum.length() - 4)) // 홍길동 1234
                             .build();

@@ -26,5 +26,5 @@ public interface PaymentHistoryCustomRepository {
 
     long deleteByUserIdAndYearMonth(String userId, YearMonth yearMonth);
 
-    Optional<PaymentHistory> findByDepositDateAndDepositorNameAndBankName(LocalDateTime depositDate, String depositorName, String bankName);
+    Optional<PaymentHistory> findByDepositDateAndDepositorNameAndBankNameAndManagerId(LocalDateTime depositDate, String depositorName, String bankName, String userId);
 }

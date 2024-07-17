@@ -12,7 +12,7 @@ import com.edubill.edubillApi.error.exception.PaymentKeyNotEncryptedException;
 import com.edubill.edubillApi.error.exception.UserNotFoundException;
 import com.edubill.edubillApi.repository.StudentPaymentHistoryRepository;
 import com.edubill.edubillApi.repository.payment.PaymentHistoryRepository;
-import com.edubill.edubillApi.repository.payment.PaymentKeyCustomRepository;
+
 import com.edubill.edubillApi.repository.payment.PaymentKeyRepository;
 import com.edubill.edubillApi.repository.student.StudentRepository;
 import com.edubill.edubillApi.repository.studentgroup.StudentGroupRepository;
@@ -52,11 +52,14 @@ public class PaymentService {
 
     @Transactional
     public void savePaymentHistories(List<PaymentHistory> paymentHistories) {
+        final String managerId = SecurityUtils.getCurrentUserId();
+
         for (PaymentHistory paymentHistory : paymentHistories) {
-            Optional<PaymentHistory> existingPaymentHistory = paymentHistoryRepository.findByDepositDateAndDepositorNameAndBankName(paymentHistory.getDepositDate(), paymentHistory.getDepositorName(), paymentHistory.getBankName());
+            Optional<PaymentHistory> existingPaymentHistory = paymentHistoryRepository.findByDepositDateAndDepositorNameAndBankNameAndManagerId(paymentHistory.getDepositDate(), paymentHistory.getDepositorName(), paymentHistory.getBankName(), managerId);
 
             if (existingPaymentHistory.isPresent()) {
                 PaymentHistory existing = existingPaymentHistory.get();
+                // 변경사항 추가
                 paymentHistoryRepository.save(existing);
             } else {
                 paymentHistoryRepository.save(paymentHistory);

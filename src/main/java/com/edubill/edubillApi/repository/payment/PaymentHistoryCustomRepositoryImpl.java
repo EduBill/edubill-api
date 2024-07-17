@@ -96,7 +96,7 @@ public class PaymentHistoryCustomRepositoryImpl implements PaymentHistoryCustomR
 
 
     @Override
-    public List<PaymentHistory> findPaymentHistoriesByYearMonthAndManagerId(String managerId, YearMonth yearMonth) {
+    public List<PaymentHistory> findPaymentHistoriesByYearMonthAndManagerId(String userId, YearMonth yearMonth) {
         // 월의 첫째 날
         LocalDateTime startDateTime = yearMonth.atDay(1).atStartOfDay(); // 해당 월의 첫 날 자정
         // 월의 마지막 날
@@ -107,13 +107,13 @@ public class PaymentHistoryCustomRepositoryImpl implements PaymentHistoryCustomR
                 .join(studentGroup)
                 .on(paymentHistory.studentGroupId.eq(studentGroup.id))
                 .where(paymentHistory.depositDate.between(startDateTime, endDateTime)
-                        .and(studentGroup.managerId.eq(managerId))
+                        .and(studentGroup.managerId.eq(userId))
                         .and(paymentHistory.paymentStatus.eq(PaymentStatus.PAID))) //TODO: StudentGroupId 존재유무만으로 납부완료리스트 가져올 수 있으면 제거
                 .fetch();
     }
 
     @Override
-    public List<PaymentHistory> findPaymentHistoriesWithUserIdAndYearMonth(String managerId, YearMonth yearMonth){
+    public List<PaymentHistory> findPaymentHistoriesWithUserIdAndYearMonth(String userId, YearMonth yearMonth){
 
         LocalDateTime startDateTime = yearMonth.atDay(1).atStartOfDay();
         LocalDateTime endDateTime = yearMonth.atEndOfMonth().atTime(23, 59, 59, 999999999);
@@ -123,12 +123,12 @@ public class PaymentHistoryCustomRepositoryImpl implements PaymentHistoryCustomR
                 .join(user)
                 .on(paymentHistory.managerId.eq(user.userId))
                 .where(paymentHistory.depositDate.between(startDateTime, endDateTime)
-                        .and(user.userId.eq(managerId)))
+                        .and(user.userId.eq(userId)))
                 .fetch();
     }
 
     @Override
-    public long countPaidUserGroupsForUserInMonth(String managerId, YearMonth yearMonth) {
+    public long countPaidUserGroupsForUserInMonth(String userId, YearMonth yearMonth) {
 
         // 월의 첫째 날
         LocalDateTime startDateTime = yearMonth.atDay(1).atStartOfDay(); // 해당 월의 첫 날 자정
@@ -140,7 +140,7 @@ public class PaymentHistoryCustomRepositoryImpl implements PaymentHistoryCustomR
                 .join(paymentHistory)
                 .on(paymentHistory.studentGroupId.eq(studentGroup.id)
                         .and(paymentHistory.depositDate.between(startDateTime, endDateTime)))
-                .where(studentGroup.managerId.eq(managerId))
+                .where(studentGroup.managerId.eq(userId))
                 .fetchCount();
     }
 
@@ -158,20 +158,22 @@ public class PaymentHistoryCustomRepositoryImpl implements PaymentHistoryCustomR
     }
 
     @Override
-    public Optional<PaymentHistory> findByDepositDateAndDepositorNameAndBankName(LocalDateTime depositDate, String depositorName, String bankName) {
+    public Optional<PaymentHistory> findByDepositDateAndDepositorNameAndBankNameAndManagerId(LocalDateTime depositDate, String depositorName, String bankName, String userId) {
 
-        BooleanExpression depositDatePredicate = paymentHistory.depositDate.eq(depositDate);
-        BooleanExpression bankNamePredicate = paymentHistory.bankName.eq(bankName);
         // depositorName에 대한 커스텀 SQL 함수 정의
         StringExpression depositorNameExpression = Expressions.stringTemplate(
                 "REGEXP_REPLACE({0}, '[0-9]', '')", paymentHistory.depositorName);
-        BooleanExpression depositorNamePredicate = depositorNameExpression.eq(depositorName);
+
+        BooleanExpression predicate = paymentHistory.depositDate.eq(depositDate)
+                .and(paymentHistory.bankName.eq(bankName))
+                .and(depositorNameExpression.eq(depositorName))
+                .and(user.userId.eq(userId));
 
         PaymentHistory result = queryFactory
                 .selectFrom(paymentHistory)
-                .where(depositDatePredicate
-                        .and(bankNamePredicate)
-                        .and(depositorNamePredicate))
+                .join(user)
+                .on(paymentHistory.managerId.eq(user.userId))
+                .where(predicate)
                 .fetchOne();
 
         return Optional.ofNullable(result);

@@ -1,5 +1,4 @@
-# Stage 1: Build a minimal JDK using jlink
-FROM alpine:3.18 as build
+FROM alpine:3.18 AS build
 RUN apk --no-cache add openjdk17
 
 RUN /usr/lib/jvm/default-jvm/bin/jlink \
@@ -14,4 +13,12 @@ COPY --from=build /jdk-minimal /opt/jdk/
 
 ARG JAR_FILE=build/libs/edubillApi-0.0.1-SNAPSHOT.jar
 COPY ${JAR_FILE} app.jar
-ENTRYPOINT ["/opt/jdk/bin/java","-jar","/app.jar"]
+COPY .env /app/.env
+
+RUN echo "#!/bin/sh" > /app/start.sh \
+    && echo "export \$(cat /app/.env | xargs)" >> /app/start.sh \
+    && echo "/opt/jdk/bin/java -Dspring.profiles.active=\${SPRING_PROFILE} -jar /app.jar" >> /app/start.sh \
+    && chmod +x /app/start.sh
+
+ENTRYPOINT ["/app/start.sh"]
+

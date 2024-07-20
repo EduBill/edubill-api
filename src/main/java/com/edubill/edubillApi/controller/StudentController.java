@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -24,10 +25,12 @@ public class StudentController {
 
     private final StudentService studentService;
 
+    @Operation(summary = "새로운 원생 추가",
+            description = "새로운 학생정보를 추가한다.")
     @PostMapping
     public ResponseEntity<?> addStudentInfo(@RequestBody StudentInfoRequestDto studentInfoRequestDto) {
         studentService.addStudentInfo(studentInfoRequestDto);
-        return ResponseEntity.ok("ok");
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @Operation(summary = "학생 Mock데이터 생성",

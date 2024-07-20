@@ -41,14 +41,16 @@ public class Student extends BaseEntity{
 
     @Column(name = "grade_level")
     @Enumerated(EnumType.STRING)
-    private GradeLevel gradelevel;
+    private GradeLevel gradeLevel;
 
     @Column(name = "department_type")
     @Enumerated(EnumType.STRING)
     private DepartmentType departmentType;
 
+    @Column(name = "school_name")
     private String schoolName;
 
+    @Column(name = "memo")
     private String memo;
 
 

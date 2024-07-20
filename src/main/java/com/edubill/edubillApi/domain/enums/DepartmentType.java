@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum DepartmentType {
     LIBERAL_ARTS("문과"),
     NATURAL_SCIENCES("이과"),
-    PHYSICAL_EDUCATION("예체능");
+    PHYSICAL_EDUCATION("예체능"),
+    ETC("기타/해당사항 없음");
 
     private final String description;
 

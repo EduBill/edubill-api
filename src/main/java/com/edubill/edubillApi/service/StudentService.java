@@ -1,13 +1,12 @@
 package com.edubill.edubillApi.service;
 
-
 import com.edubill.edubillApi.domain.Student;
 import com.edubill.edubillApi.domain.StudentGroup;
 import com.edubill.edubillApi.dto.student.StudentInfoRequestDto;
 import com.edubill.edubillApi.dto.student.StudentInfoTestRequestDto;
 import com.edubill.edubillApi.repository.studentgroup.StudentGroupRepository;
 import com.edubill.edubillApi.repository.student.StudentRepository;
-import com.edubill.edubillApi.utils.SecurityUtils;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +32,7 @@ public class StudentService {
                 .parentPhoneNumber(studentInfoRequestDto.getParentPhoneNumber())
                 .studentGroup(studentGroups.get(0)) //TODO: student가 여러 group에 속할 수 있도록 연관관계 수정
                 .schoolType(studentInfoRequestDto.getSchoolType())
-                .gradelevel(studentInfoRequestDto.getGradeLevel())
+                .gradeLevel(studentInfoRequestDto.getGradeLevel())
                 .departmentType(studentInfoRequestDto.getDepartmentType())
                 .studentName(studentInfoRequestDto.getSchoolName())
                 .memo(studentInfoRequestDto.getMemo())

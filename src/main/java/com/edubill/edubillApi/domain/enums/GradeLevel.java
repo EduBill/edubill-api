@@ -9,7 +9,8 @@ public enum GradeLevel {
     THIRD("3학년"),
     FOURTH("4학년"),
     FIFTH("5학년"),
-    SIXTH("6학년");
+    SIXTH("6학년"),
+    ETC("기타/해당사항 없음");
 
     private final String description;
 

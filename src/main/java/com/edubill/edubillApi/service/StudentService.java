@@ -1,22 +1,28 @@
 package com.edubill.edubillApi.service;
 
 import com.edubill.edubillApi.domain.Group;
+import com.edubill.edubillApi.domain.ClassTime;
 import com.edubill.edubillApi.domain.Student;
 import com.edubill.edubillApi.domain.StudentGroup;
+import com.edubill.edubillApi.dto.student.StudentGroupInfoRequestDto;
 import com.edubill.edubillApi.dto.student.StudentInfoRequestDto;
 import com.edubill.edubillApi.dto.student.StudentInfoResponseDto;
 import com.edubill.edubillApi.dto.student.StudentInfoTestRequestDto;
 import com.edubill.edubillApi.error.exception.GroupNotFoundException;
 import com.edubill.edubillApi.repository.StudentGroupRepository;
 import com.edubill.edubillApi.repository.group.GroupRepository;
+import com.edubill.edubillApi.repository.ClassTimeRepository;
+import com.edubill.edubillApi.repository.studentgroup.StudentGroupRepository;
 import com.edubill.edubillApi.repository.student.StudentRepository;
 
+import com.edubill.edubillApi.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +31,7 @@ public class StudentService {
     private final GroupRepository groupRepository;
     private final StudentRepository studentRepository;
     private final StudentGroupRepository studentGroupRepository;
+    private final ClassTimeRepository classTimeRepository;
 
     @Transactional
     public StudentInfoResponseDto addStudentInfo(StudentInfoRequestDto studentInfoRequestDto) {
@@ -49,6 +56,36 @@ public class StudentService {
         studentGroupRepository.saveAll(studentGroups);
 
         return StudentInfoResponseDto.from(student, studentInfoRequestDto.getGroupIds());
+    }
+
+    @Transactional
+    public void addStudentGroupInfo(StudentGroupInfoRequestDto studentGroupInfoRequestDto) {
+        String userId = SecurityUtils.getCurrentUserId();
+        List<StudentGroupInfoRequestDto.ClassTimeDto> classTimeDtos = studentGroupInfoRequestDto.getClassTimeDtos();
+
+        StudentGroup savedStudentGroup = studentGroupRepository.save(StudentGroup.builder()
+                .groupName(studentGroupInfoRequestDto.getGroupName())
+                .managerId(userId)
+                .tuition(studentGroupInfoRequestDto.getTuition())
+                .schoolType(studentGroupInfoRequestDto.getSchoolType())
+                .gradeLevel(studentGroupInfoRequestDto.getGradeLevel())
+                .build());
+
+        // DTO를 도메인 객체로 변환
+        List<ClassTime> classTimes = classTimeDtos.stream()
+                .map(dto -> {
+                    // ClassTime 객체를 생성
+                    ClassTime classTime = ClassTime.builder()
+                            .dayOfWeek(dto.getDayOfWeek())
+                            .startTime(dto.getStartTime())
+                            .endTime(dto.getEndTime())
+                            .build();
+                    // 연관관계 설정
+                    classTime.setStudentGroup(savedStudentGroup);
+                    return classTime;
+                })
+                .collect(Collectors.toList());
+        classTimeRepository.saveAll(classTimes);
     }
 
 

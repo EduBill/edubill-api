@@ -37,9 +37,7 @@ public class StudentController {
 
     @PostMapping("/groups")
     public ResponseEntity<?> addStudentGroupInfo(@RequestBody StudentGroupInfoRequestDto studentGroupInfoRequestDto) {
-
-
-
+        studentService.addStudentGroupInfo(studentGroupInfoRequestDto);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 

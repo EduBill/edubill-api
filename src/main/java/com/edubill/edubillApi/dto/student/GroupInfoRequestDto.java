@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class StudentGroupInfoRequestDto {
+public class GroupInfoRequestDto {
 
     private String groupName;
 

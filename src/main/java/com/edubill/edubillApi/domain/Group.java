@@ -1,5 +1,7 @@
 package com.edubill.edubillApi.domain;
 
+import com.edubill.edubillApi.domain.enums.GradeLevel;
+import com.edubill.edubillApi.domain.enums.SchoolType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -26,7 +28,16 @@ public class Group extends BaseEntity{
     @Column(name = "manager_id")
     private String managerId; //user
 
+    @Column(name = "tuition")
     private Integer tuition;
+
+    @Column(name = "school_type")
+    @Enumerated(EnumType.STRING)
+    private SchoolType schoolType;
+
+    @Column(name = "grade_level")
+    @Enumerated(EnumType.STRING)
+    private GradeLevel gradeLevel;
 
     @Column(name = "total_student_count")
     private Integer totalStudentCount;
@@ -34,6 +45,10 @@ public class Group extends BaseEntity{
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
     @Builder.Default
     private List<StudentGroup> studentGroups = new ArrayList<>();
+
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<ClassTime> classTimes = new ArrayList<>();
 
 
     //====비즈니스 로직=====//

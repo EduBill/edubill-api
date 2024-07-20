@@ -31,11 +31,15 @@ public class ClassTime extends BaseEntity{
     private LocalTime endTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "student_group_id")
-    private StudentGroup studentGroup;
+    @JoinColumn(name = "group_id")
+    private Group group;
 
-    public void setStudentGroup(StudentGroup studentGroup) {
-        this.studentGroup = studentGroup;
-        studentGroup.getClassTimes().add(this);
+    public void setGroup(Group group) {
+        // 기존 group과의 관계를 제거
+        if (this.group != null) {
+            this.group.getClassTimes().remove(this);
+        }
+        this.group = group;
+        group.getClassTimes().add(this);
     }
 }

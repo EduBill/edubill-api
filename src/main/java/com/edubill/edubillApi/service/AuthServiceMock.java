@@ -2,7 +2,7 @@ package com.edubill.edubillApi.service;
 
 import com.edubill.edubillApi.domain.AuthInfo;
 import com.edubill.edubillApi.domain.User;
-import com.edubill.edubillApi.domain.AuthRole;
+import com.edubill.edubillApi.domain.enums.AuthRole;
 import com.edubill.edubillApi.dto.user.LoginRequestDto;
 import com.edubill.edubillApi.dto.user.SignupRequestDto;
 import com.edubill.edubillApi.dto.user.UserDto;

@@ -1,5 +1,7 @@
 package com.edubill.edubillApi.domain;
 
+import com.edubill.edubillApi.domain.enums.AuthRole;
+import com.edubill.edubillApi.domain.enums.UserType;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -1,6 +1,8 @@
 package com.edubill.edubillApi.service;
 
 import com.edubill.edubillApi.domain.*;
+import com.edubill.edubillApi.domain.enums.PaymentStatus;
+import com.edubill.edubillApi.domain.enums.PaymentType;
 import com.edubill.edubillApi.dto.FileUrlResponseDto;
 import com.edubill.edubillApi.dto.payment.*;
 import com.edubill.edubillApi.error.exception.PaymentHistoryNotFoundException;

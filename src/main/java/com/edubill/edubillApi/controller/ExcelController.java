@@ -1,6 +1,6 @@
 package com.edubill.edubillApi.controller;
 
-import com.edubill.edubillApi.domain.BankName;
+import com.edubill.edubillApi.domain.enums.BankName;
 
 import com.edubill.edubillApi.excel.ExcelService;
 import com.edubill.edubillApi.utils.SecurityUtils;

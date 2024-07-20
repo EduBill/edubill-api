@@ -1,6 +1,6 @@
 package com.edubill.edubillApi.excel;
 
-import com.edubill.edubillApi.domain.BankName;
+import com.edubill.edubillApi.domain.enums.BankName;
 import com.edubill.edubillApi.domain.ExcelUploadStatus;
 import com.edubill.edubillApi.domain.PaymentHistory;
 import com.edubill.edubillApi.domain.User;

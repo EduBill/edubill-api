@@ -1,7 +1,7 @@
 package com.edubill.edubillApi.excel;
 
 import com.edubill.edubillApi.Validator;
-import com.edubill.edubillApi.domain.PaymentType;
+import com.edubill.edubillApi.domain.enums.PaymentType;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryDto;
 import com.edubill.edubillApi.domain.PaymentHistory;
 

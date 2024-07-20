@@ -2,6 +2,7 @@ package com.edubill.edubillApi.service;
 
 import com.edubill.edubillApi.config.TestcontainerConfig;
 import com.edubill.edubillApi.domain.*;
+import com.edubill.edubillApi.domain.enums.PaymentStatus;
 import com.edubill.edubillApi.dto.payment.UnpaidStudentsResponseDto;
 import com.edubill.edubillApi.repository.StudentPaymentHistoryRepository;
 import com.edubill.edubillApi.repository.payment.PaymentHistoryRepository;
@@ -19,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.YearMonth;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @SpringBootTest
 @Slf4j

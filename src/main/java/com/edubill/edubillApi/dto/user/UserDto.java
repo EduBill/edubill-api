@@ -1,7 +1,7 @@
 package com.edubill.edubillApi.dto.user;
 
 import com.edubill.edubillApi.domain.User;
-import com.edubill.edubillApi.domain.AuthRole;
+import com.edubill.edubillApi.domain.enums.AuthRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

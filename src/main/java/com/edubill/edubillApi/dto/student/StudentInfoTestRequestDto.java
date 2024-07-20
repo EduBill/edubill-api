@@ -1,4 +1,4 @@
-package com.edubill.edubillApi.dto;
+package com.edubill.edubillApi.dto.student;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class StudentInfoRequestDto {
+public class StudentInfoTestRequestDto {
 
     @Schema(description = "studentName", type = "String", example = "학생1")
     @NotNull(message = "학생이름은 필수입니다.")

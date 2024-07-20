@@ -1,4 +1,4 @@
-package com.edubill.edubillApi.domain;
+package com.edubill.edubillApi.domain.enums;
 
 import lombok.Getter;
 

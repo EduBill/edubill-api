@@ -1,7 +1,7 @@
 package com.edubill.edubillApi.controller;
 
 import com.edubill.edubillApi.config.TestcontainerConfig;
-import com.edubill.edubillApi.domain.AuthRole;
+import com.edubill.edubillApi.domain.enums.AuthRole;
 import com.edubill.edubillApi.domain.User;
 import com.edubill.edubillApi.dto.user.LoginRequestDto;
 import com.edubill.edubillApi.dto.user.SignupRequestDto;

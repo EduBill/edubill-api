@@ -1,14 +1,13 @@
 package com.edubill.edubillApi.domain;
 
+import com.edubill.edubillApi.domain.enums.PaymentStatus;
+import com.edubill.edubillApi.domain.enums.PaymentType;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryDto;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
-
-import static jakarta.persistence.FetchType.LAZY;
 
 @Getter
 @SuperBuilder(toBuilder = true)

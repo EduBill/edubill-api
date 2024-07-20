@@ -1,6 +1,6 @@
 package com.edubill.edubillApi.excel;
 
-import com.edubill.edubillApi.domain.BankName;
+import com.edubill.edubillApi.domain.enums.BankName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,7 @@
 package com.edubill.edubillApi.repository.payment;
 
 import com.edubill.edubillApi.domain.PaymentHistory;
-import com.edubill.edubillApi.domain.PaymentStatus;
+import com.edubill.edubillApi.domain.enums.PaymentStatus;
 import com.querydsl.core.types.dsl.BooleanExpression;
 
 import com.querydsl.core.types.dsl.Expressions;

@@ -1,6 +1,6 @@
 package com.edubill.edubillApi.jwt;
 
-import com.edubill.edubillApi.domain.AuthRole;
+import com.edubill.edubillApi.domain.enums.AuthRole;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;

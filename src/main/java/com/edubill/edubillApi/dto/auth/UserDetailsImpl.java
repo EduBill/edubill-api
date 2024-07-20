@@ -1,7 +1,7 @@
 package com.edubill.edubillApi.dto.auth;
 
 import com.edubill.edubillApi.domain.User;
-import com.edubill.edubillApi.domain.AuthRole;
+import com.edubill.edubillApi.domain.enums.AuthRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

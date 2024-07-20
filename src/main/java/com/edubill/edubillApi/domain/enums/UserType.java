@@ -1,5 +1,8 @@
-package com.edubill.edubillApi.domain;
+package com.edubill.edubillApi.domain.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum UserType {
     ACADEMY("학원"),
     STUDENT("학생"),
@@ -9,9 +12,5 @@ public enum UserType {
 
     UserType(String description) {
         this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
     }
 }

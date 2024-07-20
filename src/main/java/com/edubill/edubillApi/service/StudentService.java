@@ -3,7 +3,7 @@ package com.edubill.edubillApi.service;
 
 import com.edubill.edubillApi.domain.Student;
 import com.edubill.edubillApi.domain.StudentGroup;
-import com.edubill.edubillApi.dto.StudentInfoRequestDto;
+import com.edubill.edubillApi.dto.student.StudentInfoTestRequestDto;
 import com.edubill.edubillApi.repository.studentgroup.StudentGroupRepository;
 import com.edubill.edubillApi.repository.student.StudentRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class StudentService {
     private final StudentGroupRepository studentGroupRepository;
     private final StudentRepository studentRepository;
     @Transactional
-    public void addStudentInfo(StudentInfoRequestDto studentInfoRequestDto, final String userId) {
+    public void addStudentInfo(StudentInfoTestRequestDto studentInfoTestRequestDto, final String userId) {
 
         List<StudentGroup> studentGroups = studentGroupRepository.getStudentGroupsByUserId(userId);
         StudentGroup studentGroup = null;
@@ -38,10 +38,10 @@ public class StudentService {
         studentGroup.addStudent();
 
         studentRepository.save(Student.builder()
-                .studentName(studentInfoRequestDto.getStudentName())
-                .studentPhoneNumber(studentInfoRequestDto.getStudentPhoneNumber())
-                .parentName(studentInfoRequestDto.getParentName())
-                .parentPhoneNumber(studentInfoRequestDto.getParentPhoneNumber())
+                .studentName(studentInfoTestRequestDto.getStudentName())
+                .studentPhoneNumber(studentInfoTestRequestDto.getStudentPhoneNumber())
+                .parentName(studentInfoTestRequestDto.getParentName())
+                .parentPhoneNumber(studentInfoTestRequestDto.getParentPhoneNumber())
                 .studentGroup(studentGroup)
                 .build());
 

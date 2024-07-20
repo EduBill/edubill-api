@@ -4,7 +4,7 @@ import com.edubill.edubillApi.domain.Group;
 import com.edubill.edubillApi.domain.ClassTime;
 import com.edubill.edubillApi.domain.Student;
 import com.edubill.edubillApi.domain.StudentGroup;
-import com.edubill.edubillApi.dto.student.StudentGroupInfoRequestDto;
+import com.edubill.edubillApi.dto.student.GroupInfoRequestDto;
 import com.edubill.edubillApi.dto.student.StudentInfoRequestDto;
 import com.edubill.edubillApi.dto.student.StudentInfoResponseDto;
 import com.edubill.edubillApi.dto.student.StudentInfoTestRequestDto;
@@ -12,7 +12,7 @@ import com.edubill.edubillApi.error.exception.GroupNotFoundException;
 import com.edubill.edubillApi.repository.StudentGroupRepository;
 import com.edubill.edubillApi.repository.group.GroupRepository;
 import com.edubill.edubillApi.repository.ClassTimeRepository;
-import com.edubill.edubillApi.repository.studentgroup.StudentGroupRepository;
+
 import com.edubill.edubillApi.repository.student.StudentRepository;
 
 import com.edubill.edubillApi.utils.SecurityUtils;
@@ -59,16 +59,16 @@ public class StudentService {
     }
 
     @Transactional
-    public void addStudentGroupInfo(StudentGroupInfoRequestDto studentGroupInfoRequestDto) {
+    public void addGroupInfo(GroupInfoRequestDto groupInfoRequestDto) {
         String userId = SecurityUtils.getCurrentUserId();
-        List<StudentGroupInfoRequestDto.ClassTimeDto> classTimeDtos = studentGroupInfoRequestDto.getClassTimeDtos();
+        List<GroupInfoRequestDto.ClassTimeDto> classTimeDtos = groupInfoRequestDto.getClassTimeDtos();
 
-        StudentGroup savedStudentGroup = studentGroupRepository.save(StudentGroup.builder()
-                .groupName(studentGroupInfoRequestDto.getGroupName())
+        Group savedGroup = groupRepository.save(Group.builder()
+                .groupName(groupInfoRequestDto.getGroupName())
                 .managerId(userId)
-                .tuition(studentGroupInfoRequestDto.getTuition())
-                .schoolType(studentGroupInfoRequestDto.getSchoolType())
-                .gradeLevel(studentGroupInfoRequestDto.getGradeLevel())
+                .tuition(groupInfoRequestDto.getTuition())
+                .schoolType(groupInfoRequestDto.getSchoolType())
+                .gradeLevel(groupInfoRequestDto.getGradeLevel())
                 .build());
 
         // DTO를 도메인 객체로 변환
@@ -81,7 +81,7 @@ public class StudentService {
                             .endTime(dto.getEndTime())
                             .build();
                     // 연관관계 설정
-                    classTime.setStudentGroup(savedStudentGroup);
+                    classTime.setGroup(savedGroup);
                     return classTime;
                 })
                 .collect(Collectors.toList());

@@ -1,7 +1,7 @@
 package com.edubill.edubillApi.controller;
 
 
-import com.edubill.edubillApi.dto.student.StudentGroupInfoRequestDto;
+import com.edubill.edubillApi.dto.student.GroupInfoRequestDto;
 import com.edubill.edubillApi.dto.student.StudentInfoRequestDto;
 import com.edubill.edubillApi.dto.student.StudentInfoResponseDto;
 import com.edubill.edubillApi.dto.student.StudentInfoTestRequestDto;
@@ -36,8 +36,11 @@ public class StudentController {
     }
 
     @PostMapping("/groups")
-    public ResponseEntity<?> addStudentGroupInfo(@RequestBody StudentGroupInfoRequestDto studentGroupInfoRequestDto) {
-        studentService.addStudentGroupInfo(studentGroupInfoRequestDto);
+    public ResponseEntity<?> addStudentGroupInfo(@RequestBody GroupInfoRequestDto groupInfoRequestDto) {
+        studentService.addGroupInfo(groupInfoRequestDto);
+
+        //TODO: response 객체 생성
+
         return ResponseEntity.ok(HttpStatus.OK);
     }
 

@@ -1,5 +1,7 @@
 package com.edubill.edubillApi.domain.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 @Getter
@@ -16,5 +18,20 @@ public enum DayOfWeek{
 
     DayOfWeek(String description) {
         this.description = description;
+    }
+
+    @JsonValue
+    public String getDescription() {
+        return description;
+    }
+
+    @JsonCreator
+    public static DayOfWeek fromDescription(String description) {
+        for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
+            if (dayOfWeek.description.equals(description)) {
+                return dayOfWeek;
+            }
+        }
+        throw new IllegalArgumentException("Unknown DayOfWeek description: " + description);
     }
 }

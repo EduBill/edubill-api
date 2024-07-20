@@ -1,5 +1,8 @@
 package com.edubill.edubillApi.domain;
 
+import com.edubill.edubillApi.domain.enums.DepartmentType;
+import com.edubill.edubillApi.domain.enums.GradeLevel;
+import com.edubill.edubillApi.domain.enums.SchoolType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -31,6 +34,23 @@ public class Student extends BaseEntity{
 
     @Column(name = "parent_phone_number")
     private String parentPhoneNumber;
+
+    @Column(name = "school_type")
+    @Enumerated(EnumType.STRING)
+    private SchoolType schoolType;
+
+    @Column(name = "grade_level")
+    @Enumerated(EnumType.STRING)
+    private GradeLevel gradelevel;
+
+    @Column(name = "department_type")
+    @Enumerated(EnumType.STRING)
+    private DepartmentType departmentType;
+
+    private String schoolName;
+
+    private String memo;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_group_id")

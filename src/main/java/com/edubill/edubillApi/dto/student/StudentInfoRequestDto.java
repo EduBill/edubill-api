@@ -6,7 +6,17 @@ import com.edubill.edubillApi.domain.enums.SchoolType;
 import com.edubill.edubillApi.domain.StudentGroup;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+import java.util.List;
+
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class StudentInfoRequestDto {
     @Schema(description = "studentName", type = "String", example = "학생1")
     @NotNull(message = "학생이름은 필수입니다.")
@@ -24,11 +34,11 @@ public class StudentInfoRequestDto {
     @NotNull(message = "학부모전화번호는 필수입니다.")
     private String parentPhoneNumber;
 
-    private StudentGroup studentGroup;
+    private List<Long> studentGroupIds;
 
-    private SchoolType school;
-    private GradeLevel grade;
-    private DepartmentType department;
+    private SchoolType schoolType;
+    private GradeLevel gradeLevel;
+    private DepartmentType departmentType;
     private String schoolName;
     private String memo;
 }

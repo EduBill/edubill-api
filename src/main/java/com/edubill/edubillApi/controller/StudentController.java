@@ -1,11 +1,12 @@
 package com.edubill.edubillApi.controller;
 
 
+import com.edubill.edubillApi.dto.student.StudentGroupInfoRequestDto;
 import com.edubill.edubillApi.dto.student.StudentInfoRequestDto;
 import com.edubill.edubillApi.dto.student.StudentInfoResponseDto;
 import com.edubill.edubillApi.dto.student.StudentInfoTestRequestDto;
 import com.edubill.edubillApi.service.StudentService;
-import com.edubill.edubillApi.utils.SecurityUtils;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,14 @@ public class StudentController {
     public ResponseEntity<?> addStudentInfo(@RequestBody StudentInfoRequestDto studentInfoRequestDto) {
         StudentInfoResponseDto studentInfoResponseDto = studentService.addStudentInfo(studentInfoRequestDto);
         return ResponseEntity.ok(studentInfoResponseDto);
+    }
+
+    @PostMapping("/groups")
+    public ResponseEntity<?> addStudentGroupInfo(@RequestBody StudentGroupInfoRequestDto studentGroupInfoRequestDto) {
+
+
+
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @Operation(summary = "학생 Mock데이터 생성",

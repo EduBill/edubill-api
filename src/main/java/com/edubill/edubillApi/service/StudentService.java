@@ -37,7 +37,6 @@ public class StudentService {
                 .studentName(studentInfoRequestDto.getSchoolName())
                 .memo(studentInfoRequestDto.getMemo())
                 .build());
-
     }
 
 

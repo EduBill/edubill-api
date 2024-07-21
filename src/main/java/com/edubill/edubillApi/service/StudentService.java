@@ -34,7 +34,7 @@ public class StudentService {
                 .schoolType(studentInfoRequestDto.getSchoolType())
                 .gradeLevel(studentInfoRequestDto.getGradeLevel())
                 .departmentType(studentInfoRequestDto.getDepartmentType())
-                .studentName(studentInfoRequestDto.getSchoolName())
+                .schoolName(studentInfoRequestDto.getSchoolName())
                 .memo(studentInfoRequestDto.getMemo())
                 .build());
     }

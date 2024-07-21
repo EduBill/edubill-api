@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @SuperBuilder(toBuilder = true)
+@Table(name = "GROUPS")
 public class Group extends BaseEntity{
 
     @Id

@@ -1,5 +1,7 @@
 package com.edubill.edubillApi.domain.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 @Getter
@@ -13,5 +15,20 @@ public enum DepartmentType {
 
     DepartmentType(String description) {
         this.description = description;
+    }
+
+    @JsonValue
+    public String getDescription() {
+        return description;
+    }
+
+    @JsonCreator
+    public static DepartmentType fromDescription(String description) {
+        for (DepartmentType departmentType : DepartmentType.values()) {
+            if (departmentType.description.equals(description)) {
+                return departmentType;
+            }
+        }
+        throw new IllegalArgumentException("Unknown departmentType description: " + description);
     }
 }

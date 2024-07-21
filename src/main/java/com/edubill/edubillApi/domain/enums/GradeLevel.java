@@ -1,5 +1,7 @@
 package com.edubill.edubillApi.domain.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 @Getter
@@ -16,5 +18,22 @@ public enum GradeLevel {
 
     GradeLevel(String description) {
         this.description = description;
+    }
+
+    //객체를 Jjso으로 직렬화
+    @JsonValue
+    public String getDescription() {
+        return description;
+    }
+
+    //JSON에서 객체로 역직렬화
+    @JsonCreator
+    public static GradeLevel fromDescription(String description) {
+        for (GradeLevel gradeLevel : GradeLevel.values()) {
+            if (gradeLevel.description.equals(description)) {
+                return gradeLevel;
+            }
+        }
+        throw new IllegalArgumentException("Unknown gradeLevel description : " + description);
     }
 }

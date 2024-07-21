@@ -53,10 +53,8 @@ public class Student extends BaseEntity{
     @Column(name = "memo")
     private String memo;
 
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "student_group_id")
-    private StudentGroup studentGroup;
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<StudentGroup> studentGroups = new ArrayList<>();
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     private List<PaymentKey> paymentKeyList = new ArrayList<>();

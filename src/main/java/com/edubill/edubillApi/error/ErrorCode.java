@@ -28,7 +28,7 @@ public enum ErrorCode {
     //Payment
     PAYMENT_HISTORY_NOT_FOUND(400, "P001","납부내역이 존재하지 않습니다"),
     PAYMENT_KEY_NOT_ENCRYPTED(500, "P002", "결제 키가 암호화되지 않았습니다"),
-
+    PAID_AMOUNT_TUITION_MISMATCH(400,"P003", "납부금액과 학원비가 일치하지 않습니다."),
 
     // common
     INTERNAL_SERVER_ERROR(500, "C001", "서버 오류"),

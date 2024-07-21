@@ -36,9 +36,6 @@ public class PaymentHistory extends BaseEntity {
     @Column(name = "memo")
     private String memo;  // 메모
 
-    @Column(name = "student_group_id")
-    private Long studentGroupId;
-
     @Column(name = "manager_id")
     private String managerId;
 

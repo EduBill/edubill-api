@@ -5,6 +5,8 @@ import com.edubill.edubillApi.domain.enums.PaymentStatus;
 import com.edubill.edubillApi.domain.enums.PaymentType;
 import com.edubill.edubillApi.dto.FileUrlResponseDto;
 import com.edubill.edubillApi.dto.payment.*;
+import com.edubill.edubillApi.error.ErrorCode;
+import com.edubill.edubillApi.error.exception.BusinessException;
 import com.edubill.edubillApi.error.exception.PaymentHistoryNotFoundException;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryDetailResponse;
 
@@ -17,7 +19,7 @@ import com.edubill.edubillApi.repository.payment.PaymentHistoryRepository;
 
 import com.edubill.edubillApi.repository.payment.PaymentKeyRepository;
 import com.edubill.edubillApi.repository.student.StudentRepository;
-import com.edubill.edubillApi.repository.studentgroup.StudentGroupRepository;
+import com.edubill.edubillApi.repository.group.GroupRepository;
 import com.edubill.edubillApi.utils.EncryptionUtils;
 import com.edubill.edubillApi.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +36,7 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -44,7 +48,7 @@ public class PaymentService {
 
     private final PaymentHistoryRepository paymentHistoryRepository;
     private final PaymentKeyRepository paymentKeyRepository;
-    private final StudentGroupRepository studentGroupRepository;
+    private final GroupRepository groupRepository;
     private final StudentRepository studentRepository;
     private final StudentPaymentHistoryRepository studentPaymentHistoryRepository;
     private final FileUploadService fileUploadService;
@@ -71,20 +75,20 @@ public class PaymentService {
 
     @Transactional
     public PaymentStatusDto getPaymentStatusForManagerInMonth(final String managerId, final YearMonth yearMonth) {
-        final long paidStudentsCountInMonth = paymentHistoryRepository.countPaidUserGroupsForUserInMonth(managerId, yearMonth);
+        final long paidStudentsCountInMonth = paymentHistoryRepository.countPaidStudentsForUserInMonth(managerId, yearMonth);
 
         List<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesByYearMonthAndManagerId(managerId, yearMonth);
-        List<StudentGroup> studentGroups = studentGroupRepository.getStudentGroupsByUserId(managerId);
+        List<Group> groups = groupRepository.getGroupsByUserId(managerId);
 
-        final long totalNumberOfStudentsToPay = studentGroups.stream()
-                .mapToInt(StudentGroup::getTotalStudentCount)
+        final long totalNumberOfStudentsToPay = groups.stream()
+                .mapToInt(Group::getTotalStudentCount)
                 .sum();
 
         final long unpaidStudentsCount = totalNumberOfStudentsToPay - paidStudentsCountInMonth;
 
         final long totalPaidAmount = paymentHistories.stream().mapToInt(PaymentHistory::getPaidAmount).sum();
 
-        final long totalTuition = studentGroups.stream()
+        final long totalTuition = groups.stream()
                 .mapToInt(group -> group.getTuition() * group.getTotalStudentCount())
                 .sum();
         final long totalUnpaidAmount = totalTuition - totalPaidAmount;
@@ -125,12 +129,12 @@ public class PaymentService {
     public void handleStudentPaymentProcessing(YearMonth yearMonth, String userId) {
         //paymentHistory 에 userId를 추가하여 외래키로 가지고 있음.
         List<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesWithUserIdAndYearMonth(userId, yearMonth);
-        List<StudentGroup> studentGroups = studentGroupRepository.getStudentGroupsByUserId(userId);
+        List<Group> groups = groupRepository.getGroupsByUserId(userId);
 
         // 중복된 이름을 가진 학생들 가져오기
-        List<Student> duplicateNameStudents = studentRepository.findStudentsWithDuplicateNames(studentGroups);
+        List<Student> duplicateNameStudents = studentRepository.findStudentsWithDuplicateNames(groups);
         // 유니크한 이름을 가진 학생들 가져오기
-        List<Student> uniqueStudents = studentRepository.findStudentsWithUniqueNames(studentGroups);
+        List<Student> uniqueStudents = studentRepository.findStudentsWithUniqueNames(groups);
 
         // 유니크한 학생에 대한 처리
         for (Student student : uniqueStudents) {
@@ -162,11 +166,15 @@ public class PaymentService {
     // 동명이인이 존재하지 않는 케이스
     private boolean processPaymentKeyGeneral(Student student, PaymentHistory paymentHistory, YearMonth yearMonth) {
         String studentPhoneNumber = student.getStudentPhoneNumber();
-        int tuition = student.getStudentGroup().getTuition();
         String studentName = student.getStudentName();
         String depositorName = paymentHistory.getDepositorName();
+        Integer paidAmount = paymentHistory.getPaidAmount();
 
-        String newPaymentKey = depositorName + studentPhoneNumber + tuition + paymentHistory.getPaymentType();
+        if (!isPaidAmountMatching(student, paidAmount)) {
+            return false;
+        }
+
+        String newPaymentKey = depositorName + studentPhoneNumber + paidAmount + paymentHistory.getPaymentType();
         String encryptedNewPaymentKey;
 
         try {
@@ -207,11 +215,15 @@ public class PaymentService {
     // 동명이인이 존재하는 케이스
     private Boolean processPaymentKeyDuplicate(Student student, PaymentHistory paymentHistory, YearMonth yearMonth) {
         String studentPhoneNumber = student.getStudentPhoneNumber();
-        int tuition = student.getStudentGroup().getTuition();
         String depositorName = paymentHistory.getDepositorName();
+        Integer paidAmount = paymentHistory.getPaidAmount();
+
+        if (!isPaidAmountMatching(student, paidAmount)) {
+            return false;
+        }
 
         //홍길동1111 300000 004 BANK_TRANSFER
-        String newPaymentKey = depositorName + studentPhoneNumber + tuition + paymentHistory.getPaymentType();
+        String newPaymentKey = depositorName + studentPhoneNumber + paidAmount + paymentHistory.getPaymentType();
         String encryptedNewPaymentKey;
 
         try {
@@ -255,12 +267,16 @@ public class PaymentService {
         PaymentHistory paymentHistory = paymentHistoryRepository.findById(paymentHistoryId)
                 .orElseThrow(() -> new PaymentHistoryNotFoundException("존재하지 않는 납부 내역입니다."));
 
-        int tuition = student.getStudentGroup().getTuition();
         String studentPhoneNumber = student.getStudentPhoneNumber();
         String depositorName = paymentHistory.getDepositorName();
+        Integer paidAmount = paymentHistory.getPaidAmount();
+
+        if (!isPaidAmountMatching(student, paidAmount)) {
+            throw new BusinessException("납부금액과 학원비가 일치하지 않습니다.", ErrorCode.PAID_AMOUNT_TUITION_MISMATCH);
+        }
 
         // 새로운 결제키 생성 -> 이전에 수동처리한 적 없으니 결제키 존재한 적 X
-        String newPaymentKey = depositorName + studentPhoneNumber + tuition + paymentHistory.getPaymentType();
+        String newPaymentKey = depositorName + studentPhoneNumber + paidAmount + paymentHistory.getPaymentType();
         String encryptedNewPaymentKey;
 
         try {
@@ -308,7 +324,12 @@ public class PaymentService {
         paymentStatusToPaid(student, newPaymentHistory);
         createStudentPaymentHistory(student, newPaymentHistory, yearMonth);
 
-        String newPaymentKey = student.getStudentName() + student.getStudentPhoneNumber() + student.getStudentGroup().getTuition() + paymentType;
+        if (!isPaidAmountMatching(student, newPaymentHistory.getPaidAmount())) {
+            throw new BusinessException("납부금액과 학원비가 일치하지 않습니다.", ErrorCode.PAID_AMOUNT_TUITION_MISMATCH);
+        }
+
+
+        String newPaymentKey = student.getStudentName() + student.getStudentPhoneNumber() + newPaymentHistory.getPaidAmount() + paymentType;
         String encryptedNewPaymentKey;
         try {
             encryptedNewPaymentKey = EncryptionUtils.encrypt(newPaymentKey, SECRET_KEY);
@@ -345,7 +366,6 @@ public class PaymentService {
 
         paymentHistoryRepository.save(paymentHistory.toBuilder()
                 .depositorName(modifiedStudentName)
-                .studentGroupId(student.getStudentGroup().getId()) //학원반 연관관계 설정
                 .paymentStatus(PaymentStatus.PAID) //결제완료상태로 변경
                 .build());
     }
@@ -391,5 +411,16 @@ public class PaymentService {
                 .collect(Collectors.toList());
 
 
+    }
+
+    private static boolean isPaidAmountMatching(Student student, Integer paidAmount) {
+        // Retrieve all the tuition amounts from the student's groups
+        List<Integer> groupTuitions = student.getStudentGroups().stream()
+                .map(studentGroup -> studentGroup.getGroup().getTuition())
+                .toList();
+
+        // Check if paidAmount matches any of the tuition amounts
+        return groupTuitions.stream()
+                .anyMatch(tuition -> Objects.equals(tuition, paidAmount));
     }
 }

@@ -1,8 +1,8 @@
 package com.edubill.edubillApi.repository.student;
 
+import com.edubill.edubillApi.domain.Group;
 import com.edubill.edubillApi.domain.QStudent;
 import com.edubill.edubillApi.domain.Student;
-import com.edubill.edubillApi.domain.StudentGroup;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +13,10 @@ import java.time.YearMonth;
 import java.util.Collection;
 import java.util.List;
 
+import static com.edubill.edubillApi.domain.QGroup.group;
 import static com.edubill.edubillApi.domain.QPaymentHistory.paymentHistory;
 import static com.edubill.edubillApi.domain.QStudent.student;
+
 import static com.edubill.edubillApi.domain.QStudentGroup.studentGroup;
 import static com.edubill.edubillApi.domain.QStudentPaymentHistory.studentPaymentHistory;
 
@@ -32,9 +34,9 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository{
 
         return queryFactory
                 .select(student)
-                .from(student, paymentHistory, studentGroup)
+                .from(student, paymentHistory, group)
                 .where(paymentHistory.depositDate.between(startDateTime, endDateTime)
-                        .and(studentGroup.managerId.eq(managerId))
+                        .and(group.managerId.eq(managerId))
                         .and(student.studentName.eq(paymentHistory.depositorName)))
                 .fetch();
     }
@@ -49,34 +51,34 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository{
     }
 
     @Override
-    public List<Student> findStudentsWithDuplicateNames(Collection<StudentGroup> studentGroups) {
+    public List<Student> findStudentsWithDuplicateNames(Collection<Group> groups) {
         QStudent student = QStudent.student;
 
         return queryFactory
                 .selectFrom(student)
-                .where(student.studentGroup.in(studentGroups)
-                        .and(student.studentName.in(
-                                JPAExpressions.select(student.studentName)
-                                        .from(student)
-                                        .groupBy(student.studentName)
-                                        .having(student.count().gt(1))
-                        )))
+                .where(student.id.in(
+                        JPAExpressions.select(studentGroup.student.id)
+                                .from(studentGroup)
+                                .where(studentGroup.group.in(groups))
+                                .groupBy(studentGroup.student.id, student.studentName)
+                                .having(studentGroup.student.id.count().gt(1))
+                ))
                 .fetch();
     }
 
     @Override
-    public List<Student> findStudentsWithUniqueNames(Collection<StudentGroup> studentGroups) {
+    public List<Student> findStudentsWithUniqueNames(Collection<Group> groups) {
         QStudent student = QStudent.student;
 
         return queryFactory
                 .selectFrom(student)
-                .where(student.studentGroup.in(studentGroups)
-                        .and(student.studentName.in(
-                                JPAExpressions.select(student.studentName)
-                                        .from(student)
-                                        .groupBy(student.studentName)
-                                        .having(student.count().eq(1L))
-                        )))
+                .where(student.id.in(
+                        JPAExpressions.select(studentGroup.student.id)
+                                .from(studentGroup)
+                                .where(studentGroup.group.in(groups))
+                                .groupBy(studentGroup.student.id, student.studentName)
+                                .having(studentGroup.student.id.count().eq(1L))
+                ))
                 .fetch();
     }
 
@@ -90,11 +92,14 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository{
                 .where(student.id.notIn(
                         JPAExpressions
                                 .select(studentSub.id)
-                                .from(studentSub, studentPaymentHistory, studentGroup)
-                                .where(studentSub.studentGroup.managerId.eq(managerId)
+                                .from(studentSub)
+                                .join(studentSub.studentGroups, studentGroup)
+                                .join(studentGroup.group, group)
+                                .join(studentPaymentHistory).on(studentSub.id.eq(studentPaymentHistory.student.id))
+                                .where(group.managerId.eq(managerId)
                                         .and(studentPaymentHistory.yearMonth.eq(sYearMonth))
-                                        .and(studentSub.id.eq(studentPaymentHistory.student.id)))
-                        ))
+                        )
+                ))
                 .fetch();
     }
 
@@ -104,11 +109,12 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository{
         String sYearMonth = yearMonth.toString();
 
         return queryFactory
-                .select(student)
-                .from(student, studentPaymentHistory, studentGroup)
-                .where(student.studentGroup.managerId.eq(managerId)
-                        .and(studentPaymentHistory.yearMonth.eq(sYearMonth))
-                        .and(student.id.eq(studentPaymentHistory.student.id)))
+                .selectFrom(student)
+                .join(student.studentGroups, studentGroup)
+                .join(studentGroup.group, group)
+                .join(studentPaymentHistory).on(student.id.eq(studentPaymentHistory.student.id))
+                .where(group.managerId.eq(managerId)
+                        .and(studentPaymentHistory.yearMonth.eq(sYearMonth)))
                 .fetch();
     }
 }

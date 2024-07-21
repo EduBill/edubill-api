@@ -1,7 +1,7 @@
 package com.edubill.edubillApi.repository.student;
 
 import com.edubill.edubillApi.domain.Student;
-import com.edubill.edubillApi.domain.StudentGroup;
+import com.edubill.edubillApi.domain.Group;
 
 import java.time.YearMonth;
 import java.util.Collection;
@@ -11,8 +11,8 @@ public interface StudentCustomRepository {
     List<Student> findStudentsWhereDepositorNameEqualsStudentNameByYearMonthAndManagerId(String userId, YearMonth yearMonth);
     List<Student> findStudentsByDepositorNameEqualsParentName();
 
-    List<Student> findStudentsWithDuplicateNames(Collection<StudentGroup> studentGroups);
-    List<Student> findStudentsWithUniqueNames(Collection<StudentGroup> studentGroups);
+    List<Student> findStudentsWithDuplicateNames(Collection<Group> groups);
+    List<Student> findStudentsWithUniqueNames(Collection<Group> groups);
 
     List<Student> findUnpaidStudentsByYearMonthAndManagerId(String userId, YearMonth yearMonth);
 

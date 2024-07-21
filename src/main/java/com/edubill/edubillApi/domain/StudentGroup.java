@@ -1,39 +1,44 @@
 package com.edubill.edubillApi.domain;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
+import static jakarta.persistence.FetchType.LAZY;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder(toBuilder = true)
-public class StudentGroup extends BaseEntity{
+@Table(name = "STUDENT_GROUP", uniqueConstraints = @UniqueConstraint(columnNames = {"student_id", "group_id"}))
+public class StudentGroup extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "student_group_id")
-    private Long id;
+    private Long studentGroupId;
 
-    @Column(name = "group_name")
-    private String groupName;
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "student_id")
+    private Student student;
 
-    @Column(name = "manager_id")
-    private String managerId; //user
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "group_id")
+    private Group group;
 
-    private Integer tuition;
+    //==연관관계 메서드==//
+    public void setStudent(Student student) {
+        this.student = student;
+        student.getStudentGroups().add(this);
+    }
 
-    @Column(name = "total_student_count")
-    private Integer totalStudentCount;
-
-
-    //====비즈니스 로직=====//
-    public void addStudent() {
-        if (this.totalStudentCount != null) {
-            this.totalStudentCount = this.totalStudentCount + 1;
-        } else {
-            this.totalStudentCount = 1; // 예외 처리 또는 기본값 설정 등
-        }
+    public void setGroup(Group group) {
+        this.group = group;
+        group.getStudentGroups().add(this);
     }
 }

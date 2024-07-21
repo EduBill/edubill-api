@@ -22,7 +22,7 @@ public interface PaymentHistoryCustomRepository {
      */
     List<PaymentHistory> findPaymentHistoriesWithUserIdAndYearMonth(String managerId, YearMonth yearMonth);
 
-    long countPaidUserGroupsForUserInMonth(String userId, YearMonth yearMonth);
+    long countPaidStudentsForUserInMonth(String userId, YearMonth yearMonth);
 
     long deleteByUserIdAndYearMonth(String userId, YearMonth yearMonth);
 

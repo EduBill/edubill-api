@@ -39,7 +39,7 @@ public class StudentInfoRequestDto {
             example = "[1, 2, 3]"
     )
     @NotNull(message = "학생 그룹 ID는 필수입니다.")
-    private List<Long> studentGroupIds;
+    private List<Long> groupIds;
 
     @Schema(description = "학교급", type = "String", example = "초등학교", allowableValues = {"초등학교", "중학교", "고등학교"})
     private SchoolType schoolType;

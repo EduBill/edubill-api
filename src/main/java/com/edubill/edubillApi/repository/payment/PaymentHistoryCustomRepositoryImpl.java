@@ -18,8 +18,12 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
+import static com.edubill.edubillApi.domain.QGroup.group;
 import static com.edubill.edubillApi.domain.QPaymentHistory.paymentHistory;
+
+import static com.edubill.edubillApi.domain.QStudent.student;
 import static com.edubill.edubillApi.domain.QStudentGroup.studentGroup;
+import static com.edubill.edubillApi.domain.QStudentPaymentHistory.studentPaymentHistory;
 import static com.edubill.edubillApi.domain.QUser.user;
 
 
@@ -41,21 +45,22 @@ public class PaymentHistoryCustomRepositoryImpl implements PaymentHistoryCustomR
         LocalDateTime endDateTime = yearMonth.atEndOfMonth().atTime(23, 59, 59, 999999999); // 해당 월의 마지막 날 23시 59분 59초 999999999나노초
         // 쿼리를 위한 기본 조건
         BooleanExpression predicate = paymentHistory.depositDate.between(startDateTime, endDateTime)
-                .and(studentGroup.managerId.eq(userId));
+                .and(paymentHistory.paymentStatus.eq(PaymentStatus.PAID))
+                .and(user.userId.eq(userId));
 
         // 전체 카운트를 위한 쿼리
         long total = queryFactory
                 .selectFrom(paymentHistory)
-                .innerJoin(studentGroup)
-                .on(paymentHistory.studentGroupId.eq(studentGroup.id))
+                .join(user)
+                .on(paymentHistory.managerId.eq(user.userId))
                 .where(predicate)
                 .fetchCount();
 
         // 페이지 처리를 위한 결과 리스트
         List<PaymentHistory> results = queryFactory
                 .selectFrom(paymentHistory)
-                .innerJoin(studentGroup)
-                .on(paymentHistory.studentGroupId.eq(studentGroup.id))
+                .join(user)
+                .on(paymentHistory.managerId.eq(user.userId))
                 .where(predicate)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -104,11 +109,11 @@ public class PaymentHistoryCustomRepositoryImpl implements PaymentHistoryCustomR
 
         return queryFactory
                 .selectFrom(paymentHistory)
-                .join(studentGroup)
-                .on(paymentHistory.studentGroupId.eq(studentGroup.id))
+                .join(user)
+                .on(paymentHistory.managerId.eq(user.userId))
                 .where(paymentHistory.depositDate.between(startDateTime, endDateTime)
-                        .and(studentGroup.managerId.eq(userId))
-                        .and(paymentHistory.paymentStatus.eq(PaymentStatus.PAID))) //TODO: StudentGroupId 존재유무만으로 납부완료리스트 가져올 수 있으면 제거
+                        .and(user.userId.eq(userId))
+                        .and(paymentHistory.paymentStatus.eq(PaymentStatus.PAID)))
                 .fetch();
     }
 
@@ -128,7 +133,7 @@ public class PaymentHistoryCustomRepositoryImpl implements PaymentHistoryCustomR
     }
 
     @Override
-    public long countPaidUserGroupsForUserInMonth(String userId, YearMonth yearMonth) {
+    public long countPaidStudentsForUserInMonth(String userId, YearMonth yearMonth) {
 
         // 월의 첫째 날
         LocalDateTime startDateTime = yearMonth.atDay(1).atStartOfDay(); // 해당 월의 첫 날 자정
@@ -136,12 +141,16 @@ public class PaymentHistoryCustomRepositoryImpl implements PaymentHistoryCustomR
         LocalDateTime endDateTime = yearMonth.atEndOfMonth().atTime(23, 59, 59, 999999999); // 해당 월의 마지막 날 23시 59분 59초 999999999나노초
 
         return queryFactory
-                .selectFrom(studentGroup)
-                .join(paymentHistory)
-                .on(paymentHistory.studentGroupId.eq(studentGroup.id)
-                        .and(paymentHistory.depositDate.between(startDateTime, endDateTime)))
-                .where(studentGroup.managerId.eq(userId))
-                .fetchCount();
+                .select(studentPaymentHistory.student.id)
+                .from(studentPaymentHistory)
+                .join(studentPaymentHistory.paymentHistory, paymentHistory)
+                .join(studentPaymentHistory.student, student)
+                .join(student.studentGroups, studentGroup)
+                .join(studentGroup.group, group)
+                .where(group.managerId.eq(userId)
+                        .and(paymentHistory.depositDate.between(startDateTime, endDateTime))
+                        .and(paymentHistory.paymentStatus.eq(PaymentStatus.PAID)))
+                .fetch().size();
     }
 
     @Override

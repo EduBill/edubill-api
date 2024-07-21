@@ -5,6 +5,7 @@ import com.edubill.edubillApi.domain.Student;
 import com.edubill.edubillApi.domain.StudentGroup;
 import com.edubill.edubillApi.dto.student.StudentInfoRequestDto;
 import com.edubill.edubillApi.dto.student.StudentInfoTestRequestDto;
+import com.edubill.edubillApi.error.exception.GroupNotFoundException;
 import com.edubill.edubillApi.repository.StudentGroupRepository;
 import com.edubill.edubillApi.repository.group.GroupRepository;
 import com.edubill.edubillApi.repository.student.StudentRepository;
@@ -26,9 +27,6 @@ public class StudentService {
 
     @Transactional
     public void addStudentInfo(StudentInfoRequestDto studentInfoRequestDto) {
-        List<Long> groupIds = studentInfoRequestDto.getGroupIds();
-        List<Group> groups = groupRepository.findAllById(groupIds);
-
         Student student = Student.builder()
                 .studentName(studentInfoRequestDto.getStudentName())
                 .studentPhoneNumber(studentInfoRequestDto.getStudentPhoneNumber())
@@ -43,9 +41,14 @@ public class StudentService {
         studentRepository.save(student);
 
         List<StudentGroup> studentGroups = new ArrayList<>();
-        for (Group group : groups) {
+        for (Long groupId : studentInfoRequestDto.getGroupIds()) {
+            Group group = groupRepository.findById(groupId)
+                    .orElseThrow(() -> new GroupNotFoundException("Group not found with id " + groupId));
+
             StudentGroup studentGroup = StudentGroup.builder()
-                    .build(); // 빈 상태로 생성
+                    .student(student)
+                    .group(group)
+                    .build();
             studentGroup.setStudent(student); // Student 설정
             studentGroup.setGroup(group);   // Group 설정
             studentGroups.add(studentGroup);

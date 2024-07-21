@@ -54,14 +54,18 @@ public class Student extends BaseEntity{
     private String memo;
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<StudentGroup> studentGroups = new ArrayList<>();
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<PaymentKey> paymentKeyList = new ArrayList<>();
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<AcademyStudent> academyStudents = new ArrayList<>();
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<StudentPaymentHistory> studentPaymentHistories = new ArrayList<>();
 }

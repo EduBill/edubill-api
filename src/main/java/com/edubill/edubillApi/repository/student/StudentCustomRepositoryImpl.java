@@ -4,6 +4,7 @@ import com.edubill.edubillApi.domain.Group;
 import com.edubill.edubillApi.domain.QStudent;
 import com.edubill.edubillApi.domain.Student;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.edubill.edubillApi.domain.QGroup.group;
 import static com.edubill.edubillApi.domain.QPaymentHistory.paymentHistory;
@@ -54,31 +56,40 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository{
     public List<Student> findStudentsWithDuplicateNames(Collection<Group> groups) {
         QStudent student = QStudent.student;
 
+        // 그룹의 ID 리스트를 추출
+        List<Long> groupIds = groups.stream()
+                .map(Group::getId)
+                .collect(Collectors.toList());
+
         return queryFactory
                 .selectFrom(student)
-                .where(student.id.in(
-                        JPAExpressions.select(studentGroup.student.id)
-                                .from(studentGroup)
-                                .where(studentGroup.group.in(groups))
-                                .groupBy(studentGroup.student.id, student.studentName)
-                                .having(studentGroup.student.id.count().gt(1))
-                ))
+                .where(student.studentGroups.any().group.id.in(groupIds)
+                        .and(student.studentName.in(
+                                JPAExpressions.select(student.studentName)
+                                        .from(student)
+                                        .groupBy(student.studentName)
+                                        .having(student.count().gt(1)))))
                 .fetch();
     }
 
     @Override
     public List<Student> findStudentsWithUniqueNames(Collection<Group> groups) {
+
         QStudent student = QStudent.student;
+
+        // 그룹의 ID 리스트를 추출
+        List<Long> groupIds = groups.stream()
+                .map(Group::getId)
+                .collect(Collectors.toList());
 
         return queryFactory
                 .selectFrom(student)
-                .where(student.id.in(
-                        JPAExpressions.select(studentGroup.student.id)
-                                .from(studentGroup)
-                                .where(studentGroup.group.in(groups))
-                                .groupBy(studentGroup.student.id, student.studentName)
-                                .having(studentGroup.student.id.count().eq(1L))
-                ))
+                .where(student.studentGroups.any().group.id.in(groupIds)
+                        .and(student.studentName.in(
+                                JPAExpressions.select(student.studentName)
+                                .from(student)
+                                .groupBy(student.studentName)
+                                .having(student.count().eq(1L)))))
                 .fetch();
     }
 

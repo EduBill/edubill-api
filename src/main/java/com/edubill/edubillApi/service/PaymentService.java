@@ -194,6 +194,7 @@ public class PaymentService {
                     createStudentPaymentHistory(student, paymentHistory, yearMonth);
                     return true;  // 결제 상태가 PAID로 변경되었음을 반환
                 } else {
+                    //TODO: 한 학생이 두개의 반에 속할때 두 반의 학원비가 다를 경우
                     paymentStatusToUnPaid(paymentHistory);
                 }
             }
@@ -362,7 +363,7 @@ public class PaymentService {
     private void paymentStatusToPaid(Student student, PaymentHistory paymentHistory) {
         String studentPhoneNumber = student.getStudentPhoneNumber();
         String lastFourDigits = studentPhoneNumber.substring(studentPhoneNumber.length() - 4);
-        String modifiedStudentName = student.getStudentName() + lastFourDigits;
+        String modifiedStudentName = student.getStudentName() + " " + lastFourDigits;
 
         paymentHistoryRepository.save(paymentHistory.toBuilder()
                 .depositorName(modifiedStudentName)

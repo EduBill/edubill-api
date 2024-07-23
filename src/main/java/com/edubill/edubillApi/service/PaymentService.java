@@ -415,13 +415,12 @@ public class PaymentService {
     }
 
     private static boolean isPaidAmountMatching(Student student, Integer paidAmount) {
-        // Retrieve all the tuition amounts from the student's groups
-        List<Integer> groupTuitions = student.getStudentGroups().stream()
-                .map(studentGroup -> studentGroup.getGroup().getTuition())
-                .toList();
+        // Retrieve all the tuition amounts from the student's groups and sum them
+        int totalTuition = student.getStudentGroups().stream()
+                .mapToInt(studentGroup -> studentGroup.getGroup().getTuition())
+                .sum();
 
-        // Check if paidAmount matches any of the tuition amounts
-        return groupTuitions.stream()
-                .anyMatch(tuition -> Objects.equals(tuition, paidAmount));
+        // Check if paidAmount matches the total tuition amount
+        return Objects.equals(totalTuition, paidAmount);
     }
 }

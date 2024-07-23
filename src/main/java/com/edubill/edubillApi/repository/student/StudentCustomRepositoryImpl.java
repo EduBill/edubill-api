@@ -24,7 +24,7 @@ import static com.edubill.edubillApi.domain.QStudentPaymentHistory.studentPaymen
 
 @Repository
 @RequiredArgsConstructor
-public class StudentCustomRepositoryImpl implements StudentCustomRepository{
+public class StudentCustomRepositoryImpl implements StudentCustomRepository {
 
     private final JPAQueryFactory queryFactory;
 
@@ -87,31 +87,31 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository{
                 .where(student.studentGroups.any().group.id.in(groupIds)
                         .and(student.studentName.in(
                                 JPAExpressions.select(student.studentName)
-                                .from(student)
-                                .groupBy(student.studentName)
-                                .having(student.count().eq(1L)))))
+                                        .from(student)
+                                        .groupBy(student.studentName)
+                                        .having(student.count().eq(1L)))))
                 .fetch();
     }
 
     public List<Student> findUnpaidStudentsByYearMonthAndManagerId(String managerId, YearMonth yearMonth) {
 
         String sYearMonth = yearMonth.toString();
-        QStudent studentSub = new QStudent("studentSub");
 
         return queryFactory
                 .selectFrom(student)
                 .where(student.id.notIn(
                         JPAExpressions
-                                .select(studentSub.id)
-                                .from(studentSub)
-                                .join(studentSub.studentGroups, studentGroup)
+                                .select(student.id)
+                                .from(studentPaymentHistory)
+                                .join(studentPaymentHistory.student, student)
+                                .join(studentPaymentHistory.student.studentGroups, studentGroup)
                                 .join(studentGroup.group, group)
-                                .join(studentPaymentHistory).on(studentSub.id.eq(studentPaymentHistory.student.id))
                                 .where(group.managerId.eq(managerId)
                                         .and(studentPaymentHistory.yearMonth.eq(sYearMonth))
-                        )
+                                )
                 ))
                 .fetch();
+
     }
 
     @Override
@@ -120,10 +120,11 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository{
         String sYearMonth = yearMonth.toString();
 
         return queryFactory
-                .selectFrom(student)
-                .join(student.studentGroups, studentGroup)
+                .select(student)
+                .from(studentPaymentHistory)
+                .join(studentPaymentHistory.student, student)
+                .join(studentPaymentHistory.student.studentGroups, studentGroup)
                 .join(studentGroup.group, group)
-                .join(studentPaymentHistory).on(student.id.eq(studentPaymentHistory.student.id))
                 .where(group.managerId.eq(managerId)
                         .and(studentPaymentHistory.yearMonth.eq(sYearMonth)))
                 .fetch();

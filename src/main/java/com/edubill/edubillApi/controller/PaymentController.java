@@ -4,6 +4,7 @@ import com.edubill.edubillApi.dto.FileUrlResponseDto;
 import com.edubill.edubillApi.dto.payment.*;
 import com.edubill.edubillApi.excel.ExcelService;
 import com.edubill.edubillApi.service.PaymentService;
+import com.edubill.edubillApi.utils.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -182,11 +183,11 @@ public class PaymentController {
 
     @Operation(summary = "미납 학생 조회하기",
             description = "조회하는 월에 미납한 학생들을 조회한다.")
-    @PostMapping("/unpaidStudents")
+    @GetMapping("/unpaidStudents")
     public ResponseEntity<List<UnpaidStudentsResponseDto>> unPaidStudents(@RequestBody UnpaidStudentsRequestDto unpaidStudentsRequestDto){
-        String managerId = unpaidStudentsRequestDto.getUserId();
+        String userId = SecurityUtils.getCurrentUserId();
         YearMonth yearMonth = unpaidStudentsRequestDto.getYearMonth();
 
-        return ResponseEntity.ok(paymentService.getUnpaidStudentsList(managerId, yearMonth));
+        return ResponseEntity.ok(paymentService.getUnpaidStudentsList(userId, yearMonth));
     }
 }

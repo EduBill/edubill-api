@@ -32,6 +32,7 @@ public class Group extends BaseEntity{
     private Integer totalStudentCount;
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<StudentGroup> studentGroups = new ArrayList<>();
 
 

@@ -52,9 +52,13 @@ dependencies {
 	testImplementation 'org.testcontainers:junit-jupiter:1.16.2'
 	testImplementation 'org.mockito:mockito-core:4.8.0'
 
+	//Gradle 9.0 부터 Gradle이 테스트 프레임워크의 의존성을 자동으로 로드하는 기능 지원하지 않아, 테스트 프레임워크와 관련된 의존성을 명시적으로 설정해야 한다.
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
 	//excel upload : poi
-	implementation 'org.apache.poi:poi:5.2.2'                // .xls 확장자
-	implementation 'org.apache.poi:poi-ooxml:5.2.2'          // .xlsx 확장자
+	implementation 'org.apache.poi:poi:5.3.0'                // .xls 확장자
+	implementation 'org.apache.poi:poi-ooxml:5.3.0'          // .xlsx 확장자
 
 	//querydsl
 	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
@@ -65,12 +69,12 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-redis:3.2.3")
 	implementation("io.lettuce:lettuce-core:6.3.1.RELEASE")
 
-	//AWS SDK S3
-	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+	//aws s3
+	implementation group: 'io.awspring.cloud', name: 'spring-cloud-starter-aws-secrets-manager-config', version: '2.4.4'
 
 }
 
-tasks.withType(Test) {
+tasks.withType(Test).configureEach {
 	environment 'S3_ACCESS_KEY', System.getenv('S3_ACCESS_KEY')
 	environment 'S3_SECRET_KEY', System.getenv('S3_SECRET_KEY')
 }

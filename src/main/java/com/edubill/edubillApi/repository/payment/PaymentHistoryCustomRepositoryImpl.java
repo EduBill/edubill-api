@@ -54,7 +54,7 @@ public class PaymentHistoryCustomRepositoryImpl implements PaymentHistoryCustomR
                 .join(user)
                 .on(paymentHistory.managerId.eq(user.userId))
                 .where(predicate)
-                .fetchCount();
+                .fetch().size();
 
         // 페이지 처리를 위한 결과 리스트
         List<PaymentHistory> results = queryFactory

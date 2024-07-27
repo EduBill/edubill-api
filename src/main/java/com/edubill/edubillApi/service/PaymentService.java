@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.YearMonth;
 
 import java.util.List;
@@ -303,8 +304,12 @@ public class PaymentService {
     public FileUrlResponseDto manualProcessingOfUnpaidHistoryByManualInput(ManualPaymentHistoryRequestDto manualPaymentHistoryRequestDto) throws IOException {
         String userId = SecurityUtils.getCurrentUserId();
         Long studentId = manualPaymentHistoryRequestDto.getStudentId();
-        YearMonth yearMonth = manualPaymentHistoryRequestDto.getYearMonth();
         PaymentType paymentType = PaymentType.getPaymentTypeByDescription(manualPaymentHistoryRequestDto.getPaymentTypeString());
+
+        // YearMonth와 임의의 시간을 사용하여 LocalDateTime 생성
+        YearMonth yearMonth = manualPaymentHistoryRequestDto.getYearMonth();
+        LocalTime arbitraryTime = LocalTime.of(12, 0); // 임의의 시간 설정 (여기서는 12:00로 설정)
+        LocalDateTime depositDate = yearMonth.atDay(1).atTime(arbitraryTime);
 
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다.  userId: " + studentId));
@@ -312,7 +317,7 @@ public class PaymentService {
         String s3Url = fileUploadService.saveImageFile(manualPaymentHistoryRequestDto.getFile());
 
         PaymentHistory newPaymentHistory = paymentHistoryRepository.save(PaymentHistory.builder()
-                .depositDate(LocalDateTime.now())
+                .depositDate(depositDate)
                 .bankName("수동입력")
                 .paidAmount(manualPaymentHistoryRequestDto.getPaidAmount())
                 .memo(manualPaymentHistoryRequestDto.getMemo())

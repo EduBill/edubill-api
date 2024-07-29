@@ -3,6 +3,7 @@ package com.edubill.edubillApi.domain;
 import com.edubill.edubillApi.domain.enums.DepartmentType;
 import com.edubill.edubillApi.domain.enums.GradeLevel;
 import com.edubill.edubillApi.domain.enums.SchoolType;
+import com.edubill.edubillApi.dto.student.StudentInfoRequestDto;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -68,4 +69,21 @@ public class Student extends BaseEntity{
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     @Builder.Default
     private List<StudentPaymentHistory> studentPaymentHistories = new ArrayList<>();
+
+    public Student(StudentInfoRequestDto studentInfoRequestDto) {
+        this.studentName = studentInfoRequestDto.getStudentName();
+        this.studentPhoneNumber = studentInfoRequestDto.getStudentPhoneNumber();
+        this.parentName = studentInfoRequestDto.getParentName();
+        this.parentPhoneNumber = studentInfoRequestDto.getParentPhoneNumber();
+        this.schoolType = studentInfoRequestDto.getSchoolType();
+        this.gradeLevel = studentInfoRequestDto.getGradeLevel();
+        this.departmentType = studentInfoRequestDto.getDepartmentType();
+        this.schoolName = studentInfoRequestDto.getSchoolName();
+        this.memo = studentInfoRequestDto.getMemo();
+        this.studentGroups = new ArrayList<>(); //빌더패턴을 사용하지 않기 때문에 직접 초기화
+
+    }
+    public static Student from(StudentInfoRequestDto studentInfoRequestDto) {
+      return new Student(studentInfoRequestDto);
+    }
 }

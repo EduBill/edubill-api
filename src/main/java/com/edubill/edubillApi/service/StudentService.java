@@ -4,6 +4,7 @@ import com.edubill.edubillApi.domain.Group;
 import com.edubill.edubillApi.domain.Student;
 import com.edubill.edubillApi.domain.StudentGroup;
 import com.edubill.edubillApi.dto.student.StudentInfoRequestDto;
+import com.edubill.edubillApi.dto.student.StudentInfoResponseDto;
 import com.edubill.edubillApi.dto.student.StudentInfoTestRequestDto;
 import com.edubill.edubillApi.error.exception.GroupNotFoundException;
 import com.edubill.edubillApi.repository.StudentGroupRepository;
@@ -26,18 +27,8 @@ public class StudentService {
     private final StudentGroupRepository studentGroupRepository;
 
     @Transactional
-    public void addStudentInfo(StudentInfoRequestDto studentInfoRequestDto) {
-        Student student = Student.builder()
-                .studentName(studentInfoRequestDto.getStudentName())
-                .studentPhoneNumber(studentInfoRequestDto.getStudentPhoneNumber())
-                .parentName(studentInfoRequestDto.getParentName())
-                .parentPhoneNumber(studentInfoRequestDto.getParentPhoneNumber())
-                .schoolType(studentInfoRequestDto.getSchoolType())
-                .gradeLevel(studentInfoRequestDto.getGradeLevel())
-                .departmentType(studentInfoRequestDto.getDepartmentType())
-                .schoolName(studentInfoRequestDto.getSchoolName())
-                .memo(studentInfoRequestDto.getMemo())
-                .build();
+    public StudentInfoResponseDto addStudentInfo(StudentInfoRequestDto studentInfoRequestDto) {
+        Student student = Student.from(studentInfoRequestDto);
         studentRepository.save(student);
 
         List<StudentGroup> studentGroups = new ArrayList<>();
@@ -54,6 +45,8 @@ public class StudentService {
             studentGroups.add(studentGroup);
         }
         studentGroupRepository.saveAll(studentGroups);
+
+        return StudentInfoResponseDto.from(student, studentInfoRequestDto.getGroupIds());
     }
 
 

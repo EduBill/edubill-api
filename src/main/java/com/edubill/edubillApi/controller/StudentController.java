@@ -2,6 +2,7 @@ package com.edubill.edubillApi.controller;
 
 
 import com.edubill.edubillApi.dto.student.StudentInfoRequestDto;
+import com.edubill.edubillApi.dto.student.StudentInfoResponseDto;
 import com.edubill.edubillApi.dto.student.StudentInfoTestRequestDto;
 import com.edubill.edubillApi.service.StudentService;
 import com.edubill.edubillApi.utils.SecurityUtils;
@@ -29,8 +30,8 @@ public class StudentController {
             description = "새로운 학생정보를 추가한다.")
     @PostMapping
     public ResponseEntity<?> addStudentInfo(@RequestBody StudentInfoRequestDto studentInfoRequestDto) {
-        studentService.addStudentInfo(studentInfoRequestDto);
-        return ResponseEntity.ok(HttpStatus.OK);
+        StudentInfoResponseDto studentInfoResponseDto = studentService.addStudentInfo(studentInfoRequestDto);
+        return ResponseEntity.ok(studentInfoResponseDto);
     }
 
     @Operation(summary = "학생 Mock데이터 생성",

@@ -174,6 +174,17 @@ public class PaymentService {
         if (!isPaidAmountMatching(student, paidAmount)) {
             return false;
         }
+        /**
+         * 현재 문제
+         * 한 학생이 여러반에 속해있고 해당 반의 입금금액이 다를수도 있고 같을수도 있음
+         * 이때 엑셀데이터를 통해 들어오는 입금액이 합쳐서 들어오는 경우, 따로따로 들어오는 경우가 있을 수 있음
+         * 입금액이 한번에 입금되는 경우 (보통 이러한 케이스일 것으로 예상) 에는 기존 로직을 사용하면 됨.
+         * --> 현재는 paidAmount와 tuition의 합이 같은지 비교후 예외를 던지는 상황인데
+         * 이것대신 tuition보다 모자란 paidAmount가 들어올 경우 일부 입금처리를 하고 unPaid 상태로 변경해야 할 것 같음.
+         *
+         * 입금액이 여러번에 걸쳐 입금되는 경우에는 먼저 이름으로 입금내역과 학생을 비교하여 입금된 내역의 합과 tuition의 차이를 비교해
+         * 0보다 클 경우 unPaid, 0일 경우 Paid, 0보다 작을 경우 에러 처리 해야될 것으로 보임
+         */
 
         String newPaymentKey = depositorName + studentPhoneNumber + paidAmount + paymentHistory.getPaymentType();
         String encryptedNewPaymentKey;

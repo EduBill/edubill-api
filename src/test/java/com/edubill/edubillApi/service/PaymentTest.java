@@ -4,6 +4,7 @@ import com.edubill.edubillApi.config.TestcontainerConfig;
 import com.edubill.edubillApi.domain.*;
 import com.edubill.edubillApi.domain.enums.PaymentStatus;
 import com.edubill.edubillApi.dto.payment.UnpaidStudentsResponseDto;
+import com.edubill.edubillApi.repository.StudentGroupRepository;
 import com.edubill.edubillApi.repository.StudentPaymentHistoryRepository;
 import com.edubill.edubillApi.repository.payment.PaymentHistoryRepository;
 import com.edubill.edubillApi.repository.student.StudentRepository;
@@ -33,6 +34,8 @@ public class PaymentTest {
     @Autowired
     StudentRepository studentRepository;
     @Autowired
+    StudentGroupRepository studentGroupRepository;
+    @Autowired
     GroupRepository groupRepository;
     @Autowired
     StudentPaymentHistoryRepository studentPaymentHistoryRepository;
@@ -48,18 +51,24 @@ public class PaymentTest {
                 .build();
     }
 
-    private Student createStudent(String studentName, Group group, String phoneNumber) {
+    private Student createStudent(String studentName, String phoneNumber) {
         return Student.builder()
                 .studentName(studentName)
-                //.group(group)
                 .studentPhoneNumber(phoneNumber)
                 .build();
     }
 
-    private Group createStudentGroup(String groupName, String managerId) {
+    private Group createGroup(String groupName, String managerId) {
         return Group.builder()
                 .groupName(groupName)
                 .managerId(managerId)
+                .build();
+    }
+
+    private StudentGroup createStudentGroup(Student student, Group group) {
+        return StudentGroup.builder()
+                .student(student)
+                .group(group)
                 .build();
     }
 
@@ -85,30 +94,34 @@ public class PaymentTest {
     void getUnpaidStudentsTest() {
 
         //given
-        User user = createUser("1", "manager1", "01022222222");
+        User user = createUser("01011111111@phone.auth", "manager1", "01022222222");
         userRepository.save(user);
 
-        Group group1 = createStudentGroup("group1", user.getUserId());
+        Group group1 = createGroup("group1", user.getUserId());
         groupRepository.save(group1);
 
-        Student student1 = createStudent("s1", group1, "01012341234");
+        Student student1 = createStudent("s1", "01012341234");
         studentRepository.save(student1);
-
-        Student student2 = createStudent("s2", group1, "01056785678");
+        Student student2 = createStudent("s2", "01056785678");
         studentRepository.save(student2);
-
-        Student student3 = createStudent("s3", group1, "01009870987");
+        Student student3 = createStudent("s3",  "01009870987");
         studentRepository.save(student3);
+
+        StudentGroup studentGroup1 = createStudentGroup(student1, group1);
+        studentGroupRepository.save(studentGroup1);
+        StudentGroup studentGroup2 = createStudentGroup(student2, group1);
+        studentGroupRepository.save(studentGroup2);
+        StudentGroup studentGroup3 = createStudentGroup(student3, group1);
+        studentGroupRepository.save(studentGroup3);
+
 
         PaymentHistory paymentHistory1 = createPaymentHistory(PaymentStatus.PAID, user.getUserId(), student1.getStudentName());
         paymentHistoryRepository.save(paymentHistory1);
-
         PaymentHistory paymentHistory2 = createPaymentHistory(PaymentStatus.PAID, user.getUserId(), student2.getStudentName());
         paymentHistoryRepository.save(paymentHistory2);
 
         StudentPaymentHistory studentPaymentHistory1 = createStudentPaymentHistory(student1, paymentHistory1,YearMonth.of(2024,6).toString());
         studentPaymentHistoryRepository.save(studentPaymentHistory1);
-
         StudentPaymentHistory studentPaymentHistory2 = createStudentPaymentHistory(student2, paymentHistory2,YearMonth.of(2024,6).toString());
         studentPaymentHistoryRepository.save(studentPaymentHistory2);
 
@@ -129,27 +142,30 @@ public class PaymentTest {
         User user = createUser("1", "manager1", "01022222222");
         userRepository.save(user);
 
-        Group group1 = createStudentGroup("group1", user.getUserId());
+        Group group1 = createGroup("group1", user.getUserId());
         groupRepository.save(group1);
 
-        Student student1 = createStudent("s1", group1, "01012341234");
+        Student student1 = createStudent("s1", "01012341234");
         studentRepository.save(student1);
-
-        Student student2 = createStudent("s2", group1, "01056785678");
+        Student student2 = createStudent("s2", "01056785678");
         studentRepository.save(student2);
-
-        Student student3 = createStudent("s3", group1, "01009870987");
+        Student student3 = createStudent("s3", "01009870987");
         studentRepository.save(student3);
+
+        StudentGroup studentGroup1 = createStudentGroup(student1, group1);
+        studentGroupRepository.save(studentGroup1);
+        StudentGroup studentGroup2 = createStudentGroup(student2, group1);
+        studentGroupRepository.save(studentGroup2);
+        StudentGroup studentGroup3 = createStudentGroup(student3, group1);
+        studentGroupRepository.save(studentGroup3);
 
         PaymentHistory paymentHistory1 = createPaymentHistory(PaymentStatus.PAID, user.getUserId(), student1.getStudentName());
         paymentHistoryRepository.save(paymentHistory1);
-
         PaymentHistory paymentHistory2 = createPaymentHistory(PaymentStatus.PAID, user.getUserId(), student2.getStudentName());
         paymentHistoryRepository.save(paymentHistory2);
 
         StudentPaymentHistory studentPaymentHistory1 = createStudentPaymentHistory(student1, paymentHistory1,YearMonth.of(2024,6).toString());
         studentPaymentHistoryRepository.save(studentPaymentHistory1);
-
         StudentPaymentHistory studentPaymentHistory2 = createStudentPaymentHistory(student2, paymentHistory2,YearMonth.of(2024,6).toString());
         studentPaymentHistoryRepository.save(studentPaymentHistory2);
 

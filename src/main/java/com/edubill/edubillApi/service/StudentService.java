@@ -1,15 +1,15 @@
 package com.edubill.edubillApi.service;
 
-import com.edubill.edubillApi.domain.Group;
-import com.edubill.edubillApi.domain.ClassTime;
-import com.edubill.edubillApi.domain.Student;
-import com.edubill.edubillApi.domain.StudentGroup;
+import com.edubill.edubillApi.domain.*;
 import com.edubill.edubillApi.dto.student.*;
 import com.edubill.edubillApi.error.exception.GroupNotFoundException;
+import com.edubill.edubillApi.error.exception.StudentNotFoundException;
 import com.edubill.edubillApi.repository.StudentGroupRepository;
+import com.edubill.edubillApi.repository.StudentPaymentHistoryRepository;
 import com.edubill.edubillApi.repository.group.GroupRepository;
 import com.edubill.edubillApi.repository.ClassTimeRepository;
 
+import com.edubill.edubillApi.repository.payment.PaymentKeyRepository;
 import com.edubill.edubillApi.repository.student.StudentRepository;
 
 import com.edubill.edubillApi.utils.SecurityUtils;
@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,6 +30,8 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final StudentGroupRepository studentGroupRepository;
     private final ClassTimeRepository classTimeRepository;
+    private final PaymentKeyRepository paymentKeyRepository;
+    private final StudentPaymentHistoryRepository studentPaymentHistoryRepository;
 
     @Transactional
     public StudentInfoResponseDto addStudentInfo(StudentInfoRequestDto studentInfoRequestDto) {
@@ -81,6 +84,36 @@ public class StudentService {
         return GroupInfoResponseDto.createGroupInfoResponse(savedGroup, classTimes);
     }
 
+    @Transactional
+    public DeletedStudentInfoDto deleteStudentInfo(Long studentId) {
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new StudentNotFoundException("Student not found"));
+
+        // 자식 엔티티 목록 가져오기
+        List<StudentGroup> studentGroups = student.getStudentGroups();
+        List<PaymentKey> paymentKeys = student.getPaymentKeyList();
+        List<StudentPaymentHistory> studentPaymentHistories = student.getStudentPaymentHistories();
+
+        // ID 목록 추출
+        List<Long> deletedStudentGroupIds = extractIds(studentGroups, StudentGroup::getStudentGroupId);
+        List<Long> deletedPaymentKeyIds = extractIds(paymentKeys, PaymentKey::getId);
+        List<Long> deletedStudentPaymentHistoryIds = extractIds(studentPaymentHistories, StudentPaymentHistory::getStudentPaymentHistoryId);
+
+        // 자식 엔티티 삭제
+        studentGroupRepository.deleteAll(studentGroups);
+        paymentKeyRepository.deleteAll(paymentKeys);
+        studentPaymentHistoryRepository.deleteAll(studentPaymentHistories);
+
+        // 부모 엔티티 삭제
+        studentRepository.deleteById(studentId);
+
+        return DeletedStudentInfoDto.builder()
+                .deletedStudentId(studentId)
+                .deletedStudentGroupIds(deletedStudentGroupIds)
+                .deletedPaymentKeyIds(deletedPaymentKeyIds)
+                .deletedStudentPaymentHistoryIds(deletedStudentPaymentHistoryIds)
+                .build();
+    }
 
     @Transactional
     public void addStudentAndGroupInfoTest(StudentInfoTestRequestDto studentInfoTestRequestDto, final String userId) {
@@ -113,5 +146,11 @@ public class StudentService {
 
         studentGroupRepository.save(studentGroup);
         groupRepository.save(group);
+    }
+
+    private <T> List<Long> extractIds(List<T> entities, Function<T, Long> idExtractor) {
+        return entities.stream()
+                .map(idExtractor)
+                .collect(Collectors.toList());
     }
 }

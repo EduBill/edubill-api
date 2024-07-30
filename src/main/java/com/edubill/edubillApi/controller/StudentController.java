@@ -14,6 +14,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.time.YearMonth;
 
 @Tag(name = "Student", description = "학생정보관리 API")
 @RestController
@@ -36,6 +37,11 @@ public class StudentController {
     @PostMapping("/groups")
     public ResponseEntity<GroupInfoResponseDto> addStudentGroupInfo(@RequestBody GroupInfoRequestDto groupInfoRequestDto) {
         return ResponseEntity.ok(studentService.addGroupInfo(groupInfoRequestDto));
+    }
+
+    @DeleteMapping("/{studentId}")
+    public ResponseEntity<DeletedStudentInfoDto> deleteStudentInfo(@PathVariable(name = "studentId") Long studentId) {
+        return ResponseEntity.ok(studentService.deleteStudentInfo(studentId));
     }
 
     @Operation(summary = "학생/반 테스트 데이터 추가",

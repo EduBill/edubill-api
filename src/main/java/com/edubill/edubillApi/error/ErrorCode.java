@@ -25,6 +25,9 @@ public enum ErrorCode {
     ACADEMY_NOT_FOUND(400, "A001", "학원이 존재하지 않습니다."),
     GROUP_NOT_FOUND(400, "A002", "반이 존재하지 않습니다."),
 
+    //Student
+    STUDENT_NOT_FOUND(400, "S001", "학생이 존재하지 않습니다."),
+
     //Payment
     PAYMENT_HISTORY_NOT_FOUND(400, "P001","납부내역이 존재하지 않습니다"),
     PAYMENT_KEY_NOT_ENCRYPTED(500, "P002", "결제 키가 암호화되지 않았습니다"),
@@ -37,9 +40,6 @@ public enum ErrorCode {
     BAD_CREDENTIALS(400, "C005", "bad credentials"),
     BAD_GATEWAY_ERROR(502,"C006", "bad gateway");
     
-    //
-
-
 
 
     private final int status;

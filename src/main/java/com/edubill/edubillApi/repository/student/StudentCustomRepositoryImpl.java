@@ -29,30 +29,6 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<Student> findStudentsWhereDepositorNameEqualsStudentNameByYearMonthAndManagerId(String managerId, YearMonth yearMonth) {
-
-        LocalDateTime startDateTime = yearMonth.atDay(1).atStartOfDay();
-        LocalDateTime endDateTime = yearMonth.atEndOfMonth().atTime(23, 59, 59, 999999999);
-
-        return queryFactory
-                .select(student)
-                .from(student, paymentHistory, group)
-                .where(paymentHistory.depositDate.between(startDateTime, endDateTime)
-                        .and(group.managerId.eq(managerId))
-                        .and(student.studentName.eq(paymentHistory.depositorName)))
-                .fetch();
-    }
-
-    @Override
-    public List<Student> findStudentsByDepositorNameEqualsParentName() {
-        return queryFactory
-                .select(student)
-                .from(student, paymentHistory)
-                .where(student.parentName.eq(paymentHistory.depositorName))
-                .fetch();
-    }
-
-    @Override
     public List<Student> findStudentsWithDuplicateNames(Collection<Group> groups) {
         QStudent student = QStudent.student;
 

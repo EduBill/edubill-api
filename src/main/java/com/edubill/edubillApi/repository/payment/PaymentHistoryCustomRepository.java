@@ -15,12 +15,9 @@ public interface PaymentHistoryCustomRepository {
 
     Page<PaymentHistory> findUnpaidHistoriesByYearMonthAndManagerId(String userId, YearMonth yearMonth, Pageable pageable);
 
-    List<PaymentHistory> findPaymentHistoriesByYearMonthAndManagerId(String managerId, YearMonth yearMonth);
+    List<PaymentHistory> findPaymentHistoriesByUserIdAndYearMonthWithPaymentStatusPaid(String managerId, YearMonth yearMonth);
 
-    /**
-     * PaymentHistory의 student_group_id가 null인 케이스를 전부 포함하여 가져온다.
-     */
-    List<PaymentHistory> findPaymentHistoriesWithUserIdAndYearMonth(String managerId, YearMonth yearMonth);
+    List<PaymentHistory> findPaymentHistoriesByUserIdAndYearMonth(String managerId, YearMonth yearMonth);
 
     long countPaidStudentsForUserInMonth(String userId, YearMonth yearMonth);
 

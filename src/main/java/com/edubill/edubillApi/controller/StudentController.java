@@ -39,6 +39,8 @@ public class StudentController {
         return ResponseEntity.ok(studentService.addGroupInfo(groupInfoRequestDto));
     }
 
+    @Operation(summary = "학생 삭제",
+            description = "특정 id에 해당하는 학생을 삭제한다.")
     @DeleteMapping("/{studentId}")
     public ResponseEntity<DeletedStudentInfoDto> deleteStudentInfo(@PathVariable(name = "studentId") Long studentId) {
         return ResponseEntity.ok(studentService.deleteStudentInfo(studentId));

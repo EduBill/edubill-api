@@ -70,12 +70,25 @@ public class Group extends BaseEntity {
         return new Group(groupInfoRequestDto, userId);
     }
 
-    //====비즈니스 로직=====//
+    //학생수 추가 로직
     public void addStudent() {
         if (this.totalStudentCount != null) {
             this.totalStudentCount = this.totalStudentCount + 1;
         } else {
             this.totalStudentCount = 1; // 예외 처리 또는 기본값 설정 등
+        }
+    }
+
+    //학생수 감소 로직
+    public void removeStudent() {
+        if (this.totalStudentCount != null) {
+            if (this.totalStudentCount > 0) {
+                this.totalStudentCount = this.totalStudentCount - 1;
+            } else {
+                throw new IllegalStateException("Student count cannot be less than zero.");
+            }
+        } else {
+            throw new IllegalStateException("Total student count is not set.");
         }
     }
 }

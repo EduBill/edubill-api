@@ -1,10 +1,7 @@
 package com.edubill.edubillApi.controller;
 
 
-import com.edubill.edubillApi.dto.student.GroupInfoRequestDto;
-import com.edubill.edubillApi.dto.student.StudentInfoRequestDto;
-import com.edubill.edubillApi.dto.student.StudentInfoResponseDto;
-import com.edubill.edubillApi.dto.student.StudentInfoTestRequestDto;
+import com.edubill.edubillApi.dto.student.*;
 import com.edubill.edubillApi.service.StudentService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,29 +27,26 @@ public class StudentController {
     @Operation(summary = "새로운 원생 추가",
             description = "새로운 학생정보를 추가한다.")
     @PostMapping
-    public ResponseEntity<?> addStudentInfo(@RequestBody StudentInfoRequestDto studentInfoRequestDto) {
-        StudentInfoResponseDto studentInfoResponseDto = studentService.addStudentInfo(studentInfoRequestDto);
-        return ResponseEntity.ok(studentInfoResponseDto);
+    public ResponseEntity<StudentInfoResponseDto> addStudentInfo(@RequestBody StudentInfoRequestDto studentInfoRequestDto) {
+        return ResponseEntity.ok(studentService.addStudentInfo(studentInfoRequestDto));
     }
 
+    @Operation(summary = "새로운 반 추가",
+            description = "새로운 반 정보를 추가한다.")
     @PostMapping("/groups")
-    public ResponseEntity<?> addStudentGroupInfo(@RequestBody GroupInfoRequestDto groupInfoRequestDto) {
-        studentService.addGroupInfo(groupInfoRequestDto);
-
-        //TODO: response 객체 생성
-
-        return ResponseEntity.ok(HttpStatus.OK);
+    public ResponseEntity<GroupInfoResponseDto> addStudentGroupInfo(@RequestBody GroupInfoRequestDto groupInfoRequestDto) {
+        return ResponseEntity.ok(studentService.addGroupInfo(groupInfoRequestDto));
     }
 
-    @Operation(summary = "학생 Mock데이터 생성",
-            description = "학정 정보를 등록한다.")
+    @Operation(summary = "학생/반 테스트 데이터 추가",
+            description = "임의의 학생과 반 정보를 등록한다.")
     @PostMapping("/test")
-    public ResponseEntity<String> addStudentInfoTest(
+    public ResponseEntity<String> addStudentAndGroupInfoTest(
             @Validated @RequestBody StudentInfoTestRequestDto studentInfoTestRequestDto,
             final Principal principal) {
 
         final String userId = principal.getName();
-        studentService.addStudentInfoTest(studentInfoTestRequestDto, userId);
+        studentService.addStudentAndGroupInfoTest(studentInfoTestRequestDto, userId);
 
         return ResponseEntity.ok("학생 추가 완료");
     }

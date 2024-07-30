@@ -2,6 +2,8 @@ package com.edubill.edubillApi.domain;
 
 import com.edubill.edubillApi.domain.enums.GradeLevel;
 import com.edubill.edubillApi.domain.enums.SchoolType;
+import com.edubill.edubillApi.dto.student.GroupInfoRequestDto;
+
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -15,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @SuperBuilder(toBuilder = true)
 @Table(name = "GROUPS")
-public class Group extends BaseEntity{
+public class Group extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,10 +28,7 @@ public class Group extends BaseEntity{
     private String groupName;
 
     @Column(name = "manager_id")
-    private String managerId; //user
-
-    @Column(name = "tuition")
-    private Integer tuition;
+    private String managerId;
 
     @Column(name = "school_type")
     @Enumerated(EnumType.STRING)
@@ -38,6 +37,12 @@ public class Group extends BaseEntity{
     @Column(name = "grade_level")
     @Enumerated(EnumType.STRING)
     private GradeLevel gradeLevel;
+
+    @Column(name = "tuition")
+    private Integer tuition;
+
+    @Column(name = "group_memo")
+    private String groupMemo;
 
     @Column(name = "total_student_count")
     private Integer totalStudentCount;
@@ -50,6 +55,20 @@ public class Group extends BaseEntity{
     @Builder.Default
     private List<ClassTime> classTimes = new ArrayList<>();
 
+    public Group(GroupInfoRequestDto groupInfoRequestDto, String userId) {
+        this.groupName = groupInfoRequestDto.getGroupName();
+        this.managerId = userId;
+        this.schoolType = groupInfoRequestDto.getSchoolType();
+        this.gradeLevel = groupInfoRequestDto.getGradeLevel();
+        this.tuition = groupInfoRequestDto.getTuition();
+        this.groupMemo = groupInfoRequestDto.getGroupMemo();
+        this.studentGroups = new ArrayList<>();
+        this.classTimes = new ArrayList<>();
+    }
+
+    public static Group from(GroupInfoRequestDto groupInfoRequestDto, String userId) {
+        return new Group(groupInfoRequestDto, userId);
+    }
 
     //====비즈니스 로직=====//
     public void addStudent() {

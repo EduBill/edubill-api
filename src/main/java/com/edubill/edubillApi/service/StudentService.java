@@ -4,10 +4,7 @@ import com.edubill.edubillApi.domain.Group;
 import com.edubill.edubillApi.domain.ClassTime;
 import com.edubill.edubillApi.domain.Student;
 import com.edubill.edubillApi.domain.StudentGroup;
-import com.edubill.edubillApi.dto.student.GroupInfoRequestDto;
-import com.edubill.edubillApi.dto.student.StudentInfoRequestDto;
-import com.edubill.edubillApi.dto.student.StudentInfoResponseDto;
-import com.edubill.edubillApi.dto.student.StudentInfoTestRequestDto;
+import com.edubill.edubillApi.dto.student.*;
 import com.edubill.edubillApi.error.exception.GroupNotFoundException;
 import com.edubill.edubillApi.repository.StudentGroupRepository;
 import com.edubill.edubillApi.repository.group.GroupRepository;
@@ -35,8 +32,8 @@ public class StudentService {
 
     @Transactional
     public StudentInfoResponseDto addStudentInfo(StudentInfoRequestDto studentInfoRequestDto) {
-        Student student = Student.from(studentInfoRequestDto);
-        studentRepository.save(student);
+
+        Student savedStudent = studentRepository.save(Student.from(studentInfoRequestDto));
 
         List<StudentGroup> studentGroups = new ArrayList<>();
         for (Long groupId : studentInfoRequestDto.getGroupIds()) {
@@ -46,33 +43,27 @@ public class StudentService {
             group.addStudent();
 
             StudentGroup studentGroup = StudentGroup.builder()
-                    .student(student)
+                    .student(savedStudent)
                     .group(group)
                     .build();
-            studentGroup.setStudent(student); // Student 설정
+            studentGroup.setStudent(savedStudent); // Student 설정
             studentGroup.setGroup(group);   // Group 설정
             studentGroups.add(studentGroup);
         }
         studentGroupRepository.saveAll(studentGroups);
 
-        return StudentInfoResponseDto.from(student, studentInfoRequestDto.getGroupIds());
+        return StudentInfoResponseDto.createStudentInfoResponse(savedStudent, studentInfoRequestDto.getGroupIds());
     }
 
     @Transactional
-    public void addGroupInfo(GroupInfoRequestDto groupInfoRequestDto) {
+    public GroupInfoResponseDto addGroupInfo(GroupInfoRequestDto groupInfoRequestDto) {
         String userId = SecurityUtils.getCurrentUserId();
-        List<GroupInfoRequestDto.ClassTimeDto> classTimeDtos = groupInfoRequestDto.getClassTimeDtos();
+        List<GroupInfoRequestDto.ClassTimeRequestDto> classTimeRequestDtos = groupInfoRequestDto.getClassTimeRequestDtos();
 
-        Group savedGroup = groupRepository.save(Group.builder()
-                .groupName(groupInfoRequestDto.getGroupName())
-                .managerId(userId)
-                .tuition(groupInfoRequestDto.getTuition())
-                .schoolType(groupInfoRequestDto.getSchoolType())
-                .gradeLevel(groupInfoRequestDto.getGradeLevel())
-                .build());
+        Group savedGroup = groupRepository.save(Group.from(groupInfoRequestDto, userId));
 
         // DTO를 도메인 객체로 변환
-        List<ClassTime> classTimes = classTimeDtos.stream()
+        List<ClassTime> classTimes = classTimeRequestDtos.stream()
                 .map(dto -> {
                     // ClassTime 객체를 생성
                     ClassTime classTime = ClassTime.builder()
@@ -86,16 +77,18 @@ public class StudentService {
                 })
                 .collect(Collectors.toList());
         classTimeRepository.saveAll(classTimes);
+
+        return GroupInfoResponseDto.createGroupInfoResponse(savedGroup, classTimes);
     }
 
 
     @Transactional
-    public void addStudentInfoTest(StudentInfoTestRequestDto studentInfoTestRequestDto, final String userId) {
+    public void addStudentAndGroupInfoTest(StudentInfoTestRequestDto studentInfoTestRequestDto, final String userId) {
 
         List<Group> groups = groupRepository.getGroupsByUserId(userId);
         Group group = null;
         if (!groups.isEmpty()) {
-            group = groups.get(0); //TODO: student_group이 여러개일 경우 한개만 선택하도록 student_group_id를 input 받도록 수정
+            group = groups.get(0);
         } else {
             group = Group.builder()
                     .groupName("중등 B반")

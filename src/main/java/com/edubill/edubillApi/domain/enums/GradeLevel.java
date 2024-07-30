@@ -20,7 +20,7 @@ public enum GradeLevel {
         this.description = description;
     }
 
-    //객체를 Jjso으로 직렬화
+    //객체를 JSON으로 직렬화
     @JsonValue
     public String getDescription() {
         return description;

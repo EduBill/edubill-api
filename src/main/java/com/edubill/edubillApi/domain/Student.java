@@ -81,7 +81,6 @@ public class Student extends BaseEntity{
         this.schoolName = studentInfoRequestDto.getSchoolName();
         this.memo = studentInfoRequestDto.getMemo();
         this.studentGroups = new ArrayList<>(); //빌더패턴을 사용하지 않기 때문에 직접 초기화
-
     }
     public static Student from(StudentInfoRequestDto studentInfoRequestDto) {
       return new Student(studentInfoRequestDto);

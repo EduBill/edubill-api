@@ -33,8 +33,10 @@ public class StudentService {
 
         List<StudentGroup> studentGroups = new ArrayList<>();
         for (Long groupId : studentInfoRequestDto.getGroupIds()) {
-            Group group = groupRepository.findById(groupId)
+            Group group = groupRepository.findById(groupId) //TODO: groupId와 userId를 동시에 이용해 찾아야 하는지
                     .orElseThrow(() -> new GroupNotFoundException("Group not found with id " + groupId));
+
+            group.addStudent();
 
             StudentGroup studentGroup = StudentGroup.builder()
                     .student(student)

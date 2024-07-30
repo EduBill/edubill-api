@@ -99,6 +99,14 @@ public class StudentService {
         List<Long> deletedPaymentKeyIds = extractIds(paymentKeys, PaymentKey::getId);
         List<Long> deletedStudentPaymentHistoryIds = extractIds(studentPaymentHistories, StudentPaymentHistory::getStudentPaymentHistoryId);
 
+        // 학생이 속한 그룹에서 학생 수 감소
+        for (StudentGroup studentGroup : studentGroups) {
+            Group group = groupRepository.findById(studentGroup.getGroup().getId())
+                    .orElseThrow(() -> new GroupNotFoundException("Group not found with id " + studentGroup.getGroup().getId()));
+            group.removeStudent();
+            groupRepository.save(group);
+        }
+
         // 자식 엔티티 삭제
         studentGroupRepository.deleteAll(studentGroups);
         paymentKeyRepository.deleteAll(paymentKeys);

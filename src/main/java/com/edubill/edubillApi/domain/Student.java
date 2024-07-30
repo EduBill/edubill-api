@@ -64,11 +64,12 @@ public class Student extends BaseEntity{
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     @Builder.Default
-    private List<AcademyStudent> academyStudents = new ArrayList<>();
+    private List<StudentPaymentHistory> studentPaymentHistories = new ArrayList<>();
 
+    //TODO: 삭제 처리
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     @Builder.Default
-    private List<StudentPaymentHistory> studentPaymentHistories = new ArrayList<>();
+    private List<AcademyStudent> academyStudents = new ArrayList<>();
 
     public Student(StudentInfoRequestDto studentInfoRequestDto) {
         this.studentName = studentInfoRequestDto.getStudentName();

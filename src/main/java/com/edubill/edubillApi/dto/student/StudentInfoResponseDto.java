@@ -39,7 +39,7 @@ public class StudentInfoResponseDto {
 
     private String memo;
 
-    public static StudentInfoResponseDto from(Student student, List<Long> groupIds) {
+    public static StudentInfoResponseDto createStudentInfoResponse(Student student, List<Long> groupIds) {
         return new StudentInfoResponseDto(
                 student.getId(),
                 student.getStudentName(),

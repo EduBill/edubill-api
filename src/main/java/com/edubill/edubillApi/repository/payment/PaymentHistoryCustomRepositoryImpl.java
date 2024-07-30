@@ -101,7 +101,7 @@ public class PaymentHistoryCustomRepositoryImpl implements PaymentHistoryCustomR
 
 
     @Override
-    public List<PaymentHistory> findPaymentHistoriesByYearMonthAndManagerId(String userId, YearMonth yearMonth) {
+    public List<PaymentHistory> findPaymentHistoriesByUserIdAndYearMonthWithPaymentStatusPaid(String userId, YearMonth yearMonth) {
         // 월의 첫째 날
         LocalDateTime startDateTime = yearMonth.atDay(1).atStartOfDay(); // 해당 월의 첫 날 자정
         // 월의 마지막 날
@@ -118,7 +118,7 @@ public class PaymentHistoryCustomRepositoryImpl implements PaymentHistoryCustomR
     }
 
     @Override
-    public List<PaymentHistory> findPaymentHistoriesWithUserIdAndYearMonth(String userId, YearMonth yearMonth){
+    public List<PaymentHistory> findPaymentHistoriesByUserIdAndYearMonth(String userId, YearMonth yearMonth){
 
         LocalDateTime startDateTime = yearMonth.atDay(1).atStartOfDay();
         LocalDateTime endDateTime = yearMonth.atEndOfMonth().atTime(23, 59, 59, 999999999);
@@ -169,9 +169,11 @@ public class PaymentHistoryCustomRepositoryImpl implements PaymentHistoryCustomR
     @Override
     public Optional<PaymentHistory> findByDepositDateAndDepositorNameAndBankNameAndManagerId(LocalDateTime depositDate, String depositorName, String bankName, String userId) {
 
-        // depositorName에 대한 커스텀 SQL 함수 정의
+        // depositorName의 마지막 네 자리 숫자 및 공백을 빈 문자열로 제거하는 SQL 템플릿 정의
+        // "(REGEXP_REPLACE({0}, '\\s*[0-9]{4}$', '')", paymentHistory.depositorName) 의 경우 {4}를 인덱스로 인식하여 오류 발생.
+        // 따라서 {4} 대신 [0-9]를 네 번 반복하여 사용해야 함
         StringExpression depositorNameExpression = Expressions.stringTemplate(
-                "REGEXP_REPLACE({0}, '[0-9]', '')", paymentHistory.depositorName);
+                "REGEXP_REPLACE({0}, '\\s*[0-9][0-9][0-9][0-9]$', '')", paymentHistory.depositorName);
 
         BooleanExpression predicate = paymentHistory.depositDate.eq(depositDate)
                 .and(paymentHistory.bankName.eq(bankName))

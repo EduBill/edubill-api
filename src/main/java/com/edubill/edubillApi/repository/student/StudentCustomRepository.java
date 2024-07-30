@@ -8,13 +8,9 @@ import java.util.Collection;
 import java.util.List;
 
 public interface StudentCustomRepository {
-    List<Student> findStudentsWhereDepositorNameEqualsStudentNameByYearMonthAndManagerId(String userId, YearMonth yearMonth);
-    List<Student> findStudentsByDepositorNameEqualsParentName();
 
     List<Student> findStudentsWithDuplicateNames(Collection<Group> groups);
     List<Student> findStudentsWithUniqueNames(Collection<Group> groups);
-
     List<Student> findUnpaidStudentsByYearMonthAndManagerId(String userId, YearMonth yearMonth);
-
     List<Student> findPaidStudentsByYearMonthAndManagerId(String managerId, YearMonth yearMonth);
 }

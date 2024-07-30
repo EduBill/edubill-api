@@ -40,7 +40,7 @@ public class ExcelController {
 
     @Operation(summary = "엑셀 데이터 변환",
             description = "각 은행별 엑셀을 받아 하나의 Entity에 매핑하여 동일한 DB에 저장될 수 있도록 한다.")
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> readExcel(
             @Parameter(description = "업로드할 엑셀 파일", required = true)
             @RequestPart("file") MultipartFile multipartFile,

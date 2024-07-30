@@ -78,7 +78,7 @@ public class PaymentService {
     public PaymentStatusDto getPaymentStatusForManagerInMonth(final String managerId, final YearMonth yearMonth) {
         final long paidStudentsCountInMonth = paymentHistoryRepository.countPaidStudentsForUserInMonth(managerId, yearMonth);
 
-        List<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesByYearMonthAndManagerId(managerId, yearMonth);
+        List<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesByUserIdAndYearMonthWithPaymentStatusPaid(managerId, yearMonth);
         List<Group> groups = groupRepository.getGroupsByUserId(managerId);
 
         final long totalNumberOfStudentsToPay = groups.stream()
@@ -129,7 +129,7 @@ public class PaymentService {
     @Transactional
     public void handleStudentPaymentProcessing(YearMonth yearMonth, String userId) {
         //paymentHistory 에 userId를 추가하여 외래키로 가지고 있음.
-        List<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesWithUserIdAndYearMonth(userId, yearMonth);
+        List<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesByUserIdAndYearMonth(userId, yearMonth);
         List<Group> groups = groupRepository.getGroupsByUserId(userId);
 
         // 중복된 이름을 가진 학생들 가져오기

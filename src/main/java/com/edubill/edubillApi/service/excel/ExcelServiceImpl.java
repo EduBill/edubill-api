@@ -1,43 +1,48 @@
-package com.edubill.edubillApi.excel;
+package com.edubill.edubillApi.service.excel;
 
+import com.edubill.edubillApi.domain.enums.BankName;
 import com.edubill.edubillApi.domain.ExcelUploadStatus;
+import com.edubill.edubillApi.domain.PaymentHistory;
 import com.edubill.edubillApi.domain.User;
 import com.edubill.edubillApi.error.exception.UserNotFoundException;
 import com.edubill.edubillApi.repository.ExcelUploadStatusRepository;
 import com.edubill.edubillApi.repository.users.UserRepositoryInterface;
+
+import com.edubill.edubillApi.service.PaymentService;
+import com.edubill.edubillApi.service.convert.ConvertService;
+import com.edubill.edubillApi.service.convert.ConvertServiceResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.YearMonth;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
 
 @Service
+@Qualifier("excelServiceImpl")
 @Slf4j
-@Qualifier("excelServiceMock")
 @RequiredArgsConstructor
-public class ExcelServiceMock implements ExcelService{
+public class ExcelServiceImpl implements ExcelService {
 
+    private final PaymentService paymentService;
+    private final ConvertServiceResolver convertServiceResolver;
     private final ExcelUploadStatusRepository excelUploadStatusRepository;
     private final UserRepositoryInterface userRepositoryInterface;
 
-    private AtomicInteger taskCounter = new AtomicInteger(0); // task 순서를 관리하는 Atomic 변수
-
+    //TODO: Async 관련 오류 해결
+    //@Async("taskExecutor")
     @Override
-    @Async("taskExecutor")
-    public void convertExcelDataByBankCodeAndGeneratePaymentKey(MultipartFile file, String bankName, String userId, YearMonth yearMonth) throws IOException {
-        try {
-            Thread.sleep(3500);
-            int taskNumber = taskCounter.incrementAndGet(); // task 순서를 증가시키고 해당 번호를 가져옴
-            log.info("convertExcelTest = {}", taskNumber);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    public void convertExcelDataByBankCodeAndGeneratePaymentKey(MultipartFile file, String bankName, final String userId, YearMonth yearMonth) throws IOException {
+
+        ConvertService convertService = convertServiceResolver.resolve(BankName.valueOf(bankName));
+        List<PaymentHistory> paymentHistories = convertService.convertBankExcelDataToPaymentHistory(file, userId);
+        paymentService.savePaymentHistories(paymentHistories);
+        paymentService.handleStudentPaymentProcessing(yearMonth, userId);
     }
 
     @Override
@@ -58,7 +63,7 @@ public class ExcelServiceMock implements ExcelService{
                     .build());
         }else{
             excelUploadStatusRepository.save(excelUploadStatus.toBuilder()
-                    .isExcelUploaded(false)
+                    .isExcelUploaded(true)
                     .build());
         }
     }
@@ -67,7 +72,6 @@ public class ExcelServiceMock implements ExcelService{
     @Transactional
     public Boolean getExcelUploadStatus(String userId, YearMonth yearMonth) {
         String yearMonthString = yearMonth.toString();
-
         User user = userRepositoryInterface.findById(userId).orElseThrow(
                 ()->new UserNotFoundException("존재하지 않는 유저입니다.  userId: "+ userId));
         ExcelUploadStatus excelUploadStatus = excelUploadStatusRepository.findByYearMonthAndUser(yearMonthString, user).orElse(null);

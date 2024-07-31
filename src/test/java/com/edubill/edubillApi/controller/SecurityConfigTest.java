@@ -5,8 +5,8 @@ import com.edubill.edubillApi.domain.enums.AuthRole;
 import com.edubill.edubillApi.domain.User;
 import com.edubill.edubillApi.dto.user.LoginRequestDto;
 import com.edubill.edubillApi.dto.user.SignupRequestDto;
-import com.edubill.edubillApi.dto.verification.VerificationRequestDto;
-import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
+import com.edubill.edubillApi.dto.auth.VerificationRequestDto;
+import com.edubill.edubillApi.dto.auth.VerificationResponseDto;
 import com.edubill.edubillApi.jwt.JwtProvider;
 import com.edubill.edubillApi.repository.redis.RequestIdRepository;
 import com.edubill.edubillApi.repository.redis.RequestIdRepositoryMap;
@@ -14,8 +14,8 @@ import com.edubill.edubillApi.repository.users.UserRepository;
 
 import com.edubill.edubillApi.repository.verification.VerificationRepository;
 import com.edubill.edubillApi.repository.verification.VerificationRepositoryMap;
-import com.edubill.edubillApi.service.AuthService;
-import com.edubill.edubillApi.service.AuthServiceMock;
+import com.edubill.edubillApi.service.auth.AuthService;
+import com.edubill.edubillApi.service.auth.AuthServiceMock;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 

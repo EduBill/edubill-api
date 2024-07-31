@@ -1,9 +1,9 @@
-package com.edubill.edubillApi.service;
+package com.edubill.edubillApi.service.auth;
 
 import com.edubill.edubillApi.dto.user.LoginRequestDto;
 import com.edubill.edubillApi.dto.user.SignupRequestDto;
 import com.edubill.edubillApi.dto.user.UserDto;
-import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
+import com.edubill.edubillApi.dto.auth.VerificationResponseDto;
 
 
 public interface AuthService {

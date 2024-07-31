@@ -2,7 +2,7 @@ package com.edubill.edubillApi.controller;
 
 import com.edubill.edubillApi.dto.FileUrlResponseDto;
 import com.edubill.edubillApi.dto.payment.*;
-import com.edubill.edubillApi.excel.ExcelService;
+import com.edubill.edubillApi.service.excel.ExcelService;
 import com.edubill.edubillApi.service.PaymentService;
 import com.edubill.edubillApi.utils.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;

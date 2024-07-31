@@ -6,6 +6,7 @@ import com.edubill.edubillApi.dto.user.SignupRequestDto;
 import com.edubill.edubillApi.dto.user.UserDto;
 import com.edubill.edubillApi.dto.user.ExistUserRequestDto;
 import com.edubill.edubillApi.repository.users.UserRepository;
+import com.edubill.edubillApi.service.auth.AuthService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

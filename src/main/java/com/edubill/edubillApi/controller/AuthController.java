@@ -1,8 +1,8 @@
 package com.edubill.edubillApi.controller;
 
 import com.edubill.edubillApi.dto.user.*;
-import com.edubill.edubillApi.dto.verification.VerificationRequestDto;
-import com.edubill.edubillApi.dto.verification.VerificationResponseDto;
+import com.edubill.edubillApi.dto.auth.VerificationRequestDto;
+import com.edubill.edubillApi.dto.auth.VerificationResponseDto;
 
 import com.edubill.edubillApi.error.ErrorResponse;
 import com.edubill.edubillApi.error.exception.BusinessException;
@@ -10,9 +10,9 @@ import com.edubill.edubillApi.error.exception.NoAuthorityException;
 
 import com.edubill.edubillApi.jwt.JwtProvider;
 import com.edubill.edubillApi.jwt.JwtToken;
-import com.edubill.edubillApi.service.AuthService;
+import com.edubill.edubillApi.service.auth.AuthService;
 
-import com.edubill.edubillApi.dto.verification.VerificationNumberRequestDto;
+import com.edubill.edubillApi.dto.auth.VerificationNumberRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

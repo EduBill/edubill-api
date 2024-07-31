@@ -2,7 +2,7 @@ package com.edubill.edubillApi.domain;
 
 import com.edubill.edubillApi.domain.enums.GradeLevel;
 import com.edubill.edubillApi.domain.enums.SchoolType;
-import com.edubill.edubillApi.dto.student.GroupInfoRequestDto;
+import com.edubill.edubillApi.dto.group.GroupInfoRequestDto;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -71,7 +71,7 @@ public class Group extends BaseEntity {
     }
 
     //학생수 추가 로직
-    public void addStudent() {
+    public void addStudentCount() {
         if (this.totalStudentCount != null) {
             this.totalStudentCount = this.totalStudentCount + 1;
         } else {
@@ -80,7 +80,7 @@ public class Group extends BaseEntity {
     }
 
     //학생수 감소 로직
-    public void removeStudent() {
+    public void removeStudentCount() {
         if (this.totalStudentCount != null) {
             if (this.totalStudentCount > 0) {
                 this.totalStudentCount = this.totalStudentCount - 1;

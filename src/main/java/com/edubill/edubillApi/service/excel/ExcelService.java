@@ -1,4 +1,4 @@
-package com.edubill.edubillApi.excel;
+package com.edubill.edubillApi.service.excel;
 
 import com.edubill.edubillApi.dto.ExcelResponseDto;
 import org.springframework.web.multipart.MultipartFile;

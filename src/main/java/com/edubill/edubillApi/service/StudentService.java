@@ -1,6 +1,9 @@
 package com.edubill.edubillApi.service;
 
 import com.edubill.edubillApi.domain.*;
+import com.edubill.edubillApi.dto.group.DeletedGroupInfoDto;
+import com.edubill.edubillApi.dto.group.GroupInfoRequestDto;
+import com.edubill.edubillApi.dto.group.GroupInfoResponseDto;
 import com.edubill.edubillApi.dto.student.*;
 import com.edubill.edubillApi.error.exception.GroupNotFoundException;
 import com.edubill.edubillApi.error.exception.StudentNotFoundException;
@@ -43,7 +46,7 @@ public class StudentService {
             Group group = groupRepository.findById(groupId) //TODO: groupId와 userId를 동시에 이용해 찾아야 하는지
                     .orElseThrow(() -> new GroupNotFoundException("Group not found with id " + groupId));
 
-            group.addStudent();
+            group.addStudentCount();
 
             StudentGroup studentGroup = StudentGroup.builder()
                     .student(savedStudent)
@@ -103,7 +106,7 @@ public class StudentService {
         for (StudentGroup studentGroup : studentGroups) {
             Group group = groupRepository.findById(studentGroup.getGroup().getId())
                     .orElseThrow(() -> new GroupNotFoundException("Group not found with id " + studentGroup.getGroup().getId()));
-            group.removeStudent();
+            group.removeStudentCount();
             groupRepository.save(group);
         }
 
@@ -124,6 +127,29 @@ public class StudentService {
     }
 
     @Transactional
+    public DeletedGroupInfoDto deleteGroupInfo(Long groupId) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new GroupNotFoundException("group not found"));
+
+        List<ClassTime> classTimes = group.getClassTimes();
+        List<StudentGroup> studentGroups = group.getStudentGroups();
+
+        List<Long> deletedClassTimeIds = extractIds(classTimes, ClassTime::getClassTimeId);
+        List<Long> deletedStudentGroupIds = extractIds(studentGroups, StudentGroup::getStudentGroupId);
+
+        classTimeRepository.deleteAll(classTimes);
+        studentGroupRepository.deleteAll(studentGroups);
+        groupRepository.deleteById(groupId);
+
+        return DeletedGroupInfoDto.builder()
+                .deletedGroupId(groupId)
+                .deletedClassTimeIds(deletedClassTimeIds)
+                .deletedStudentGroupIds(deletedStudentGroupIds)
+                .build();
+    }
+
+    //테스트 용
+    @Transactional
     public void addStudentAndGroupInfoTest(StudentInfoTestRequestDto studentInfoTestRequestDto, final String userId) {
 
         List<Group> groups = groupRepository.getGroupsByUserId(userId);
@@ -138,7 +164,7 @@ public class StudentService {
                     .build();
         }
         //학생수 증가
-        group.addStudent();
+        group.addStudentCount();
         Student student = Student.builder()
                 .studentName(studentInfoTestRequestDto.getStudentName())
                 .studentPhoneNumber(studentInfoTestRequestDto.getStudentPhoneNumber())

@@ -14,7 +14,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("https://staging.api.edu-bill.co.kr/","http://localhost:8203", "https://www.edu-bill.co.kr", "http://localhost:8080", "https://api.edu-bill.co.kr/")
+                        .allowedOrigins("https://staging.app.edu-bill.co.kr/","http://localhost:8203", "https://www.edu-bill.co.kr", "http://localhost:8080", "https://api.edu-bill.co.kr/")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);

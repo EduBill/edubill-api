@@ -1,4 +1,4 @@
-package com.edubill.edubillApi.dto.verification;
+package com.edubill.edubillApi.dto.auth;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;

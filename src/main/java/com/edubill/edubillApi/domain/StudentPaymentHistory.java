@@ -30,7 +30,7 @@ public class StudentPaymentHistory extends BaseEntity{
     private Student student;
 
     @OneToOne(fetch = LAZY)
-    @JoinColumn(name = "paymentHistory_id")
+    @JoinColumn(name = "payment_history_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private PaymentHistory paymentHistory;
 

@@ -1,4 +1,4 @@
-package com.edubill.edubillApi.dto.student;
+package com.edubill.edubillApi.dto.group;
 
 
 import com.edubill.edubillApi.domain.enums.DayOfWeek;

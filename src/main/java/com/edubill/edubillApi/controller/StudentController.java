@@ -1,6 +1,9 @@
 package com.edubill.edubillApi.controller;
 
 
+import com.edubill.edubillApi.dto.group.DeletedGroupInfoDto;
+import com.edubill.edubillApi.dto.group.GroupInfoRequestDto;
+import com.edubill.edubillApi.dto.group.GroupInfoResponseDto;
 import com.edubill.edubillApi.dto.student.*;
 import com.edubill.edubillApi.service.StudentService;
 
@@ -8,13 +11,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.security.Principal;
-import java.time.YearMonth;
 
 @Tag(name = "Student", description = "학생정보관리 API")
 @RestController
@@ -46,16 +44,10 @@ public class StudentController {
         return ResponseEntity.ok(studentService.deleteStudentInfo(studentId));
     }
 
-    @Operation(summary = "학생/반 테스트 데이터 추가",
-            description = "임의의 학생과 반 정보를 등록한다.")
-    @PostMapping("/test")
-    public ResponseEntity<String> addStudentAndGroupInfoTest(
-            @Validated @RequestBody StudentInfoTestRequestDto studentInfoTestRequestDto,
-            final Principal principal) {
-
-        final String userId = principal.getName();
-        studentService.addStudentAndGroupInfoTest(studentInfoTestRequestDto, userId);
-
-        return ResponseEntity.ok("학생 추가 완료");
+    @Operation(summary = "반 삭제",
+            description = "특정 id에 해당하는 반을 삭제한다.")
+    @DeleteMapping("/groups/{groupId}")
+    public ResponseEntity<DeletedGroupInfoDto> deleteGroupInfo(@PathVariable(name = "groupId") Long groupId) {
+        return ResponseEntity.ok(studentService.deleteGroupInfo(groupId));
     }
 }

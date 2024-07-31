@@ -4,6 +4,10 @@ import com.edubill.edubillApi.domain.*;
 import com.edubill.edubillApi.dto.group.DeletedGroupInfoDto;
 import com.edubill.edubillApi.dto.group.GroupInfoRequestDto;
 import com.edubill.edubillApi.dto.group.GroupInfoResponseDto;
+import com.edubill.edubillApi.dto.group.DeletedGroupInfoDto;
+import com.edubill.edubillApi.dto.group.GroupIdAndNameResponseDto;
+import com.edubill.edubillApi.dto.group.GroupInfoRequestDto;
+import com.edubill.edubillApi.dto.group.GroupInfoResponseDto;
 import com.edubill.edubillApi.dto.student.*;
 import com.edubill.edubillApi.error.exception.GroupNotFoundException;
 import com.edubill.edubillApi.error.exception.StudentNotFoundException;
@@ -85,6 +89,19 @@ public class StudentService {
         classTimeRepository.saveAll(classTimes);
 
         return GroupInfoResponseDto.createGroupInfoResponse(savedGroup, classTimes);
+    }
+
+    @Transactional(readOnly = true)
+    public List<GroupIdAndNameResponseDto> findAllGroupsByUserId() {
+
+        List<Group> groups = groupRepository.getGroupsByUserId(SecurityUtils.getCurrentUserId());
+
+        return groups.stream()
+                .map(group -> GroupIdAndNameResponseDto.builder()
+                        .groupId(group.getId())
+                        .groupName(group.getGroupName())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     @Transactional

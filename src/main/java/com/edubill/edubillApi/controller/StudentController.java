@@ -4,6 +4,10 @@ package com.edubill.edubillApi.controller;
 import com.edubill.edubillApi.dto.group.DeletedGroupInfoDto;
 import com.edubill.edubillApi.dto.group.GroupInfoRequestDto;
 import com.edubill.edubillApi.dto.group.GroupInfoResponseDto;
+import com.edubill.edubillApi.dto.group.DeletedGroupInfoDto;
+import com.edubill.edubillApi.dto.group.GroupIdAndNameResponseDto;
+import com.edubill.edubillApi.dto.group.GroupInfoRequestDto;
+import com.edubill.edubillApi.dto.group.GroupInfoResponseDto;
 import com.edubill.edubillApi.dto.student.*;
 import com.edubill.edubillApi.service.StudentService;
 
@@ -13,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "Student", description = "학생정보관리 API")
 @RestController
@@ -37,9 +43,17 @@ public class StudentController {
         return ResponseEntity.ok(studentService.addGroupInfo(groupInfoRequestDto));
     }
 
+    @Operation(summary = "반 조회",
+            description = "유저가 생성한 모든 반을 가져온다.")
+    @GetMapping("/allGroups")
+    public ResponseEntity<List<GroupIdAndNameResponseDto>> findAllGroups() {
+        return ResponseEntity.ok(studentService.findAllGroupsByUserId());
+    }
+
     @Operation(summary = "학생 삭제",
             description = "특정 id에 해당하는 학생을 삭제한다.")
     @DeleteMapping("/{studentId}")
+
     public ResponseEntity<DeletedStudentInfoDto> deleteStudentInfo(@PathVariable(name = "studentId") Long studentId) {
         return ResponseEntity.ok(studentService.deleteStudentInfo(studentId));
     }

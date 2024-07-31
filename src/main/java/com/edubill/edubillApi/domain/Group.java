@@ -62,6 +62,7 @@ public class Group extends BaseEntity {
         this.gradeLevel = groupInfoRequestDto.getGradeLevel();
         this.tuition = groupInfoRequestDto.getTuition();
         this.groupMemo = groupInfoRequestDto.getGroupMemo();
+        this.totalStudentCount = 0;
         this.studentGroups = new ArrayList<>();
         this.classTimes = new ArrayList<>();
     }

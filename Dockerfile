@@ -11,7 +11,7 @@ RUN /usr/lib/jvm/default-jvm/bin/jlink \
 FROM alpine:3.18
 COPY --from=build /jdk-minimal /opt/jdk/
 
-ARG JAR_FILE=build/libs/edubillApi-0.0.1-SNAPSHOT.jar
+ARG JAR_FILE=dev/build/libs/edubillApi-0.0.1-SNAPSHOT.jar
 COPY ${JAR_FILE} app.jar
 COPY .env /app/.env
 

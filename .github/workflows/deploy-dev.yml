@@ -1,4 +1,4 @@
-name: Deploy Spring Boot Application to AWS EC2
+name: Deploy Spring Boot Application to AWS EC2 (Dev Environment)
 
 on:
   push:
@@ -62,9 +62,9 @@ jobs:
           mkdir -p dev/action/scripts
           touch dev/action/scripts/.env
           echo "SPRING_PROFILE=dev" > dev/action/scripts/.env
-          echo "EDUBILL_DB_HOST=${{ secrets.EDUBILL_PROD_DB_HOST }}" >> dev/action/scripts/.env
-          echo "EDUBILL_DB_USER=${{ secrets.EDUBILL_PROD_DB_USER }}" >> dev/action/scripts/.env
-          echo "EDUBILL_DB_PASSWORD=${{ secrets.EDUBILL_PROD_DB_PASSWORD }}" >> dev/action/scripts/.env
+          echo "EDUBILL_DB_HOST=${{ secrets.EDUBILL_DEV_DB_HOST }}" >> dev/action/scripts/.env
+          echo "EDUBILL_DB_USER=${{ secrets.EDUBILL_DEV_DB_USER }}" >> dev/action/scripts/.env
+          echo "EDUBILL_DB_PASSWORD=${{ secrets.EDUBILL_DEV_DB_PASSWORD }}" >> dev/action/scripts/.env
           echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> dev/action/scripts/.env
           echo "S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }}" >> dev/action/scripts/.env
           echo "S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }}" >> dev/action/scripts/.env

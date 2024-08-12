@@ -92,7 +92,7 @@ jobs:
           echo "aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ env.ecr_registry }}" >> dev/scripts/start.sh
           echo "docker pull ${{ env.ecr_registry }}/${{ env.ecr_repository }}:${{ env.image_tag }}" >> dev/scripts/start.sh
           echo "docker run -d --restart always -p 8081:8081 --name ${{ env.image_name }} \\" >> dev/scripts/start.sh
-          echo "  --env-file /home/ubuntu/dev/action/scripts/.env \\" >> dev/scripts/start.sh
+          echo "  --env-file /home/ubuntu/dev/scripts/.env \\" >> dev/scripts/start.sh
           echo "  ${{ env.ecr_registry }}/${{ env.ecr_repository }}:${{ env.image_tag }}" >> dev/scripts/start.sh
           chmod +x dev/scripts/start.sh
 

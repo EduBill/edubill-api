@@ -59,21 +59,21 @@ jobs:
 
       - name: Create dev/.env file
         run: |
-          mkdir -p dev/action/scripts
-          touch dev/action/scripts/.env
-          echo "SPRING_PROFILE=dev" > dev/action/scripts/.env
-          echo "EDUBILL_DB_HOST=${{ secrets.EDUBILL_DEV_DB_HOST }}" >> dev/action/scripts/.env
-          echo "EDUBILL_DB_USER=${{ secrets.EDUBILL_DEV_DB_USER }}" >> dev/action/scripts/.env
-          echo "EDUBILL_DB_PASSWORD=${{ secrets.EDUBILL_DEV_DB_PASSWORD }}" >> dev/action/scripts/.env
-          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> dev/action/scripts/.env
-          echo "S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }}" >> dev/action/scripts/.env
-          echo "S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }}" >> dev/action/scripts/.env
+          mkdir -p dev/scripts
+          touch dev/scripts/.env
+          echo "SPRING_PROFILE=dev" > dev/scripts/.env
+          echo "EDUBILL_DB_HOST=${{ secrets.EDUBILL_DEV_DB_HOST }}" >> dev/scripts/.env
+          echo "EDUBILL_DB_USER=${{ secrets.EDUBILL_DEV_DB_USER }}" >> dev/scripts/.env
+          echo "EDUBILL_DB_PASSWORD=${{ secrets.EDUBILL_DEV_DB_PASSWORD }}" >> dev/scripts/.env
+          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> dev/scripts/.env
+          echo "S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }}" >> dev/scripts/.env
+          echo "S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }}" >> dev/scripts/.env
 
       - name: Verify .env file
-        run: cat dev/action/scripts/.env
+        run: cat dev/scripts/.env
 
       - name: Copy .env to build context
-        run: cp dev/action/scripts/.env .
+        run: cp dev/scripts/.env .
 
       - name: Build and Push Docker image for dev profile
         run: |
@@ -86,15 +86,15 @@ jobs:
 
       - name: Create deployment script
         run: |
-          mkdir -p dev/action/scripts
-          touch dev/action/scripts/start.sh
-          echo "#!/bin/bash" > dev/action/scripts/start.sh
-          echo "aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ env.ecr_registry }}" >> dev/action/scripts/start.sh
-          echo "docker pull ${{ env.ecr_registry }}/${{ env.ecr_repository }}:${{ env.image_tag }}" >> dev/action/scripts/start.sh
-          echo "docker run -d --restart always -p 8081:8081 --name ${{ env.image_name }} \\" >> dev/action/scripts/start.sh
-          echo "  --env-file /home/ubuntu/dev/action/scripts/.env \\" >> dev/action/scripts/start.sh
-          echo "  ${{ env.ecr_registry }}/${{ env.ecr_repository }}:${{ env.image_tag }}" >> dev/action/scripts/start.sh
-          chmod +x dev/action/scripts/start.sh
+          mkdir -p dev/scripts
+          touch dev/scripts/start.sh
+          echo "#!/bin/bash" > dev/scripts/start.sh
+          echo "aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ env.ecr_registry }}" >> dev/scripts/start.sh
+          echo "docker pull ${{ env.ecr_registry }}/${{ env.ecr_repository }}:${{ env.image_tag }}" >> dev/scripts/start.sh
+          echo "docker run -d --restart always -p 8081:8081 --name ${{ env.image_name }} \\" >> dev/scripts/start.sh
+          echo "  --env-file /home/ubuntu/dev/action/scripts/.env \\" >> dev/scripts/start.sh
+          echo "  ${{ env.ecr_registry }}/${{ env.ecr_repository }}:${{ env.image_tag }}" >> dev/scripts/start.sh
+          chmod +x dev/scripts/start.sh
 
       - name: Upload deployment zip to S3
         env:

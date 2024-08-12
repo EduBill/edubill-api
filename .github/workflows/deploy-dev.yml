@@ -59,7 +59,7 @@ jobs:
 
       - name: Create dev/.env file
         run: |
-          mkdir -p /scripts
+          mkdir -p scripts
           touch scripts/.env
           echo "SPRING_PROFILE=dev" > scripts/.env
           echo "EDUBILL_DB_HOST=${{ secrets.EDUBILL_DEV_DB_HOST }}" >> scripts/.env

@@ -3,22 +3,22 @@ os: linux
 
 files:
   - source: /
-    destination: /home/ubuntu/
+    destination: /home/ubuntu/dev
     overwrite: yes
 file_exists_behavior: OVERWRITE
 permissions:
-  - object: /home/ubuntu/
+  - object: /home/ubuntu/dev
     owner: ubuntu
     group: ubuntu
 
 hooks:
   AfterInstall:
-    - location: dev/action/scripts/stop.sh
+    - location: action/scripts/stop.sh
       timeout: 60
       runas: root
 
   ApplicationStart:
-    - location: dev/action/scripts/start.sh
+    - location: action/scripts/start.sh
       timeout: 60
       runas: root
 

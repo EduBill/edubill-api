@@ -88,7 +88,7 @@ jobs:
         run: |
           mkdir -p dev/action/scripts
           touch dev/action/scripts/start.sh
-          echo "#!/bin/bash" > dev/scripts/start.sh
+          echo "#!/bin/bash" > dev/action/scripts/start.sh
           echo "aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ env.ecr_registry }}" >> dev/action/scripts/start.sh
           echo "docker pull ${{ env.ecr_registry }}/${{ env.ecr_repository }}:${{ env.image_tag }}" >> dev/action/scripts/start.sh
           echo "docker run -d --restart always -p 8081:8081 --name ${{ env.image_name }} \\" >> dev/action/scripts/start.sh

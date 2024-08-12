@@ -1,5 +1,6 @@
 package com.edubill.edubillApi.service.convert;
 
+import com.edubill.edubillApi.Validator;
 import com.edubill.edubillApi.domain.enums.PaymentType;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryDto;
 import com.edubill.edubillApi.domain.PaymentHistory;
@@ -27,6 +28,7 @@ public class SHINHANConvertService implements ConvertService {
 
     private final PaymentService paymentService;
     private static final String BANK_NAME = "SHINHAN";
+    private final Validator validator;
 
     @Override
     public List<PaymentHistory> convertBankExcelDataToPaymentHistory(MultipartFile file, String userId) throws IOException {
@@ -72,7 +74,8 @@ public class SHINHANConvertService implements ConvertService {
                 // 입금액이 양수인 경우에만 처리
                 depositorName = formatter.formatCellValue(row.getCell(5));
                 // 한글 이외의 영어, 숫자, 문자가 포함된 경우 해당 행의 데이터를 전달하지 않음
-                if (depositorName.matches(".*[a-zA-Z0-9].*")) {
+                // 영어가,포함된 경우 해당 행의 데이터를 전달하지 않음
+                if (!validator.isValidDepositorName(depositorName)) {
                     continue;
                 }
             } else {

@@ -4,6 +4,7 @@ import com.edubill.edubillApi.config.TestcontainerConfig;
 import com.edubill.edubillApi.domain.PaymentHistory;
 import com.edubill.edubillApi.domain.User;
 import com.edubill.edubillApi.service.convert.HANAConvertService;
+import com.edubill.edubillApi.service.convert.KOOKMINConvertService;
 import com.edubill.edubillApi.service.convert.SHINHANConvertService;
 import com.edubill.edubillApi.service.excel.ExcelServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,6 +41,8 @@ public class ExcelServiceTest {
     HANAConvertService hanaConvertService;
     @Autowired
     SHINHANConvertService shinhanConvertService;
+    @Autowired
+    KOOKMINConvertService kookminConvertService;
 
     private MockMultipartFile getMockMultipartFile(String fileName, String contentType, String path) throws IOException {
         FileInputStream fileInputStream = new FileInputStream(new File(path));
@@ -47,6 +51,7 @@ public class ExcelServiceTest {
 
     @Test
     @DisplayName("하나은행 엑셀 데이터 업로드")
+    @Transactional
     void convertBankDataToPaymentHistory_Hana() throws IOException {
 
         //given
@@ -70,6 +75,7 @@ public class ExcelServiceTest {
 
     @Test
     @DisplayName("신한은행 엑셀 데이터 업로드")
+    @Transactional
     void convertBankDataToPaymentHistory_ShinHan() throws IOException {
 
         //given
@@ -89,5 +95,29 @@ public class ExcelServiceTest {
         assertThat(paymentHistories.get(0).getBankName()).isEqualTo("SHINHAN");
         assertThat(paymentHistories.get(0).getDepositorName()).isEqualTo("학부모1");
         assertThat(paymentHistories.get(0).getPaidAmount()).isEqualTo(200000);
+    }
+
+    @Test
+    @DisplayName("국민은행 엑셀 데이터 변환")
+    @Transactional
+    void convertBankDataToPaymentHistory_KookMin() throws IOException {
+
+        //given
+        User user = User.builder()
+                .userId("1")
+                .build();
+        String fileName = "testKookMinUpload2";
+        String contentType = "xlsx";
+        String filePath = "src/test/resources/testKookMinUpload2.xlsx";
+        MockMultipartFile mockMultipartFile = getMockMultipartFile(fileName, contentType, filePath);
+
+        //when
+        List<PaymentHistory> paymentHistories = kookminConvertService.convertBankExcelDataToPaymentHistory(mockMultipartFile, user.getUserId());
+
+        //then
+        assertThat(paymentHistories.size()).isEqualTo(7);
+        assertThat(paymentHistories.get(0).getBankName()).isEqualTo("KOOKMIN");
+        assertThat(paymentHistories.get(0).getDepositorName()).isEqualTo("유저 1");
+        assertThat(paymentHistories.get(0).getPaidAmount()).isEqualTo(300000);
     }
 }

@@ -68,4 +68,26 @@ public class ExcelServiceTest {
         assertThat(paymentHistories.get(0).getPaidAmount()).isEqualTo(200000);
     }
 
+    @Test
+    @DisplayName("신한은행 엑셀 데이터 업로드")
+    void convertBankDataToPaymentHistory_ShinHan() throws IOException {
+
+        //given
+        User user = User.builder()
+                .userId("1")
+                .build();
+        String fileName = "testShinHanUpload";
+        String contentType = "xls";
+        String filePath = "src/test/resources/testShinHanUpload.xls";
+        MockMultipartFile mockMultipartFile = getMockMultipartFile(fileName, contentType, filePath);
+
+        //when
+        List<PaymentHistory> paymentHistories = shinhanConvertService.convertBankExcelDataToPaymentHistory(mockMultipartFile, user.getUserId());
+
+        //then
+        assertThat(paymentHistories.size()).isEqualTo(7);
+        assertThat(paymentHistories.get(0).getBankName()).isEqualTo("SHINHAN");
+        assertThat(paymentHistories.get(0).getDepositorName()).isEqualTo("학부모1");
+        assertThat(paymentHistories.get(0).getPaidAmount()).isEqualTo(200000);
+    }
 }

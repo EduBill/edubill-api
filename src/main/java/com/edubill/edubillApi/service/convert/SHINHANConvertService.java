@@ -48,7 +48,7 @@ public class SHINHANConvertService implements ConvertService {
 
         Sheet sheet = workbook.getSheetAt(0);
 
-        for (int rowNumber = 7; rowNumber < sheet.getPhysicalNumberOfRows(); rowNumber++) {
+        for (int rowNumber = 7; rowNumber < sheet.getLastRowNum()+1; rowNumber++) {
 
             DataFormatter formatter = new DataFormatter();
             Row row = sheet.getRow(rowNumber);

@@ -94,7 +94,7 @@ public class PaymentTest {
     void getUnpaidStudentsTest() {
 
         //given
-        User user = createUser("01011111111@phone.auth", "manager1", "01022222222");
+        User user = createUser("01011111111@phone.auth", "manager1", "01022343512");
         userRepository.save(user);
 
         Group group1 = createGroup("group1", user.getUserId());
@@ -139,7 +139,7 @@ public class PaymentTest {
     @Transactional
     void paidStudents(){
         //given
-        User user = createUser("1", "manager1", "01022222222");
+        User user = createUser("1", "manager1", "01021352222");
         userRepository.save(user);
 
         Group group1 = createGroup("group1", user.getUserId());

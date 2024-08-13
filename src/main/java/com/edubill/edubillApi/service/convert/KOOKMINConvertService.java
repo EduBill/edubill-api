@@ -6,7 +6,6 @@ import com.edubill.edubillApi.dto.payment.PaymentHistoryDto;
 import com.edubill.edubillApi.domain.PaymentHistory;
 
 
-import com.edubill.edubillApi.service.convert.ConvertService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -30,7 +29,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Service("KOOKMINconvertService")
-public class KOOMINConvertService implements ConvertService {
+public class KOOKMINConvertService implements ConvertService {
     private static final String BANK_NAME = "KOOKMIN";
     private final Validator validator;
     @Override

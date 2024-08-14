@@ -4,10 +4,8 @@ import com.edubill.edubillApi.domain.*;
 import com.edubill.edubillApi.dto.group.DeletedGroupInfoDto;
 import com.edubill.edubillApi.dto.group.GroupInfoRequestDto;
 import com.edubill.edubillApi.dto.group.GroupInfoResponseDto;
-import com.edubill.edubillApi.dto.group.DeletedGroupInfoDto;
 import com.edubill.edubillApi.dto.group.GroupIdAndNameResponseDto;
-import com.edubill.edubillApi.dto.group.GroupInfoRequestDto;
-import com.edubill.edubillApi.dto.group.GroupInfoResponseDto;
+
 import com.edubill.edubillApi.dto.student.*;
 import com.edubill.edubillApi.error.exception.GroupNotFoundException;
 import com.edubill.edubillApi.error.exception.StudentNotFoundException;
@@ -21,6 +19,8 @@ import com.edubill.edubillApi.repository.student.StudentRepository;
 
 import com.edubill.edubillApi.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,7 +47,7 @@ public class StudentService {
 
         List<StudentGroup> studentGroups = new ArrayList<>();
         for (Long groupId : studentInfoRequestDto.getGroupIds()) {
-            Group group = groupRepository.findById(groupId) //TODO: groupId와 userId를 동시에 이용해 찾아야 하는지
+            Group group = groupRepository.findById(groupId)
                     .orElseThrow(() -> new GroupNotFoundException("Group not found with id " + groupId));
 
             group.addStudentCount();
@@ -92,16 +92,13 @@ public class StudentService {
     }
 
     @Transactional(readOnly = true)
-    public List<GroupIdAndNameResponseDto> findAllGroupsByUserId() {
+    public Page<GroupIdAndNameResponseDto> findAllGroupsByUserId(Pageable pageable) {
+        Page<Group> groups = groupRepository.getGroupsByUserIdWithPaging(SecurityUtils.getCurrentUserId(),pageable);
 
-        List<Group> groups = groupRepository.getGroupsByUserId(SecurityUtils.getCurrentUserId());
-
-        return groups.stream()
-                .map(group -> GroupIdAndNameResponseDto.builder()
-                        .groupId(group.getId())
-                        .groupName(group.getGroupName())
-                        .build())
-                .collect(Collectors.toList());
+        return groups.map(group -> GroupIdAndNameResponseDto.builder()
+                .groupId(group.getId())
+                .groupName(group.getGroupName())
+                .build());
     }
 
     @Transactional

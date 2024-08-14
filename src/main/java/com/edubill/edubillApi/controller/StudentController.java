@@ -4,10 +4,7 @@ package com.edubill.edubillApi.controller;
 import com.edubill.edubillApi.dto.group.DeletedGroupInfoDto;
 import com.edubill.edubillApi.dto.group.GroupInfoRequestDto;
 import com.edubill.edubillApi.dto.group.GroupInfoResponseDto;
-import com.edubill.edubillApi.dto.group.DeletedGroupInfoDto;
 import com.edubill.edubillApi.dto.group.GroupIdAndNameResponseDto;
-import com.edubill.edubillApi.dto.group.GroupInfoRequestDto;
-import com.edubill.edubillApi.dto.group.GroupInfoResponseDto;
 import com.edubill.edubillApi.dto.student.*;
 import com.edubill.edubillApi.service.StudentService;
 
@@ -15,10 +12,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "Student", description = "학생정보관리 API")
 @RestController
@@ -46,8 +44,11 @@ public class StudentController {
     @Operation(summary = "반 조회",
             description = "유저가 생성한 모든 반을 가져온다.")
     @GetMapping("/allGroups")
-    public ResponseEntity<List<GroupIdAndNameResponseDto>> findAllGroups() {
-        return ResponseEntity.ok(studentService.findAllGroupsByUserId());
+    public ResponseEntity<Page<GroupIdAndNameResponseDto>> findAllGroups(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(studentService.findAllGroupsByUserId(pageable));
     }
 
     @Operation(summary = "학생 삭제",

@@ -38,8 +38,9 @@ public enum ErrorCode {
     INVALID_INPUT_VALUE(400, "C002", "잘못된 일력 값을 입력하였습니다."),
     INVALID_TYPE_VALUE(400, "C003", "잘못된 타입을 입력하였습니다."),
     BAD_CREDENTIALS(400, "C005", "bad credentials"),
-    BAD_GATEWAY_ERROR(502,"C006", "bad gateway");
-    
+    BAD_GATEWAY_ERROR(502,"C006", "bad gateway"),
+    INVALID_DATETIME_VALUE(400,"C007", "날짜 텍스트를 변환할 수 없습니다.");
+
 
 
     private final int status;

@@ -1,10 +1,7 @@
 package com.edubill.edubillApi.controller;
 
 
-import com.edubill.edubillApi.dto.group.DeletedGroupInfoDto;
-import com.edubill.edubillApi.dto.group.GroupInfoRequestDto;
-import com.edubill.edubillApi.dto.group.GroupInfoResponseDto;
-import com.edubill.edubillApi.dto.group.GroupInfoInAddStudentResponseDto;
+import com.edubill.edubillApi.dto.group.*;
 import com.edubill.edubillApi.dto.student.*;
 import com.edubill.edubillApi.service.StudentService;
 
@@ -42,6 +39,13 @@ public class StudentController {
     }
 
     @Operation(summary = "반 조회",
+            description = "특정한 반의 정보를 조회한다.")
+    @GetMapping("/groups/{groupId}")
+    public ResponseEntity<GroupInfoResponseDto> findGroupDetail(@PathVariable long groupId) {
+        return ResponseEntity.ok(studentService.findGroupDetailById(groupId));
+    }
+
+    @Operation(summary = "반 상세 조회",
             description = "유저가 생성한 모든 반을 가져온다.")
     @GetMapping("/allGroups")
     public ResponseEntity<Page<GroupInfoInAddStudentResponseDto>> findAllGroups(

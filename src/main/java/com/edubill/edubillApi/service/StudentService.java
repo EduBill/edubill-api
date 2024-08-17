@@ -4,7 +4,7 @@ import com.edubill.edubillApi.domain.*;
 import com.edubill.edubillApi.dto.group.DeletedGroupInfoDto;
 import com.edubill.edubillApi.dto.group.GroupInfoRequestDto;
 import com.edubill.edubillApi.dto.group.GroupInfoResponseDto;
-import com.edubill.edubillApi.dto.group.GroupIdAndNameResponseDto;
+import com.edubill.edubillApi.dto.group.GroupInfoInAddStudentResponseDto;
 
 import com.edubill.edubillApi.dto.student.*;
 import com.edubill.edubillApi.error.exception.GroupNotFoundException;
@@ -92,13 +92,20 @@ public class StudentService {
     }
 
     @Transactional(readOnly = true)
-    public Page<GroupIdAndNameResponseDto> findAllGroupsByUserId(Pageable pageable) {
+    public Page<GroupInfoInAddStudentResponseDto> findAllGroupsByUserId(Pageable pageable) {
         Page<Group> groups = groupRepository.getGroupsByUserIdWithPaging(SecurityUtils.getCurrentUserId(),pageable);
 
-        return groups.map(group -> GroupIdAndNameResponseDto.builder()
-                .groupId(group.getId())
-                .groupName(group.getGroupName())
-                .build());
+        return groups.map(group -> {
+            List<GroupInfoInAddStudentResponseDto.ClassTimeResponseDto> classTimeResponseDtos = group.getClassTimes().stream()
+                    .map(GroupInfoInAddStudentResponseDto.ClassTimeResponseDto::createClassTimeResponse)
+                    .collect(Collectors.toList());
+
+            return GroupInfoInAddStudentResponseDto.builder()
+                    .groupId(group.getId())
+                    .groupName(group.getGroupName())
+                    .classTimeResponseDtos(classTimeResponseDtos)
+                    .build();
+        });
     }
 
     @Transactional

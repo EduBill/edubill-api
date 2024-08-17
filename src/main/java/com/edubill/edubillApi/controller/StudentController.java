@@ -4,7 +4,7 @@ package com.edubill.edubillApi.controller;
 import com.edubill.edubillApi.dto.group.DeletedGroupInfoDto;
 import com.edubill.edubillApi.dto.group.GroupInfoRequestDto;
 import com.edubill.edubillApi.dto.group.GroupInfoResponseDto;
-import com.edubill.edubillApi.dto.group.GroupIdAndNameResponseDto;
+import com.edubill.edubillApi.dto.group.GroupInfoInAddStudentResponseDto;
 import com.edubill.edubillApi.dto.student.*;
 import com.edubill.edubillApi.service.StudentService;
 
@@ -44,7 +44,7 @@ public class StudentController {
     @Operation(summary = "반 조회",
             description = "유저가 생성한 모든 반을 가져온다.")
     @GetMapping("/allGroups")
-    public ResponseEntity<Page<GroupIdAndNameResponseDto>> findAllGroups(
+    public ResponseEntity<Page<GroupInfoInAddStudentResponseDto>> findAllGroups(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);

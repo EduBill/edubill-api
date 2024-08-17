@@ -1,10 +1,7 @@
 package com.edubill.edubillApi.service;
 
 import com.edubill.edubillApi.domain.*;
-import com.edubill.edubillApi.dto.group.DeletedGroupInfoDto;
-import com.edubill.edubillApi.dto.group.GroupInfoRequestDto;
-import com.edubill.edubillApi.dto.group.GroupInfoResponseDto;
-import com.edubill.edubillApi.dto.group.GroupInfoInAddStudentResponseDto;
+import com.edubill.edubillApi.dto.group.*;
 
 import com.edubill.edubillApi.dto.student.*;
 import com.edubill.edubillApi.error.exception.GroupNotFoundException;
@@ -106,6 +103,14 @@ public class StudentService {
                     .classTimeResponseDtos(classTimeResponseDtos)
                     .build();
         });
+    }
+    @Transactional(readOnly = true)
+    public GroupInfoResponseDto findGroupDetailById(long groupId) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new GroupNotFoundException("반이 존재하지 않습니다."));
+        List<ClassTime> classTimes = classTimeRepository.findByGroupId(groupId);
+
+        return GroupInfoResponseDto.createGroupInfoResponse(group, classTimes);
     }
 
     @Transactional

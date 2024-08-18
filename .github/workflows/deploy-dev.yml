@@ -2,7 +2,7 @@ name: Deploy Spring Boot Application to AWS EC2 (Dev Environment)
 
 on:
   push:
-    branches: [ EB-75 ]
+    branches: [ develop ]
 
 env:
   BUCKET_NAME: edubill-dev

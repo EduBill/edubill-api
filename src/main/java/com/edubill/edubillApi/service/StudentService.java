@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class StudentService {
 
     private final GroupRepository groupRepository;
@@ -88,7 +89,24 @@ public class StudentService {
         return GroupInfoResponseDto.createGroupInfoResponse(savedGroup, classTimes);
     }
 
-    @Transactional(readOnly = true)
+    public Page<StudentAndGroupResponseDto> findAllStudentsByUserId(Pageable pageable) {
+        Page<Student> students = studentRepository.getStudentsByUserIdWithPaging(SecurityUtils.getCurrentUserId(),pageable);
+
+        return students.map(student -> {
+            // 학생이 속한 그룹들의 className을 가져오기
+            List<String> classNames = student.getStudentGroups().stream()
+                    .map(studentGroup -> studentGroup.getGroup().getGroupName())
+                    .collect(Collectors.toList());
+
+            return StudentAndGroupResponseDto.builder()
+                    .studentId(student.getId())
+                    .studentName(student.getStudentName())
+                    .parentName(student.getParentName())
+                    .classNames(classNames)
+                    .build();
+        });
+    }
+
     public Page<GroupInfoInAddStudentResponseDto> findAllGroupsByUserId(Pageable pageable) {
         Page<Group> groups = groupRepository.getGroupsByUserIdWithPaging(SecurityUtils.getCurrentUserId(),pageable);
 
@@ -104,7 +122,7 @@ public class StudentService {
                     .build();
         });
     }
-    @Transactional(readOnly = true)
+
     public GroupInfoResponseDto findGroupDetailById(long groupId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException("반이 존재하지 않습니다."));

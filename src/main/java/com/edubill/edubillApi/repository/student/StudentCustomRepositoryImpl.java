@@ -1,12 +1,15 @@
 package com.edubill.edubillApi.repository.student;
 
-import com.edubill.edubillApi.domain.Group;
-import com.edubill.edubillApi.domain.QStudent;
-import com.edubill.edubillApi.domain.Student;
+import com.edubill.edubillApi.domain.*;
+import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -104,5 +107,28 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository {
                 .where(group.managerId.eq(managerId)
                         .and(studentPaymentHistory.yearMonth.eq(sYearMonth)))
                 .fetch();
+    }
+
+    @Override
+    public Page<Student> getStudentsByUserIdWithPaging(String managerId, Pageable pageable) {
+        QGroup group = QGroup.group;
+        QStudentGroup studentGroup = QStudentGroup.studentGroup;
+        QStudent student = QStudent.student;
+
+        // 기본 쿼리 설정
+        JPQLQuery<Student> query = queryFactory
+                .select(student)
+                .from(studentGroup)
+                .join(studentGroup.student, student)
+                .join(studentGroup.group, group)
+                .where(group.managerId.eq(managerId));
+
+        // 페이징 및 정렬 설정
+        QueryResults<Student> results = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
+
+        return new PageImpl<>(results.getResults(), pageable, results.getTotal());
     }
 }

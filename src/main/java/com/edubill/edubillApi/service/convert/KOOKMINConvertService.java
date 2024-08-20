@@ -72,6 +72,7 @@ public class KOOKMINConvertService implements ConvertService {
         }
         Sheet sheet = workbook.getSheetAt(0);
 
+        System.out.println(sheet.getLastRowNum()+ " "+ sheet.getPhysicalNumberOfRows());
         for (int rowNumber = 5; rowNumber < sheet.getPhysicalNumberOfRows() - 1; rowNumber++) {
 
             DataFormatter formatter = new DataFormatter();

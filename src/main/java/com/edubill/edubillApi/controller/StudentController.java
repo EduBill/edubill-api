@@ -38,14 +38,14 @@ public class StudentController {
         return ResponseEntity.ok(studentService.addGroupInfo(groupInfoRequestDto));
     }
 
-    @Operation(summary = "반 조회",
+    @Operation(summary = "반 상세 조회",
             description = "특정한 반의 정보를 조회한다.")
     @GetMapping("/groups/{groupId}")
     public ResponseEntity<GroupInfoResponseDto> findGroupDetail(@PathVariable long groupId) {
         return ResponseEntity.ok(studentService.findGroupDetailById(groupId));
     }
 
-    @Operation(summary = "반 상세 조회",
+    @Operation(summary = "모든 반 조회",
             description = "유저가 생성한 모든 반을 가져온다.")
     @GetMapping("/allGroups")
     public ResponseEntity<Page<GroupInfoInAddStudentResponseDto>> findAllGroups(
@@ -54,6 +54,17 @@ public class StudentController {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(studentService.findAllGroupsByUserId(pageable));
     }
+
+    @Operation(summary = "모든 학생 조회",
+            description = "유저가 생성한 모든 학생을 조회한다.")
+    @GetMapping("/allStudents")
+    public ResponseEntity<Page<StudentAndGroupResponseDto>> findAllStudents(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(studentService.findAllStudentsByUserId(pageable));
+    }
+
 
     @Operation(summary = "학생 삭제",
             description = "특정 id에 해당하는 학생을 삭제한다.")

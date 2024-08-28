@@ -12,4 +12,5 @@ import java.util.Optional;
 public interface ExcelUploadStatusRepository extends JpaRepository<ExcelUploadStatus, Long> {
     Optional<ExcelUploadStatus> findByYearMonthAndUser(String yearMonth, User user);
 
+    void deleteAllByYearMonthAndUser(String yearMonth, User user);
 }

@@ -1,10 +1,14 @@
 package com.edubill.edubillApi.controller;
 
+import com.edubill.edubillApi.domain.User;
 import com.edubill.edubillApi.dto.student.StudentInfoTestRequestDto;
+import com.edubill.edubillApi.error.exception.UserNotFoundException;
+import com.edubill.edubillApi.repository.ExcelUploadStatusRepository;
 import com.edubill.edubillApi.repository.StudentPaymentHistoryRepository;
 import com.edubill.edubillApi.repository.payment.PaymentHistoryRepository;
 import com.edubill.edubillApi.repository.payment.PaymentKeyCustomRepository;
 import com.edubill.edubillApi.repository.payment.PaymentKeyRepository;
+import com.edubill.edubillApi.repository.users.UserRepository;
 import com.edubill.edubillApi.service.StudentService;
 import com.edubill.edubillApi.utils.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,6 +32,8 @@ public class TestController {
     private final PaymentKeyRepository paymentKeyRepository;
     private final PaymentHistoryRepository paymentHistoryRepository;
     private final StudentPaymentHistoryRepository studentPaymentHistoryRepository;
+    private final ExcelUploadStatusRepository excelUploadStatusRepository;
+    private final UserRepository userRepository;
     private final StudentService studentService;
 
     @Operation(summary = "학생/반 테스트 데이터 추가",
@@ -39,6 +45,7 @@ public class TestController {
         return ResponseEntity.ok("학생 테스트 데이터 추가 완료");
     }
     @DeleteMapping("/deletePaymentHistory/{yearMonth}")
+    @Transactional
     public ResponseEntity<String> deletePaymentData(@PathVariable(name = "yearMonth") YearMonth yearMonth) {
         String userId = SecurityUtils.getCurrentUserId();
         // 1.삭제할 studentId 찾기
@@ -47,6 +54,10 @@ public class TestController {
         long deletedPaymentHistoryCount = paymentHistoryRepository.deleteByUserIdAndYearMonth(userId, yearMonth);
         // 3.PaymentKey 객체 삭제
         long deletedPaymentKeys = paymentKeyRepository.deleteByStudentIds(studentIds);
+        // 4. excel-upload-status false로 변경
+        User user = userRepository.findById(userId)
+                        .orElseThrow(()-> new UserNotFoundException("존재하지 않는 유저입니다.  userId: " + userId));
+        excelUploadStatusRepository.deleteAllByYearMonthAndUser(yearMonth.toString(), user);
 
         return ResponseEntity.ok("Deleted excel data: " + deletedPaymentHistoryCount + "\nDeleted payment keys: " + deletedPaymentKeys);
     }

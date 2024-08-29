@@ -19,7 +19,7 @@ import java.util.Collections;
 
 
 @OpenAPIDefinition(
-        info = @Info(title = "Edubill dev Project",
+        info = @Info(title = "Edubill Project",
                 description = "EdubillProject dev API 명세입니다.",
                 version = "v1")
 )

@@ -1,7 +1,9 @@
 package com.edubill.edubillApi.controller;
 
+import com.edubill.edubillApi.domain.User;
 import com.edubill.edubillApi.dto.FileUrlResponseDto;
 import com.edubill.edubillApi.dto.payment.*;
+import com.edubill.edubillApi.error.exception.UserNotFoundException;
 import com.edubill.edubillApi.service.excel.ExcelService;
 import com.edubill.edubillApi.service.PaymentService;
 import com.edubill.edubillApi.utils.SecurityUtils;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -33,6 +36,7 @@ public class PaymentController {
 
     private final PaymentService paymentService;
     private final ExcelService excelService;
+
 
     public PaymentController(PaymentService paymentService, @Qualifier("excelServiceImpl") ExcelService excelService) {
         this.paymentService = paymentService;
@@ -188,5 +192,13 @@ public class PaymentController {
         String userId = SecurityUtils.getCurrentUserId();
 
         return ResponseEntity.ok(paymentService.getUnpaidStudentsList(userId, yearMonth));
+    }
+    @DeleteMapping("/deletePaymentHistory/{yearMonth}")
+    @Transactional
+    public ResponseEntity<String> deletePaymentData(@PathVariable(name = "yearMonth") YearMonth yearMonth) {
+        String userId = SecurityUtils.getCurrentUserId();
+        long deletedPaymentHistoryCount = paymentService.deleteExcelData(userId, yearMonth);
+
+        return ResponseEntity.ok("Deleted excel data: " + deletedPaymentHistoryCount );
     }
 }

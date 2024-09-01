@@ -14,12 +14,14 @@ import com.edubill.edubillApi.dto.payment.PaymentHistoryResponseDto;
 import com.edubill.edubillApi.dto.payment.PaymentStatusDto;
 import com.edubill.edubillApi.error.exception.PaymentKeyNotEncryptedException;
 import com.edubill.edubillApi.error.exception.UserNotFoundException;
+import com.edubill.edubillApi.repository.ExcelUploadStatusRepository;
 import com.edubill.edubillApi.repository.StudentPaymentHistoryRepository;
 import com.edubill.edubillApi.repository.payment.PaymentHistoryRepository;
 
 import com.edubill.edubillApi.repository.payment.PaymentKeyRepository;
 import com.edubill.edubillApi.repository.student.StudentRepository;
 import com.edubill.edubillApi.repository.group.GroupRepository;
+import com.edubill.edubillApi.repository.users.UserRepository;
 import com.edubill.edubillApi.utils.EncryptionUtils;
 import com.edubill.edubillApi.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +54,8 @@ public class PaymentService {
     private final GroupRepository groupRepository;
     private final StudentRepository studentRepository;
     private final StudentPaymentHistoryRepository studentPaymentHistoryRepository;
+    private final ExcelUploadStatusRepository excelUploadStatusRepository;
+    private final UserRepository userRepository;
     private final FileUploadService fileUploadService;
 
     @Value("${payment.secret.key}")
@@ -438,5 +442,21 @@ public class PaymentService {
 
         // Check if paidAmount matches the total tuition amount
         return Objects.equals(totalTuition, paidAmount);
+    }
+
+    @Transactional
+    public long deleteExcelData(String userId, YearMonth yearMonth){
+        // 1.삭제할 studentId 찾기
+        List<Long> studentIds = studentPaymentHistoryRepository.findStudentIdsByUserIdAndYearMonth(userId, yearMonth);
+        // 2.PaymentHistory, StudentPaymentHistory 객체 삭제
+        long deletedPaymentHistoryCount = paymentHistoryRepository.deleteByUserIdAndYearMonth(userId, yearMonth);
+        // 3.PaymentKey 객체 삭제
+        long deletedPaymentKeys = paymentKeyRepository.deleteByStudentIds(studentIds);
+        // 4. excel-upload-status false로 변경
+        User user = userRepository.findById(userId)
+                .orElseThrow(()-> new UserNotFoundException("존재하지 않는 유저입니다.  userId: " + userId));
+        excelUploadStatusRepository.deleteAllByYearMonthAndUser(yearMonth.toString(), user);
+
+        return deletedPaymentHistoryCount;
     }
 }

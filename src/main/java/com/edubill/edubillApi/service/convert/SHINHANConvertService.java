@@ -5,6 +5,7 @@ import com.edubill.edubillApi.domain.enums.PaymentType;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryDto;
 import com.edubill.edubillApi.domain.PaymentHistory;
 
+import com.edubill.edubillApi.error.exception.ParseNotFoundException;
 import com.edubill.edubillApi.service.PaymentService;
 import com.edubill.edubillApi.service.convert.ConvertService;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,9 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -29,6 +32,26 @@ public class SHINHANConvertService implements ConvertService {
     private final PaymentService paymentService;
     private static final String BANK_NAME = "SHINHAN";
     private final Validator validator;
+
+    private LocalDate parseDate(String originalDate){
+        List<String> date = new ArrayList<>(Arrays.asList("yyyy.MM.dd", "yyyy/MM/dd", "yyyy-MM-dd", "M/dd/yy"));
+        LocalDate depositDate = null;
+
+        for (int i=0; i<date.size();i++){
+            try {
+                depositDate = LocalDate.parse(originalDate, DateTimeFormatter.ofPattern(date.get(i)));
+            }
+            catch (Exception e){
+                continue;
+            }
+        }
+
+        if (depositDate.equals(null)){
+            throw new ParseNotFoundException("날짜를 파싱할 수 없습니다. 입력 날짜 형식: "+originalDate);
+        }
+        return depositDate;
+
+    }
 
     @Override
     public List<PaymentHistory> convertBankExcelDataToPaymentHistory(MultipartFile file, String userId) throws IOException {
@@ -55,7 +78,7 @@ public class SHINHANConvertService implements ConvertService {
 
             // 거래날짜
             String originalDate = formatter.formatCellValue(row.getCell(0));
-            LocalDate depositDate = LocalDate.parse(originalDate);
+            LocalDate depositDate = parseDate(originalDate);
 
             // 거래시간
             String originalTime = formatter.formatCellValue(row.getCell(1));

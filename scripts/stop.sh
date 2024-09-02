@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PROJECT=edubill-dev-api
+PROJECT=edubill-prod-api
 CONTAINER_ID=$(docker ps -a | grep "${PROJECT}" | awk '{ print $1 }')
 IMAGE_ID=$(docker images | grep "${PROJECT}" | awk '{ print $3 }')
 

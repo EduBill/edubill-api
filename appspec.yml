@@ -3,11 +3,11 @@ os: linux
 
 files:
   - source: /
-    destination: /home/ubuntu/dev
+    destination: /home/ubuntu/action
     overwrite: yes
 file_exists_behavior: OVERWRITE
 permissions:
-  - object: /home/ubuntu/dev
+  - object: /home/ubuntu/action
     owner: ubuntu
     group: ubuntu
 

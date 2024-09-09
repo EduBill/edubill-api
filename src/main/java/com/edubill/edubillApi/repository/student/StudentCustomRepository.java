@@ -15,6 +15,7 @@ public interface StudentCustomRepository {
     List<Student> findStudentsWithUniqueNames(Collection<Group> groups);
     List<Student> findUnpaidStudentsByYearMonthAndManagerId(String userId, YearMonth yearMonth);
     List<Student> findPaidStudentsByYearMonthAndManagerId(String managerId, YearMonth yearMonth);
+    List<Student> findAllByUserId(String currentUserId);
 
     Page<Student> getStudentsByUserIdWithPaging(String currentUserId, Pageable pageable);
 }

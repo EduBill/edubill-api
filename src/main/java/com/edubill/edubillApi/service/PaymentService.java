@@ -80,16 +80,14 @@ public class PaymentService {
 
     @Transactional
     public PaymentStatusDto getPaymentStatusForManagerInMonth(final String managerId, final YearMonth yearMonth) {
-        final long paidStudentsCountInMonth = paymentHistoryRepository.countPaidStudentsForUserInMonth(managerId, yearMonth);
-
+        final long paidStudentsCountInMonth = studentPaymentHistoryRepository.findStudentIdsByUserIdAndYearMonth(managerId, yearMonth).size();
         List<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesByUserIdAndYearMonthWithPaymentStatusPaid(managerId, yearMonth);
         List<Group> groups = groupRepository.getGroupsByUserId(managerId);
 
-        final long totalNumberOfStudentsToPay = groups.stream()
-                .mapToInt(Group::getTotalStudentCount)
-                .sum();
+        long totalNumberOfStudents = studentRepository.findAllByUserId(managerId).size(); // manager가 관리하고 있는 모든 학생 수
 
-        final long unpaidStudentsCount = totalNumberOfStudentsToPay - paidStudentsCountInMonth;
+
+        final long unpaidStudentsCount = totalNumberOfStudents - paidStudentsCountInMonth;
 
         final long totalPaidAmount = paymentHistories.stream().mapToInt(PaymentHistory::getPaidAmount).sum();
 

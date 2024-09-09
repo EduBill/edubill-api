@@ -110,6 +110,22 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository {
     }
 
     @Override
+    public List<Student> findAllByUserId(String currentUserId) {
+        QGroup group = QGroup.group;
+        QStudentGroup studentGroup = QStudentGroup.studentGroup;
+        QStudent student = QStudent.student;
+
+        // 기본 쿼리 설정
+        return queryFactory
+                .select(student)
+                .from(studentGroup)
+                .join(studentGroup.student, student)
+                .join(studentGroup.group, group)
+                .where(group.managerId.eq(currentUserId))
+                .fetch();
+    }
+
+    @Override
     public Page<Student> getStudentsByUserIdWithPaging(String managerId, Pageable pageable) {
         QGroup group = QGroup.group;
         QStudentGroup studentGroup = QStudentGroup.studentGroup;
@@ -131,4 +147,7 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository {
 
         return new PageImpl<>(results.getResults(), pageable, results.getTotal());
     }
+
+
+
 }

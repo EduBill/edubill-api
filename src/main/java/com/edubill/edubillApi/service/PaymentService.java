@@ -414,22 +414,18 @@ public class PaymentService {
         Parameter : userId, yearMonth
         Return : List<UnpaidStudentsResponseDto>
     */
-    public List<UnpaidStudentsResponseDto> getUnpaidStudentsList(String userId, YearMonth yearMonth) {
+    public Page<UnpaidStudentsResponseDto> getUnpaidStudentsList(String userId, YearMonth yearMonth, Pageable pageable) {
 
-        List<Student> unPaidStudents = studentRepository.findUnpaidStudentsByYearMonthAndManagerId(userId, yearMonth);
+        Page<Student> unPaidStudents = studentRepository.findUnpaidStudentsByYearMonthAndManagerId(userId, yearMonth, pageable);
 
-        return unPaidStudents.stream()
-                .map(student -> {
+        return unPaidStudents.map(student -> {
                     String sPhoneNum = student.getStudentPhoneNumber();
 
                     return UnpaidStudentsResponseDto.builder()
                             .studentId(student.getId()) // 수동처리 시 학생Id를 프론트에서 받기 위함
                             .studentName(student.getStudentName() + " " + sPhoneNum.substring(sPhoneNum.length() - 4)) // 홍길동 1234
                             .build();
-                })
-                .collect(Collectors.toList());
-
-
+                });
     }
 
     private static boolean isPaidAmountMatching(Student student, Integer paidAmount) {

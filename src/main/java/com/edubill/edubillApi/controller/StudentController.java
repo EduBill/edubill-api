@@ -6,6 +6,8 @@ import com.edubill.edubillApi.dto.student.*;
 import com.edubill.edubillApi.service.StudentService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,14 +57,33 @@ public class StudentController {
         return ResponseEntity.ok(studentService.findAllGroupsByUserId(pageable));
     }
 
-    @Operation(summary = "모든 학생 조회",
-            description = "유저가 생성한 모든 학생을 조회한다.")
     @GetMapping("/allStudents")
+    @Operation(
+            summary = "모든 학생 조회",
+            description = "유저가 생성한 모든 학생을 조회한다.",
+            parameters = {
+                    @Parameter(name = "isUnpaid",
+                            description = "미납입자 조회 여부. 포맷은 다음과 같다: true (소문자)",
+                            required = false,
+                            example = "true",
+                            schema = @Schema(type = "string", defaultValue = "false")),
+                    @Parameter(name = "page",
+                            description = "요청 페이지 번호 (0부터 시작)",
+                            required = false,
+                            example = "0",
+                            schema = @Schema(type = "integer", defaultValue = "0")),
+                    @Parameter(name = "size",
+                            description = "페이지당 데이터 수",
+                            required = false,
+                            example = "10",
+                            schema = @Schema(type = "integer", defaultValue = "10"))
+            })
     public ResponseEntity<Page<StudentAndGroupResponseDto>> findAllStudents(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "false") String isUnpaid) {
         Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(studentService.findAllStudentsByUserId(pageable));
+        return ResponseEntity.ok(studentService.findAllStudentsByUserId(pageable, isUnpaid));
     }
 
 

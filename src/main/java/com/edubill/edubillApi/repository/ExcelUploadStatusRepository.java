@@ -16,4 +16,6 @@ public interface ExcelUploadStatusRepository extends JpaRepository<ExcelUploadSt
     void deleteAllByYearMonthAndUser(String yearMonth, User user);
 
     List<ExcelUploadStatus> findAllByUser(User user);
+
+    void deleteAllByUser(User user);
 }

@@ -75,4 +75,13 @@ public class ExcelController {
 
         return ResponseEntity.ok("엑셀업로드 상태 true로 변경");
     }
+
+    @Operation(summary = "엑셀 최초 업로드 상태 조회", description = "관리자가 최초 엑셀 업로드 여부를 조회한다.")
+    @GetMapping("/first-upload")
+    public ResponseEntity<String> firstExcelUploadedStatus(Principal principal){
+        final String userId = principal.getName();
+        Boolean status = excelService.getFirstExcelUploadStatus(userId);
+
+        return ResponseEntity.ok("최초 엑셀 업로드 상태 : " + status);
+    }
 }

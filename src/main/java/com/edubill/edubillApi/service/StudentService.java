@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -89,22 +90,44 @@ public class StudentService {
         return GroupInfoResponseDto.createGroupInfoResponse(savedGroup, classTimes);
     }
 
-    public Page<StudentAndGroupResponseDto> findAllStudentsByUserId(Pageable pageable) {
-        Page<Student> students = studentRepository.getStudentsByUserIdWithPaging(SecurityUtils.getCurrentUserId(),pageable);
+    public Page<StudentAndGroupResponseDto> findAllStudentsByUserId(Pageable pageable, String isUnpaid) {
 
-        return students.map(student -> {
-            // 학생이 속한 그룹들의 className을 가져오기
-            List<String> classNames = student.getStudentGroups().stream()
-                    .map(studentGroup -> studentGroup.getGroup().getGroupName())
-                    .collect(Collectors.toList());
+        if (isUnpaid.equals("false")) { // 모든 학생 조회
+            Page<Student> students = studentRepository.getStudentsByUserIdWithPaging(SecurityUtils.getCurrentUserId(),pageable);
 
-            return StudentAndGroupResponseDto.builder()
-                    .studentId(student.getId())
-                    .studentName(student.getStudentName())
-                    .parentName(student.getParentName())
-                    .classNames(classNames)
-                    .build();
-        });
+            return students.map(student -> {
+                // 학생이 속한 그룹들의 className을 가져오기
+                List<String> classNames = student.getStudentGroups().stream()
+                        .map(studentGroup -> studentGroup.getGroup().getGroupName())
+                        .collect(Collectors.toList());
+
+                return StudentAndGroupResponseDto.builder()
+                        .studentId(student.getId())
+                        .studentName(student.getStudentName())
+                        .parentName(student.getParentName())
+                        .classNames(classNames)
+                        .build();
+            });
+        }
+        else{ // 미납입자만 조회
+            YearMonth yearMonth = YearMonth.now();
+            Page<Student> students = studentRepository.findUnpaidStudentsByYearMonthAndManagerId(SecurityUtils.getCurrentUserId(), yearMonth, pageable);
+
+            return students.map(student -> {
+                // 학생이 속한 그룹들의 className을 가져오기
+                List<String> classNames = student.getStudentGroups().stream()
+                        .map(studentGroup -> studentGroup.getGroup().getGroupName())
+                        .collect(Collectors.toList());
+
+                return StudentAndGroupResponseDto.builder()
+                        .studentId(student.getId())
+                        .studentName(student.getStudentName())
+                        .parentName(student.getParentName())
+                        .classNames(classNames)
+                        .build();
+            });
+        }
+
     }
 
     public Page<GroupInfoInAddStudentResponseDto> findAllGroupsByUserId(Pageable pageable) {

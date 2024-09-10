@@ -44,21 +44,4 @@ public class TestController {
         studentService.addStudentAndGroupInfoTest(studentInfoTestRequestDto, userId);
         return ResponseEntity.ok("학생 테스트 데이터 추가 완료");
     }
-    @DeleteMapping("/deletePaymentHistory/{yearMonth}")
-    @Transactional
-    public ResponseEntity<String> deletePaymentData(@PathVariable(name = "yearMonth") YearMonth yearMonth) {
-        String userId = SecurityUtils.getCurrentUserId();
-        // 1.삭제할 studentId 찾기
-        List<Long> studentIds = studentPaymentHistoryRepository.findStudentIdsByUserIdAndYearMonth(userId, yearMonth);
-        // 2.PaymentHistory, StudentPaymentHistory 객체 삭제
-        long deletedPaymentHistoryCount = paymentHistoryRepository.deleteByUserIdAndYearMonth(userId, yearMonth);
-        // 3.PaymentKey 객체 삭제
-        long deletedPaymentKeys = paymentKeyRepository.deleteByStudentIds(studentIds);
-        // 4. excel-upload-status false로 변경
-        User user = userRepository.findById(userId)
-                        .orElseThrow(()-> new UserNotFoundException("존재하지 않는 유저입니다.  userId: " + userId));
-        excelUploadStatusRepository.deleteAllByYearMonthAndUser(yearMonth.toString(), user);
-
-        return ResponseEntity.ok("Deleted excel data: " + deletedPaymentHistoryCount + "\nDeleted payment keys: " + deletedPaymentKeys);
-    }
 }

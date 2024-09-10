@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.YearMonth;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -81,5 +82,19 @@ public class ExcelServiceMock implements ExcelService{
                     .build());
         }
         return excelUploadStatus.getIsExcelUploaded();
+    }
+
+    @Override
+    public Boolean getFirstExcelUploadStatus(String userId) {
+        User user = userRepositoryInterface.findById(userId).orElseThrow(
+                ()->new UserNotFoundException("존재하지 않는 유저입니다.  userId: "+ userId));
+
+        List<ExcelUploadStatus> excelUploadStatuses = excelUploadStatusRepository.findAllByUser(user);
+
+        if (excelUploadStatuses.size() != 0){
+            return  true;
+        }
+
+        return false;
     }
 }

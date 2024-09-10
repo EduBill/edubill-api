@@ -13,4 +13,6 @@ public interface ExcelService {
     void changeExcelUploadedStatusByYearMonthAndUserId(YearMonth yearMonth, final String userId);
 
     Boolean getExcelUploadStatus(String userId, YearMonth yearMonth);
+
+    Boolean getFirstExcelUploadStatus(String userId);
 }

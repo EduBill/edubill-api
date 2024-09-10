@@ -34,8 +34,9 @@ public class SHINHANConvertService implements ConvertService {
     private final Validator validator;
 
     private LocalDate parseDate(String originalDate){
-        List<String> date = new ArrayList<>(Arrays.asList("yyyy.MM.dd", "yyyy/MM/dd", "yyyy-MM-dd", "M/dd/yy"));
+        List<String> date = new ArrayList<>(Arrays.asList("yyyy.MM.dd", "yyyy/MM/dd", "yyyy-MM-dd", "M/dd/yy", "M/d/yy"));
         LocalDate depositDate = null;
+        System.out.println("originalDate : " + originalDate);
 
         for (int i=0; i<date.size();i++){
             try {
@@ -71,6 +72,7 @@ public class SHINHANConvertService implements ConvertService {
 
         Sheet sheet = workbook.getSheetAt(0);
 
+        System.out.println(sheet.getLastRowNum() + " " + sheet.getPhysicalNumberOfRows());
         for (int rowNumber = 7; rowNumber < sheet.getLastRowNum()+1; rowNumber++) {
 
             DataFormatter formatter = new DataFormatter();

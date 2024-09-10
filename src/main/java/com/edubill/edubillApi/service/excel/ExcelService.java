@@ -15,4 +15,6 @@ public interface ExcelService {
     Boolean getExcelUploadStatus(String userId, YearMonth yearMonth);
 
     Boolean getFirstExcelUploadStatus(String userId);
+
+    void deleteAllExcelUploadStatus(String userId);
 }

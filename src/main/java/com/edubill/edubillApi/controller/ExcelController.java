@@ -78,10 +78,20 @@ public class ExcelController {
 
     @Operation(summary = "엑셀 최초 업로드 상태 조회", description = "관리자가 최초 엑셀 업로드 여부를 조회한다.")
     @GetMapping("/first-upload")
-    public ResponseEntity<String> firstExcelUploadedStatus(Principal principal){
+    public ResponseEntity<String> getfirstExcelUploadedStatus(Principal principal){
         final String userId = principal.getName();
         Boolean status = excelService.getFirstExcelUploadStatus(userId);
 
         return ResponseEntity.ok("최초 엑셀 업로드 상태 : " + status);
+    }
+
+    @Operation(summary = "엑셀 최초 업로드 상태 false로 수정", description = "관리자가 최초 엑셀 업로드 상태를 false(없음)으로 수정한다.")
+    @DeleteMapping("/first-upload")
+    public ResponseEntity<String> deletefirstExcelUploadedStatus(Principal principal){
+        final String userId = principal.getName();
+
+        excelService.deleteAllExcelUploadStatus(userId);
+
+        return ResponseEntity.ok("엑셀업로드 상태 false로 변경");
     }
 }

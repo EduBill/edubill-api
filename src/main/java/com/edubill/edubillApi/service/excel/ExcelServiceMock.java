@@ -97,4 +97,15 @@ public class ExcelServiceMock implements ExcelService{
 
         return false;
     }
+
+    @Override
+    @Transactional
+    public void deleteAllExcelUploadStatus(String userId) {
+        User user = userRepositoryInterface.findById(userId).orElseThrow(
+                ()->new UserNotFoundException("존재하지 않는 유저입니다.  userId: "+ userId));
+
+        excelUploadStatusRepository.deleteAllByUser(user);
+
+        return;
+    }
 }

@@ -2,6 +2,8 @@ package com.edubill.edubillApi.repository.student;
 
 import com.edubill.edubillApi.domain.*;
 import com.querydsl.core.QueryResults;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +27,7 @@ import static com.edubill.edubillApi.domain.QStudent.student;
 
 import static com.edubill.edubillApi.domain.QStudentGroup.studentGroup;
 import static com.edubill.edubillApi.domain.QStudentPaymentHistory.studentPaymentHistory;
+import static com.querydsl.core.types.Order.ASC;
 
 @Repository
 @RequiredArgsConstructor
@@ -72,11 +76,11 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository {
                 .fetch();
     }
 
-    public List<Student> findUnpaidStudentsByYearMonthAndManagerId(String managerId, YearMonth yearMonth) {
+    public Page<Student> findUnpaidStudentsByYearMonthAndManagerId(String managerId, YearMonth yearMonth, Pageable pageable) {
 
         String sYearMonth = yearMonth.toString();
 
-        return queryFactory
+        JPQLQuery<Student> query = queryFactory
                 .selectFrom(student)
                 .where(student.id.notIn(
                         JPAExpressions
@@ -88,8 +92,17 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository {
                                 .where(group.managerId.eq(managerId)
                                         .and(studentPaymentHistory.yearMonth.eq(sYearMonth))
                                 )
+
                 ))
-                .fetch();
+                .orderBy(new OrderSpecifier(ASC, student.studentName));
+
+        // 페이징 및 정렬 설정
+        QueryResults<Student> results = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
+
+        return new PageImpl<>(results.getResults(), pageable, results.getTotal());
 
     }
 
@@ -131,13 +144,14 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository {
         QStudentGroup studentGroup = QStudentGroup.studentGroup;
         QStudent student = QStudent.student;
 
-        // 기본 쿼리 설정
+       // 기본 쿼리 설정
         JPQLQuery<Student> query = queryFactory
                 .select(student)
                 .from(studentGroup)
                 .join(studentGroup.student, student)
                 .join(studentGroup.group, group)
-                .where(group.managerId.eq(managerId));
+                .where(group.managerId.eq(managerId))
+                .orderBy(new OrderSpecifier(ASC, student.studentName));
 
         // 페이징 및 정렬 설정
         QueryResults<Student> results = query
@@ -147,7 +161,4 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository {
 
         return new PageImpl<>(results.getResults(), pageable, results.getTotal());
     }
-
-
-
 }

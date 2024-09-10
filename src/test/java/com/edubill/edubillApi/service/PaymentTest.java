@@ -15,6 +15,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -125,12 +128,13 @@ public class PaymentTest {
         StudentPaymentHistory studentPaymentHistory2 = createStudentPaymentHistory(student2, paymentHistory2,YearMonth.of(2024,6).toString());
         studentPaymentHistoryRepository.save(studentPaymentHistory2);
 
+        Pageable pageable = PageRequest.of(0, 10);
         //when
-        List<UnpaidStudentsResponseDto> unpaidStudentsList = paymentService.getUnpaidStudentsList(user.getUserId(), YearMonth.of(2024, 6));
+        Page<UnpaidStudentsResponseDto> unpaidStudentsList = paymentService.getUnpaidStudentsList(user.getUserId(), YearMonth.of(2024, 6), pageable);
 
         //then
-        assertThat(unpaidStudentsList.get(0).getStudentName()).isEqualTo("s3 0987");
-        assertThat(unpaidStudentsList.size()).isEqualTo(1);
+        assertThat(unpaidStudentsList.getContent().get(0).getStudentName()).isEqualTo("s3 0987");
+        assertThat(unpaidStudentsList.getContent().size()).isEqualTo(1);
 
     }
 
@@ -173,9 +177,6 @@ public class PaymentTest {
         List<Student> paidStudentsResponseDtos = studentRepository.findPaidStudentsByYearMonthAndManagerId(user.getUserId(), YearMonth.of(2024,6));
 
         //then
-//        assertThat(student1.getId()).isEqualTo(studentPaymentHistory1.getStudent().getId());
         assertThat(paidStudentsResponseDtos.size()).isEqualTo(2);
-
     }
-
 }

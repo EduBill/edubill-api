@@ -188,10 +188,15 @@ public class PaymentController {
     @Operation(summary = "미납 학생 조회하기",
             description = "조회하는 월에 미납한 학생들을 조회한다.")
     @GetMapping("/unpaidStudents/{yearMonth}")
-    public ResponseEntity<List<UnpaidStudentsResponseDto>> unPaidStudents(@PathVariable(name = "yearMonth") YearMonth yearMonth){
+    public ResponseEntity<Page<UnpaidStudentsResponseDto>> unPaidStudents(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @PathVariable(name = "yearMonth") YearMonth yearMonth){
         String userId = SecurityUtils.getCurrentUserId();
 
-        return ResponseEntity.ok(paymentService.getUnpaidStudentsList(userId, yearMonth));
+        Pageable pageable = PageRequest.of(page, size);
+
+        return ResponseEntity.ok(paymentService.getUnpaidStudentsList(userId, yearMonth, pageable));
     }
     @DeleteMapping("/deletePaymentHistory/{yearMonth}")
     @Transactional

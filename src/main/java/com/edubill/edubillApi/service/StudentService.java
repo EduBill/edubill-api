@@ -226,6 +226,14 @@ public class StudentService {
         groupRepository.save(group);
     }
 
+    public StudentInfoDetailResponse getStudentInfo(Long studentId) {
+        final Student findStudent = studentRepository.findById(studentId).orElseThrow(
+                () -> new StudentNotFoundException("Student not found with id " + studentId)
+        );
+
+        return StudentInfoDetailResponse.of(findStudent);
+    }
+
     private <T> List<Long> extractIds(List<T> entities, Function<T, Long> idExtractor) {
         return entities.stream()
                 .map(idExtractor)

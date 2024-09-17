@@ -92,13 +92,7 @@ public class ExcelServiceImpl implements ExcelService {
         User user = userRepositoryInterface.findById(userId).orElseThrow(
                 ()->new UserNotFoundException("존재하지 않는 유저입니다.  userId: "+ userId));
 
-        List<ExcelUploadStatus> excelUploadStatuses = excelUploadStatusRepository.findAllByUser(user);
-
-        if (excelUploadStatuses.size() != 0){
-            return  true;
-        }
-
-        return false;
+        return excelUploadStatusRepository.existsAllByUser(user);
     }
 
     @Override

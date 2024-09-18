@@ -1,7 +1,10 @@
 package com.edubill.edubillApi.dto.student;
 
 import com.edubill.edubillApi.domain.Group;
+import lombok.Getter;
 
+
+@Getter
 public class GroupInfoDetailResponse {
 
     private final String groupName;
@@ -12,8 +15,5 @@ public class GroupInfoDetailResponse {
 
     public static GroupInfoDetailResponse create(Group group) {
         return new GroupInfoDetailResponse(group.getGroupName());
-    }
-    public String getGroupName() {
-        return groupName;
     }
 }

@@ -2,9 +2,12 @@ package com.edubill.edubillApi.dto.student;
 
 
 import com.edubill.edubillApi.domain.Student;
+import lombok.Getter;
+
 import java.util.List;
 
 
+@Getter
 public class StudentInfoDetailResponse {
 
     private final String studentName;
@@ -56,44 +59,5 @@ public class StudentInfoDetailResponse {
     }
 
 
-    public String getStudentName() {
-        return studentName;
-    }
-
-    public String getStudentPhoneNumber() {
-        return studentPhoneNumber;
-    }
-
-    public String getParentName() {
-        return parentName;
-    }
-
-    public String getParentPhoneNumber() {
-        return parentPhoneNumber;
-    }
-
-    public List<GroupInfoDetailResponse> getGroups() {
-        return groups;
-    }
-
-    public String getSchoolLevel() {
-        return schoolLevel;
-    }
-
-    public String getGrade() {
-        return grade;
-    }
-
-    public String getDepartment() {
-        return department;
-    }
-
-    public String getSchoolName() {
-        return schoolName;
-    }
-
-    public String getMemo() {
-        return memo;
-    }
 }
 

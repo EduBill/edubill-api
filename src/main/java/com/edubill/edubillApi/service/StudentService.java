@@ -17,6 +17,7 @@ import com.edubill.edubillApi.repository.student.StudentRepository;
 import com.edubill.edubillApi.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +39,22 @@ public class StudentService {
     private final ClassTimeRepository classTimeRepository;
     private final PaymentKeyRepository paymentKeyRepository;
     private final StudentPaymentHistoryRepository studentPaymentHistoryRepository;
+
+    private Page<StudentAndGroupResponseDto> studentMapToStudentAndGroupResponseDtowWithPaging(Page<Student> students){
+        return students.map(student -> {
+            // 학생이 속한 그룹들의 className을 가져오기
+            List<String> classNames = student.getStudentGroups().stream()
+                    .map(studentGroup -> studentGroup.getGroup().getGroupName())
+                    .collect(Collectors.toList());
+
+            return StudentAndGroupResponseDto.builder()
+                    .studentId(student.getId())
+                    .studentName(student.getStudentName())
+                    .parentName(student.getParentName())
+                    .classNames(classNames)
+                    .build();
+        });
+    }
 
     @Transactional
     public StudentInfoResponseDto addStudentInfo(StudentInfoRequestDto studentInfoRequestDto) {
@@ -95,39 +112,41 @@ public class StudentService {
         if (isUnpaid.equals("false")) { // 모든 학생 조회
             Page<Student> students = studentRepository.getStudentsByUserIdWithPaging(SecurityUtils.getCurrentUserId(),pageable);
 
-            return students.map(student -> {
-                // 학생이 속한 그룹들의 className을 가져오기
-                List<String> classNames = student.getStudentGroups().stream()
-                        .map(studentGroup -> studentGroup.getGroup().getGroupName())
-                        .collect(Collectors.toList());
-
-                return StudentAndGroupResponseDto.builder()
-                        .studentId(student.getId())
-                        .studentName(student.getStudentName())
-                        .parentName(student.getParentName())
-                        .classNames(classNames)
-                        .build();
-            });
+            return studentMapToStudentAndGroupResponseDtowWithPaging(students);
         }
         else{ // 미납입자만 조회
             YearMonth yearMonth = YearMonth.now();
             Page<Student> students = studentRepository.findUnpaidStudentsByYearMonthAndManagerId(SecurityUtils.getCurrentUserId(), yearMonth, pageable);
 
-            return students.map(student -> {
-                // 학생이 속한 그룹들의 className을 가져오기
-                List<String> classNames = student.getStudentGroups().stream()
-                        .map(studentGroup -> studentGroup.getGroup().getGroupName())
-                        .collect(Collectors.toList());
-
-                return StudentAndGroupResponseDto.builder()
-                        .studentId(student.getId())
-                        .studentName(student.getStudentName())
-                        .parentName(student.getParentName())
-                        .classNames(classNames)
-                        .build();
-            });
+            return studentMapToStudentAndGroupResponseDtowWithPaging(students);
         }
 
+    }
+
+    public Page<StudentAndGroupResponseDto> findStudentsByUserIdAndGroupIdOrNameOrPhoneNum(Pageable pageable, String isUnpaid, Long groupId, String nameOrPhoneNum) {
+
+        String currentId = SecurityUtils.getCurrentUserId();
+        boolean isPhoneNum = nameOrPhoneNum.matches("^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$"); // 필터링 조건이 전화번호인지 이름인지 판별
+        if (isUnpaid.equals("false")){ // 납입 여부 구분 안함
+            if (isPhoneNum){ // 전화번호 바탕 필터링일 경우
+                Page<Student> students = studentRepository.getStudentsByUserIdAndGroupIdAndPhoneNumberWithPaging(currentId, pageable, groupId, nameOrPhoneNum);
+                return studentMapToStudentAndGroupResponseDtowWithPaging(students);
+            }
+            else{ // 이름 바탕 필터링일 경우
+                Page<Student> students = studentRepository.getStudentsByUserIdAndGroupIdAndNameWithPaging(currentId, pageable, groupId, nameOrPhoneNum);
+                return studentMapToStudentAndGroupResponseDtowWithPaging(students);
+            }
+        }
+        else{ // 미납입잠만 조회
+            if (isPhoneNum){ // 전화번호 바탕 필터링일 경우
+                Page<Student> students = studentRepository.getUnpaidStudentsByUserIdAndGroupIdAndPhoneNumberWithPaging(currentId, pageable, groupId, nameOrPhoneNum);
+                return studentMapToStudentAndGroupResponseDtowWithPaging(students);
+            }
+            else{ // 이름 바탕 필터링일 경우
+                Page<Student> students = studentRepository.getUnpaidStudentsByUserIdAndGroupIdAndNameWithPaging(currentId, pageable, groupId, nameOrPhoneNum);
+                return studentMapToStudentAndGroupResponseDtowWithPaging(students);
+            }
+        }
     }
 
     public Page<GroupInfoInAddStudentResponseDto> findAllGroupsByUserId(Pageable pageable) {

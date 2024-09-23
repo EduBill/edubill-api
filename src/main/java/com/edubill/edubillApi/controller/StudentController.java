@@ -86,6 +86,47 @@ public class StudentController {
         return ResponseEntity.ok(studentService.findAllStudentsByUserId(pageable, isUnpaid));
     }
 
+    @GetMapping("/filter/students")
+    @Operation(
+            summary = "학생 조회 필터링",
+            description = "유저가 생성한 학생들 중 특정 조건에 맞는 학생들만 조회한다.",
+            parameters = {
+                    @Parameter(name = "isUnpaid",
+                            description = "미납입자 조회 여부. 포맷은 다음과 같다: true (소문자)",
+                            required = false,
+                            example = "true",
+                            schema = @Schema(type = "string", defaultValue = "false")),
+                    @Parameter(name = "groupId",
+                            description = "반 ID. 포맷은 다음과 같다: 1",
+                            required = false,
+                            example = "1",
+                            schema = @Schema(type = "Long", defaultValue = "")),
+                    @Parameter(name = "nameOrPhoneNum",
+                            description = "조회하고 싶은 학생 이름 또는 전화번호. 포맷은 다음과 같다: 홍길동 OR 0101245678",
+                            required = false,
+                            example = "홍길동 OR 0101245678",
+                            schema = @Schema(type = "string", defaultValue = "")),
+                    @Parameter(name = "page",
+                            description = "요청 페이지 번호 (0부터 시작)",
+                            required = false,
+                            example = "0",
+                            schema = @Schema(type = "integer", defaultValue = "0")),
+                    @Parameter(name = "size",
+                            description = "페이지당 데이터 수",
+                            required = false,
+                            example = "10",
+                            schema = @Schema(type = "integer", defaultValue = "10"))
+            })
+    public ResponseEntity<Page<StudentAndGroupResponseDto>> findStudents(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "false") String isUnpaid,
+            @RequestParam Long groupId,
+            @RequestParam String nameOrPhoneNum) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(studentService.findStudentsByUserIdAndGroupIdOrNameOrPhoneNum(pageable, isUnpaid, groupId, nameOrPhoneNum));
+    }
+
     @Operation(summary = "학생 상세 조회",
     description = "학생 ID 로 학생 상세 조회한다.")
     @GetMapping("/{studentId}")

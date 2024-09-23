@@ -161,4 +161,120 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository {
 
         return new PageImpl<>(results.getResults(), pageable, results.getTotal());
     }
+
+    @Override
+    public Page<Student> getStudentsByUserIdAndGroupIdAndNameWithPaging(String currentUserId, Pageable pageable, Long groupId, String name) {
+        QGroup group = QGroup.group;
+        QStudentGroup studentGroup = QStudentGroup.studentGroup;
+        QStudent student = QStudent.student;
+
+        // 기본 쿼리 설정
+        JPQLQuery<Student> query = queryFactory
+                .select(student)
+                .from(studentGroup)
+                .join(studentGroup.student, student)
+                .join(studentGroup.group, group)
+                .where(group.managerId.eq(currentUserId)
+                        .and(student.studentName.eq(name))
+                        .and(group.id.eq(groupId)))
+                .orderBy(new OrderSpecifier(ASC, student.studentName));
+
+        // 페이징 및 정렬 설정
+        QueryResults<Student> results = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
+
+        return new PageImpl<>(results.getResults(), pageable, results.getTotal());
+    }
+
+    @Override
+    public Page<Student> getUnpaidStudentsByUserIdAndGroupIdAndNameWithPaging(String currentUserId, Pageable pageable, Long groupId, String name) {
+        String sYearMonth = YearMonth.now().toString();
+
+        JPQLQuery<Student> query = queryFactory
+                .selectFrom(student)
+                .where(student.id.notIn(
+                        JPAExpressions
+                                .select(student.id)
+                                .from(studentPaymentHistory)
+                                .join(studentPaymentHistory.student, student)
+                                .join(studentPaymentHistory.student.studentGroups, studentGroup)
+                                .join(studentGroup.group, group)
+                                .where(group.managerId.eq(currentUserId)
+                                        .and(studentPaymentHistory.yearMonth.eq(sYearMonth)
+                                        .and(student.studentName.eq(name))
+                                        .and(group.id.eq(groupId)))
+                                )
+
+                ))
+                .orderBy(new OrderSpecifier(ASC, student.studentName));
+
+        // 페이징 및 정렬 설정
+        QueryResults<Student> results = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
+
+        return new PageImpl<>(results.getResults(), pageable, results.getTotal());
+    }
+
+    @Override
+    public Page<Student> getStudentsByUserIdAndGroupIdAndPhoneNumberWithPaging(String currentUserId, Pageable pageable, Long groupId, String phoneNumber) {
+        QGroup group = QGroup.group;
+        QStudentGroup studentGroup = QStudentGroup.studentGroup;
+        QStudent student = QStudent.student;
+
+        // 기본 쿼리 설정
+        JPQLQuery<Student> query = queryFactory
+                .select(student)
+                .from(studentGroup)
+                .join(studentGroup.student, student)
+                .join(studentGroup.group, group)
+                .where(group.managerId.eq(currentUserId)
+                        .and(student.studentPhoneNumber.eq(phoneNumber))
+                        .and(group.id.eq(groupId)))
+                .orderBy(new OrderSpecifier(ASC, student.studentName));
+
+        // 페이징 및 정렬 설정
+        QueryResults<Student> results = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
+
+        return new PageImpl<>(results.getResults(), pageable, results.getTotal());
+    }
+
+    @Override
+    public Page<Student> getUnpaidStudentsByUserIdAndGroupIdAndPhoneNumberWithPaging(String currentUserId, Pageable pageable, Long groupId, String phoneNumber) {
+        String sYearMonth = YearMonth.now().toString();
+
+        JPQLQuery<Student> query = queryFactory
+                .selectFrom(student)
+                .where(student.id.notIn(
+                        JPAExpressions
+                                .select(student.id)
+                                .from(studentPaymentHistory)
+                                .join(studentPaymentHistory.student, student)
+                                .join(studentPaymentHistory.student.studentGroups, studentGroup)
+                                .join(studentGroup.group, group)
+                                .where(group.managerId.eq(currentUserId)
+                                        .and(studentPaymentHistory.yearMonth.eq(sYearMonth)
+                                                .and(student.studentPhoneNumber.eq(phoneNumber))
+                                                .and(group.id.eq(groupId)))
+                                )
+
+                ))
+                .orderBy(new OrderSpecifier(ASC, student.studentName));
+
+        // 페이징 및 정렬 설정
+        QueryResults<Student> results = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
+
+        return new PageImpl<>(results.getResults(), pageable, results.getTotal());
+    }
+
+
 }

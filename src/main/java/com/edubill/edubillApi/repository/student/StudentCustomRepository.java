@@ -18,4 +18,9 @@ public interface StudentCustomRepository {
     List<Student> findAllByUserId(String currentUserId);
 
     Page<Student> getStudentsByUserIdWithPaging(String currentUserId, Pageable pageable);
+    Page<Student> getStudentsByUserIdAndGroupIdAndNameWithPaging(String currentUserId, Pageable pageable, Long groupId, String name);
+    Page<Student> getUnpaidStudentsByUserIdAndGroupIdAndNameWithPaging(String currentUserId, Pageable pageable, Long groupId, String name);
+    Page<Student> getStudentsByUserIdAndGroupIdAndPhoneNumberWithPaging(String currentUserId, Pageable pageable, Long groupId, String phoneNumber);
+    Page<Student> getUnpaidStudentsByUserIdAndGroupIdAndPhoneNumberWithPaging(String currentUserId, Pageable pageable, Long groupId, String phoneNumber);
+
 }

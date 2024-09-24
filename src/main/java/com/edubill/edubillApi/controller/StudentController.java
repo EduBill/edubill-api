@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -67,6 +68,11 @@ public class StudentController {
                             required = false,
                             example = "true",
                             schema = @Schema(type = "string", defaultValue = "false")),
+                    @Parameter(name = "sort",
+                            description = "정렬 기준. 포맷은 다음과 같다: studentName(가나다순) || id(최신등록순)",
+                            required = false,
+                            example = "studentName",
+                            schema = @Schema(type = "string", defaultValue = "id")),
                     @Parameter(name = "page",
                             description = "요청 페이지 번호 (0부터 시작)",
                             required = false,
@@ -81,8 +87,11 @@ public class StudentController {
     public ResponseEntity<Page<StudentAndGroupResponseDto>> findAllStudents(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "false") String isUnpaid) {
-        Pageable pageable = PageRequest.of(page, size);
+            @RequestParam(defaultValue = "false") String isUnpaid,
+            @RequestParam(defaultValue = "id") String sort) {
+        Sort orders = (sort.equals("id")) ? Sort.by(Sort.Direction.DESC, sort) : Sort.by(Sort.Direction.ASC, sort);
+
+        Pageable pageable = PageRequest.of(page, size, orders);
         return ResponseEntity.ok(studentService.findAllStudentsByUserId(pageable, isUnpaid));
     }
 
@@ -115,15 +124,23 @@ public class StudentController {
                             description = "페이지당 데이터 수",
                             required = false,
                             example = "10",
-                            schema = @Schema(type = "integer", defaultValue = "10"))
+                            schema = @Schema(type = "integer", defaultValue = "10")),
+                    @Parameter(name = "sort",
+                            description = "정렬 기준. 포맷은 다음과 같다: studentName(가나다순) || id(최신등록순)",
+                            required = false,
+                            example = "studentName",
+                            schema = @Schema(type = "string", defaultValue = "id"))
             })
     public ResponseEntity<Page<StudentAndGroupResponseDto>> findStudents(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sort,
             @RequestParam(defaultValue = "false") String isUnpaid,
-            @RequestParam Long groupId,
-            @RequestParam String nameOrPhoneNum) {
-        Pageable pageable = PageRequest.of(page, size);
+            @RequestParam (required = false) Long groupId,
+            @RequestParam (required = false) String nameOrPhoneNum) {
+
+        Sort orders = (sort.equals("id")) ? Sort.by(Sort.Direction.DESC, sort) : Sort.by(Sort.Direction.ASC, sort);
+        Pageable pageable = PageRequest.of(page, size, orders);
         return ResponseEntity.ok(studentService.findStudentsByUserIdAndGroupIdOrNameOrPhoneNum(pageable, isUnpaid, groupId, nameOrPhoneNum));
     }
 

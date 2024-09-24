@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.ObjectUtils.isEmpty;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -126,26 +128,14 @@ public class StudentService {
     public Page<StudentAndGroupResponseDto> findStudentsByUserIdAndGroupIdOrNameOrPhoneNum(Pageable pageable, String isUnpaid, Long groupId, String nameOrPhoneNum) {
 
         String currentId = SecurityUtils.getCurrentUserId();
-        boolean isPhoneNum = nameOrPhoneNum.matches("^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$"); // 필터링 조건이 전화번호인지 이름인지 판별
         if (isUnpaid.equals("false")){ // 납입 여부 구분 안함
-            if (isPhoneNum){ // 전화번호 바탕 필터링일 경우
-                Page<Student> students = studentRepository.getStudentsByUserIdAndGroupIdAndPhoneNumberWithPaging(currentId, pageable, groupId, nameOrPhoneNum);
-                return studentMapToStudentAndGroupResponseDtowWithPaging(students);
-            }
-            else{ // 이름 바탕 필터링일 경우
-                Page<Student> students = studentRepository.getStudentsByUserIdAndGroupIdAndNameWithPaging(currentId, pageable, groupId, nameOrPhoneNum);
-                return studentMapToStudentAndGroupResponseDtowWithPaging(students);
-            }
+            Page<Student> students = studentRepository.getStudentsByUserIdAndGroupIdOrStudentNameOrPhoneNumWithPaging(currentId, pageable, groupId, nameOrPhoneNum);
+            return studentMapToStudentAndGroupResponseDtowWithPaging(students);
         }
-        else{ // 미납입잠만 조회
-            if (isPhoneNum){ // 전화번호 바탕 필터링일 경우
-                Page<Student> students = studentRepository.getUnpaidStudentsByUserIdAndGroupIdAndPhoneNumberWithPaging(currentId, pageable, groupId, nameOrPhoneNum);
-                return studentMapToStudentAndGroupResponseDtowWithPaging(students);
-            }
-            else{ // 이름 바탕 필터링일 경우
-                Page<Student> students = studentRepository.getUnpaidStudentsByUserIdAndGroupIdAndNameWithPaging(currentId, pageable, groupId, nameOrPhoneNum);
-                return studentMapToStudentAndGroupResponseDtowWithPaging(students);
-            }
+        else { // 미납입자 조회
+            Page<Student> students = studentRepository.getUnpaidStudentsByUserIdAndGroupIdOrStudentNameOrPhoneNumWithPaging(currentId, pageable, groupId, nameOrPhoneNum);
+            return studentMapToStudentAndGroupResponseDtowWithPaging(students);
+
         }
     }
 

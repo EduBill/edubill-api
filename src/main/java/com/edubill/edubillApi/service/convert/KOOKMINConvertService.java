@@ -38,7 +38,13 @@ public class KOOKMINConvertService implements ConvertService {
     private final Validator validator;
 
     private LocalDateTime parseDateTime(String originalDateTime){
-        List<String> dateTime = new ArrayList<>(Arrays.asList("yyyy.MM.dd HH:mm:ss", "yyyy.MM.dd HH:mm", "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:", "M/dd/yy HH:mm:ss", "M/dd/yy HH:mm"));
+        List<String> dateTime = new ArrayList<>(Arrays.asList(
+                "yyyy.MM.dd HH:mm:ss", "yyyy.MM.dd HH:mm",
+                "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm",
+                "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:",
+                "M/dd/yy HH:mm:ss", "M/dd/yy HH:mm",
+                "M/d/yy HH:mm:ss", "M/d/yy HH:mm",
+                "MM/dd/yy HH:mm:ss", "MM/dd/yy HH:mm"));
         LocalDateTime depositDateTime = null;
 
         for (int i=0; i<dateTime.size();i++){

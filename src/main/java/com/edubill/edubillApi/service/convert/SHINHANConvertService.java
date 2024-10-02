@@ -34,7 +34,7 @@ public class SHINHANConvertService implements ConvertService {
     private final Validator validator;
 
     private LocalDate parseDate(String originalDate){
-        List<String> date = new ArrayList<>(Arrays.asList("yyyy.MM.dd", "yyyy/MM/dd", "yyyy-MM-dd", "M/dd/yy", "M/d/yy"));
+        List<String> date = new ArrayList<>(Arrays.asList("yyyy.MM.dd", "yyyy/MM/dd", "yyyy-MM-dd", "M/dd/yy", "M/d/yy", "MM/dd/yy", "MM/d/yy"));
         LocalDate depositDate = null;
         System.out.println("originalDate : " + originalDate);
 

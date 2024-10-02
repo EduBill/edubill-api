@@ -5,6 +5,7 @@ import com.edubill.edubillApi.domain.PaymentHistory;
 
 import com.edubill.edubillApi.domain.enums.PaymentType;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryDto;
+import com.edubill.edubillApi.error.exception.ParseNotFoundException;
 import com.edubill.edubillApi.service.convert.ConvertService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -28,6 +30,32 @@ public class HANAConvertService implements ConvertService {
 
     private static final String BANK_NAME = "HANA";
     private final Validator validator;
+
+    private LocalDateTime parseDateTime(String originalDateTime){
+        List<String> dateTime = new ArrayList<>(Arrays.asList(
+                "yyyy.MM.dd HH:mm:ss", "yyyy.MM.dd HH:mm",
+                "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm",
+                "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:",
+                "M/dd/yy HH:mm:ss", "M/dd/yy HH:mm",
+                "M/d/yy HH:mm:ss", "M/d/yy HH:mm",
+                "MM/dd/yy HH:mm:ss", "MM/dd/yy HH:mm"));
+        LocalDateTime depositDateTime = null;
+
+        for (int i=0; i<dateTime.size();i++){
+            try {
+                depositDateTime = LocalDateTime.parse(originalDateTime, DateTimeFormatter.ofPattern(dateTime.get(i)));
+            }
+            catch (Exception e){
+                continue;
+            }
+        }
+
+        if (depositDateTime.equals(null)){
+            throw new ParseNotFoundException("날짜를 파싱할 수 없습니다. 입력 날짜 형식: "+originalDateTime);
+        }
+        return depositDateTime;
+
+    }
 
     @Override
     public List<PaymentHistory> convertBankExcelDataToPaymentHistory(MultipartFile file, String userId) throws IOException {
@@ -45,6 +73,7 @@ public class HANAConvertService implements ConvertService {
         }
         Sheet sheet = workbook.getSheetAt(0);
 
+        System.out.println(sheet.getLastRowNum() + " " + sheet.getPhysicalNumberOfRows());
         for (int rowNumber = 6; rowNumber < sheet.getLastRowNum(); rowNumber++) {
 
             DataFormatter formatter = new DataFormatter();
@@ -52,7 +81,7 @@ public class HANAConvertService implements ConvertService {
 
             // 거래날짜
             String originalDateTime = formatter.formatCellValue(row.getCell(0));
-            LocalDateTime depositDateTime = LocalDateTime.parse(originalDateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            LocalDateTime depositDateTime = parseDateTime(originalDateTime);
 
             // 입금액
             Cell depositAmountCell = row.getCell(4);

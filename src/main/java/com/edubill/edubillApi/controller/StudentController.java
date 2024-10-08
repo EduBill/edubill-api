@@ -18,6 +18,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Objects;
+
 @Tag(name = "Student", description = "학생정보관리 API")
 @RestController
 @RequestMapping("/v1/student")
@@ -110,26 +113,11 @@ public class StudentController {
         return ResponseEntity.ok(studentService.findAllStudentsByUserId(pageable, isUnpaid));
     }
 
-    @GetMapping("/filter/students")
+    @PostMapping("/filter/students")
     @Operation(
             summary = "학생 조회 필터링",
             description = "유저가 생성한 학생들 중 특정 조건에 맞는 학생들만 조회한다.",
             parameters = {
-                    @Parameter(name = "isUnpaid",
-                            description = "미납입자 조회 여부. 포맷은 다음과 같다: true (소문자)",
-                            required = false,
-                            example = "true",
-                            schema = @Schema(type = "string", defaultValue = "false")),
-                    @Parameter(name = "groupId",
-                            description = "반 ID. 포맷은 다음과 같다: 1",
-                            required = false,
-                            example = "1",
-                            schema = @Schema(type = "Long", defaultValue = "")),
-                    @Parameter(name = "nameOrPhoneNum",
-                            description = "조회하고 싶은 학생 이름 또는 전화번호. 포맷은 다음과 같다: 홍길동 OR 0101245678",
-                            required = false,
-                            example = "홍길동 OR 0101245678",
-                            schema = @Schema(type = "string", defaultValue = "")),
                     @Parameter(name = "page",
                             description = "요청 페이지 번호 (0부터 시작)",
                             required = false,
@@ -139,24 +127,21 @@ public class StudentController {
                             description = "페이지당 데이터 수",
                             required = false,
                             example = "10",
-                            schema = @Schema(type = "integer", defaultValue = "10")),
-                    @Parameter(name = "sort",
-                            description = "정렬 기준. 포맷은 다음과 같다: studentName(가나다순) || id(최신등록순)",
-                            required = false,
-                            example = "studentName",
-                            schema = @Schema(type = "string", defaultValue = "id"))
+                            schema = @Schema(type = "integer", defaultValue = "10"))
             })
     public ResponseEntity<Page<StudentAndGroupResponseDto>> findStudents(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sort,
-            @RequestParam(defaultValue = "false") String isUnpaid,
-            @RequestParam (required = false) Long groupId,
-            @RequestParam (required = false) String nameOrPhoneNum) {
+            @RequestBody StudentsListRequestDto studentsListRequestDto) {
+        Boolean isUnpaid = studentsListRequestDto.getIsUnpaid();
+        List<Long> groupIds = studentsListRequestDto.getGroupIds();
+        String studentName = studentsListRequestDto.getStudentName();
+        String studentPhoneNumber = studentsListRequestDto.getStudentPhoneNumber();
+        String sort = studentsListRequestDto.getSort();
 
-        Sort orders = (sort.equals("id")) ? Sort.by(Sort.Direction.DESC, sort) : Sort.by(Sort.Direction.ASC, sort);
+        Sort orders = (!Objects.isNull(sort) && sort.equals("studentName")) ? Sort.by(Sort.Direction.DESC, sort) : Sort.by(Sort.Direction.ASC, sort);
         Pageable pageable = PageRequest.of(page, size, orders);
-        return ResponseEntity.ok(studentService.findStudentsByUserIdAndGroupIdOrNameOrPhoneNum(pageable, isUnpaid, groupId, nameOrPhoneNum));
+        return ResponseEntity.ok(studentService.findStudentsByUserIdAndGroupIdOrNameOrPhoneNum(pageable, isUnpaid, groupIds, studentName, studentPhoneNumber));
     }
 
     @Operation(summary = "학생 상세 조회",

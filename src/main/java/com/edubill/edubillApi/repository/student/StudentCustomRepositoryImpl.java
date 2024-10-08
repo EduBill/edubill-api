@@ -23,6 +23,7 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.edubill.edubillApi.domain.QGroup.group;
@@ -193,7 +194,7 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository {
     }
 
     @Override
-    public Page<Student> getStudentsByUserIdAndGroupIdOrStudentNameOrPhoneNumWithPaging(String currentUserId, Pageable pageable, Long groupId, String nameOrPhoneNum) {
+    public Page<Student> getStudentsByUserIdAndGroupIdOrStudentNameOrPhoneNumWithPaging(String currentUserId, Pageable pageable, List<Long> groupIds, String studentName, String studentPhoneNumber) {
         QGroup group = QGroup.group;
         QStudentGroup studentGroup = QStudentGroup.studentGroup;
         QStudent student = QStudent.student;
@@ -201,17 +202,14 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository {
 
         BooleanBuilder builder = new BooleanBuilder();
 
-        if (groupId != null) {
-            builder.and(group.id.eq(groupId));
+        if (!Objects.isNull(groupIds)) {
+            builder.and(group.id.in(groupIds));
         }
-        if (nameOrPhoneNum != null) {
-            boolean isPhoneNum = nameOrPhoneNum.matches("^01(?:0|1|[6-9])(?:\\d{3}|\\d{4})\\d{4}$"); // 필터링 조건이 전화번호인지 이름인지 판별
-            if (isPhoneNum == true) {// 판별 조건이 핸드폰번호 일 경우{
-                builder.and(student.studentPhoneNumber.eq(nameOrPhoneNum));
-            }
-            else {
-                builder.and(student.studentName.eq(nameOrPhoneNum));
-            }
+        if (!Objects.isNull(studentName)){
+            builder.and(student.studentName.eq(studentName));
+        }
+        if (!Objects.isNull(studentPhoneNumber)){
+            builder.and(student.studentPhoneNumber.eq(studentPhoneNumber));
         }
 
         // 기본 쿼리 설정
@@ -236,24 +234,21 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository {
     }
 
     @Override
-    public Page<Student> getUnpaidStudentsByUserIdAndGroupIdOrStudentNameOrPhoneNumWithPaging(String currentUserId, Pageable pageable, Long groupId, String nameOrPhoneNum) {
+    public Page<Student> getUnpaidStudentsByUserIdAndGroupIdOrStudentNameOrPhoneNumWithPaging(String currentUserId, Pageable pageable, List<Long> groupIds, String studentName, String studentPhoneNumber) {
         QGroup group = QGroup.group;
         QStudentGroup studentGroup = QStudentGroup.studentGroup;
         QStudent student = QStudent.student;
 
         BooleanBuilder builder = new BooleanBuilder();
 
-        if (groupId != null) {
-            builder.and(group.id.eq(groupId));
+        if (!Objects.isNull(groupIds)) {
+            builder.and(group.id.in(groupIds));
         }
-        if (nameOrPhoneNum != null) {
-            boolean isPhoneNum = nameOrPhoneNum.matches("^01(?:0|1|[6-9])(?:\\d{3}|\\d{4})\\d{4}$"); // 필터링 조건이 전화번호인지 이름인지 판별
-            if (isPhoneNum == true) {// 판별 조건이 핸드폰번호일 경우{
-                builder.and(student.studentPhoneNumber.eq(nameOrPhoneNum));
-            }
-            else { // 판별 조건이 학생이름일 경루
-                builder.and(student.studentName.eq(nameOrPhoneNum));
-            }
+        if (!Objects.isNull(studentName)){
+            builder.and(student.studentName.eq(studentName));
+        }
+        if (!Objects.isNull(studentPhoneNumber)){
+            builder.and(student.studentPhoneNumber.eq(studentPhoneNumber));
         }
 
         String sYearMonth = YearMonth.now().toString();

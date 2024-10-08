@@ -27,12 +27,6 @@ public class StudentController {
 
     private final StudentService studentService;
 
-    @Operation(summary = "새로운 원생 추가",
-            description = "새로운 학생정보를 추가한다.")
-    @PostMapping
-    public ResponseEntity<StudentInfoResponseDto> addStudentInfo(@RequestBody StudentInfoRequestDto studentInfoRequestDto) {
-        return ResponseEntity.ok(studentService.addStudentInfo(studentInfoRequestDto));
-    }
 
     @Operation(summary = "새로운 반 추가",
             description = "새로운 반 정보를 추가한다.")
@@ -56,6 +50,27 @@ public class StudentController {
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(studentService.findAllGroupsByUserId(pageable));
+    }
+
+    @Operation(summary = "반 삭제",
+            description = "특정 id에 해당하는 반을 삭제한다.")
+    @DeleteMapping("/groups/{groupId}")
+    public ResponseEntity<DeletedGroupInfoDto> deleteGroupInfo(@PathVariable(name = "groupId") Long groupId) {
+        return ResponseEntity.ok(studentService.deleteGroupInfo(groupId));
+    }
+
+    @Operation(summary = "반 정보 수정",
+            description = "반 정보를 수정한다.")
+    @PutMapping("/groups/{groupId}")
+    public ResponseEntity<GroupInfoResponseDto> updateStudentGroupInfo(@PathVariable(name = "groupId") Long groupId, @RequestBody GroupInfoRequestDto groupInfoRequestDto) {
+        return ResponseEntity.ok(studentService.updateGroupInfo(groupId, groupInfoRequestDto));
+    }
+
+    @Operation(summary = "새로운 원생 추가",
+            description = "새로운 학생정보를 추가한다.")
+    @PostMapping
+    public ResponseEntity<StudentInfoResponseDto> addStudentInfo(@RequestBody StudentInfoRequestDto studentInfoRequestDto) {
+        return ResponseEntity.ok(studentService.addStudentInfo(studentInfoRequestDto));
     }
 
     @GetMapping("/allStudents")
@@ -159,10 +174,5 @@ public class StudentController {
         return ResponseEntity.ok(studentService.deleteStudentInfo(studentId));
     }
 
-    @Operation(summary = "반 삭제",
-            description = "특정 id에 해당하는 반을 삭제한다.")
-    @DeleteMapping("/groups/{groupId}")
-    public ResponseEntity<DeletedGroupInfoDto> deleteGroupInfo(@PathVariable(name = "groupId") Long groupId) {
-        return ResponseEntity.ok(studentService.deleteGroupInfo(groupId));
-    }
+
 }

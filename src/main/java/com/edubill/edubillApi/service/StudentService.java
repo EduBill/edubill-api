@@ -22,9 +22,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Time;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -270,5 +272,55 @@ public class StudentService {
         return entities.stream()
                 .map(idExtractor)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public GroupInfoResponseDto updateGroupInfo(Long groupId, GroupInfoRequestDto groupInfoRequestDto) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(()-> new GroupNotFoundException("Group not found with id " + groupId));
+        List<GroupInfoRequestDto.ClassTimeRequestDto> classTimeRequestDtos = groupInfoRequestDto.getClassTimeRequestDtos();
+
+        // 그룹에 대한 기본적인 정보 변경
+        Group updatedGroup = group.updateGroup(groupInfoRequestDto);
+
+        // 수업 시간 업데이트
+        List<ClassTime> oldClassTime = group.getClassTimes();
+
+        List<ClassTime> newClassTimes = classTimeRequestDtos.stream()
+                .map(dto -> {
+                    // ClassTime 객체를 생성
+                    ClassTime classTime = ClassTime.builder()
+                            .dayOfWeek(dto.getDayOfWeek())
+                            .startTime(dto.getStartTime())
+                            .endTime(dto.getEndTime())
+                            .build();
+                    return classTime;
+                })
+                .collect(Collectors.toList());
+
+        // 기존 수업시간과 새로운 수업시간 비교하여 삭제해야할 classTime 객체 찾기
+        List<ClassTime> deletedClassTime = oldClassTime.stream().filter(o -> newClassTimes.stream().noneMatch(n ->{
+            return o.getDayOfWeek().equals(n.getDayOfWeek()) && o.getStartTime().equals(n.getStartTime()) && o.getEndTime().equals(n.getEndTime());
+        })).collect(Collectors.toList());
+
+        deletedClassTime.stream().forEach(classTime -> {
+            System.out.println(classTime.getDayOfWeek());
+            updatedGroup.getClassTimes().remove(classTime);
+            classTimeRepository.deleteByClassTimeId(classTime.getClassTimeId());
+        });
+
+        // 새로운 classTime 객체 저장하기
+        List<ClassTime> createdClassTime = newClassTimes.stream().filter(n -> oldClassTime.stream().noneMatch(o ->{
+            return o.getDayOfWeek().equals(n.getDayOfWeek()) && o.getStartTime().equals(n.getStartTime()) && o.getEndTime().equals(n.getEndTime());
+        })).collect(Collectors.toList());
+
+        createdClassTime.stream().forEach(classTime -> {
+            System.out.println(classTime.getDayOfWeek());
+            classTime.setGroup(updatedGroup);
+        });
+        classTimeRepository.saveAll(createdClassTime);
+
+
+        return GroupInfoResponseDto.createGroupInfoResponse(updatedGroup, updatedGroup.getClassTimes());
     }
 }

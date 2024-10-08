@@ -2,24 +2,35 @@ package com.edubill.edubillApi.service;
 
 
 import com.edubill.edubillApi.config.TestcontainerConfig;
+import com.edubill.edubillApi.domain.ClassTime;
 import com.edubill.edubillApi.domain.Group;
 import com.edubill.edubillApi.domain.Student;
 import com.edubill.edubillApi.domain.StudentGroup;
+import com.edubill.edubillApi.domain.enums.DayOfWeek;
 import com.edubill.edubillApi.domain.enums.DepartmentType;
 import com.edubill.edubillApi.domain.enums.GradeLevel;
 import com.edubill.edubillApi.domain.enums.SchoolType;
+import com.edubill.edubillApi.dto.group.GroupInfoRequestDto;
+import com.edubill.edubillApi.dto.group.GroupInfoResponseDto;
 import com.edubill.edubillApi.dto.student.StudentInfoDetailResponse;
 import com.edubill.edubillApi.dto.student.StudentInfoResponseDto;
 import com.edubill.edubillApi.error.exception.StudentNotFoundException;
+import com.edubill.edubillApi.repository.ClassTimeRepository;
 import com.edubill.edubillApi.repository.StudentGroupRepository;
 import com.edubill.edubillApi.repository.group.GroupRepository;
 import com.edubill.edubillApi.repository.student.StudentRepository;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -37,6 +48,8 @@ public class StudentTest {
      GroupRepository groupRepository;
      @Autowired
      StudentGroupRepository studentGroupRepository;
+     @Autowired
+     ClassTimeRepository classTimeRepository;
 
     private Student student;
     private Group savedGroup1;
@@ -54,8 +67,19 @@ public class StudentTest {
         );
         studentRepository.save(student);
 
-        savedGroup1 = groupRepository.save(createGroup("기초 회화반", "testManager"));
-        savedGroup2 = groupRepository.save(createGroup("기초반", "testManager"));
+        List<ClassTime> classTimes = new ArrayList<>();
+        classTimes.add(classTimeRepository.save(ClassTime.builder()
+                .dayOfWeek(DayOfWeek.MON)
+                .startTime(LocalTime.of(14,00))
+                .endTime(LocalTime.of(16,00))
+                .build()));
+        classTimes.add(classTimeRepository.save(ClassTime.builder()
+                .dayOfWeek(DayOfWeek.WED)
+                .startTime(LocalTime.of(14,00))
+                .endTime(LocalTime.of(16,00))
+                .build()));
+        savedGroup1 = groupRepository.save(createGroup("기초 회화반", "testManager", classTimes));
+        savedGroup2 = groupRepository.save(createGroup("기초반", "testManager", classTimes));
 
         createAndSaveStudentGroup(student, savedGroup1);
         createAndSaveStudentGroup(student, savedGroup2);
@@ -82,6 +106,46 @@ public class StudentTest {
         assertThatThrownBy(() -> studentService.getStudentInfo(invalidStudentId))
                 .isInstanceOf(StudentNotFoundException.class)
                 .hasMessageContaining("Student not found with id " + invalidStudentId);
+    }
+
+    @Test
+    @DisplayName("반 정보를 변경한다. - 반 이름, schoolType, gradeLevel, 수업료, 메모, 수업시간")
+    void updateGroupInfo(){
+
+        // given
+        List<GroupInfoRequestDto.ClassTimeRequestDto> classTimes = new ArrayList<>();
+        classTimes.add(GroupInfoRequestDto.ClassTimeRequestDto.builder()
+                .dayOfWeek(DayOfWeek.MON)
+                .startTime(LocalTime.of(14,00))
+                .endTime(LocalTime.of(16,00))
+                .build());
+        classTimes.add(GroupInfoRequestDto.ClassTimeRequestDto.builder()
+                .dayOfWeek(DayOfWeek.THU)
+                .startTime(LocalTime.of(14,00))
+                .endTime(LocalTime.of(16,00))
+                .build());
+
+        GroupInfoRequestDto groupInfoRequestDto = GroupInfoRequestDto.builder()
+                .groupName("changedName")
+                .schoolType(SchoolType.HIGH)
+                .gradeLevel(GradeLevel.FIRST)
+                .tuition(300000)
+                .groupMemo("Change")
+                .classTimeRequestDtos(classTimes)
+                .build();
+
+        // when
+        GroupInfoResponseDto groupInfoResponseDto = studentService.updateGroupInfo(savedGroup1.getId(), groupInfoRequestDto);
+
+        // then
+        Assertions.assertThat(groupInfoResponseDto.getGroupName()).isEqualTo("changedName");
+        Assertions.assertThat(groupInfoResponseDto.getSchoolType()).isEqualTo(SchoolType.HIGH);
+        Assertions.assertThat(groupInfoResponseDto.getGradeLevel()).isEqualTo(GradeLevel.FIRST);
+        Assertions.assertThat(groupInfoResponseDto.getTuition()).isEqualTo(300000);
+        Assertions.assertThat(groupInfoResponseDto.getGroupMemo()).isEqualTo("Change");
+        Assertions.assertThat(groupInfoResponseDto.getClassTimeResponseDtos().size()).isEqualTo(2);
+        Assertions.assertThat(groupInfoResponseDto.getClassTimeResponseDtos().get(0).getDayOfWeek()).isEqualTo(DayOfWeek.MON);
+        Assertions.assertThat(groupInfoResponseDto.getClassTimeResponseDtos().get(1).getDayOfWeek()).isEqualTo(DayOfWeek.THU);
     }
 
     // 학생 정보 검증
@@ -126,10 +190,11 @@ public class StudentTest {
     }
 
     // 그룹 생성 메서드
-    private Group createGroup(String groupName, String managerId) {
+    private Group createGroup(String groupName, String managerId, List<ClassTime> classTime) {
         return Group.builder()
                 .groupName(groupName)
                 .managerId(managerId)
+                .classTimes(classTime)
                 .build();
     }
 

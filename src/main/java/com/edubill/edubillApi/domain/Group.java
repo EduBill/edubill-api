@@ -71,6 +71,16 @@ public class Group extends BaseEntity {
         return new Group(groupInfoRequestDto, userId);
     }
 
+    public Group updateGroup(GroupInfoRequestDto groupInfoRequestDto){
+        this.groupName = groupInfoRequestDto.getGroupName();
+        this.schoolType = groupInfoRequestDto.getSchoolType();
+        this.gradeLevel = groupInfoRequestDto.getGradeLevel();
+        this.tuition = groupInfoRequestDto.getTuition();
+        this.groupMemo = groupInfoRequestDto.getGroupMemo();
+
+        return this;
+    }
+
     //학생수 추가 로직
     public void addStudentCount() {
         if (this.totalStudentCount != null) {

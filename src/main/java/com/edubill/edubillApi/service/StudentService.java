@@ -304,7 +304,6 @@ public class StudentService {
         })).collect(Collectors.toList());
 
         deletedClassTime.stream().forEach(classTime -> {
-            System.out.println(classTime.getDayOfWeek());
             updatedGroup.getClassTimes().remove(classTime);
             classTimeRepository.deleteByClassTimeId(classTime.getClassTimeId());
         });
@@ -314,10 +313,7 @@ public class StudentService {
             return o.getDayOfWeek().equals(n.getDayOfWeek()) && o.getStartTime().equals(n.getStartTime()) && o.getEndTime().equals(n.getEndTime());
         })).collect(Collectors.toList());
 
-        createdClassTime.stream().forEach(classTime -> {
-            System.out.println(classTime.getDayOfWeek());
-            classTime.setGroup(updatedGroup);
-        });
+        createdClassTime.stream().forEach(classTime -> classTime.setGroup(updatedGroup));
         classTimeRepository.saveAll(createdClassTime);
 
 

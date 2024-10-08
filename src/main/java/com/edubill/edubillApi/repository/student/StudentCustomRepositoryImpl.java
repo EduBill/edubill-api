@@ -245,7 +245,7 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository {
             builder.and(group.id.in(groupIds));
         }
         if (!Objects.isNull(studentName)){
-            builder.and(student.studentName.eq(studentName));
+            builder.and(student.studentName.contains(studentName));
         }
         if (!Objects.isNull(studentPhoneNumber)){
             builder.and(student.studentPhoneNumber.eq(studentPhoneNumber));

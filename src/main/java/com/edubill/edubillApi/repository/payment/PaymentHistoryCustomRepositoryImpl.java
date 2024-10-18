@@ -118,7 +118,24 @@ public class PaymentHistoryCustomRepositoryImpl implements PaymentHistoryCustomR
     }
 
     @Override
-    public List<PaymentHistory> findPaymentHistoriesByUserIdAndYearMonth(String userId, YearMonth yearMonth){
+    public List<PaymentHistory> findPaymentHistoriesByManagerIdAndYearMonthWithPaymentStatusUnPaid(String managerId, YearMonth yearMonth) {
+        // 월의 첫째 날
+        LocalDateTime startDateTime = yearMonth.atDay(1).atStartOfDay(); // 해당 월의 첫 날 자정
+        // 월의 마지막 날
+        LocalDateTime endDateTime = yearMonth.atEndOfMonth().atTime(23, 59, 59, 999999999); // 해당 월의 마지막 날 23시 59분 59초 999999999나노초
+
+        return queryFactory
+                .selectFrom(paymentHistory)
+                .join(user)
+                .on(paymentHistory.managerId.eq(user.userId))
+                .where(paymentHistory.depositDate.between(startDateTime, endDateTime)
+                        .and(user.userId.eq(managerId))
+                        .and(paymentHistory.paymentStatus.eq(PaymentStatus.UNPAID)))
+                .fetch();
+    }
+
+    @Override
+    public List<PaymentHistory> findPaymentHistoriesByManagerIdAndYearMonth(String userId, YearMonth yearMonth){
 
         LocalDateTime startDateTime = yearMonth.atDay(1).atStartOfDay();
         LocalDateTime endDateTime = yearMonth.atEndOfMonth().atTime(23, 59, 59, 999999999);

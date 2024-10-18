@@ -11,9 +11,11 @@ public class PaymentStatusDto{
 
         private Long unpaidCount;  // 미 납부 인원
 
-        private Long totalPaidAmount;
+        private Long totalPaidAmount; // 납부 완료 금액
 
-        private Long totalUnpaidAmount;
+        private Long totalUnpaidAmount; // 미납부 금액
+
+        private Long totalUnCheckedAmount; // 미확인 납부 금액 : 학생 목록에는 없으나 입금내역에는 존재
 
         private Boolean isExcelUploaded; //default는 false
 }

@@ -82,6 +82,7 @@ public class PaymentService {
     public PaymentStatusDto getPaymentStatusForManagerInMonth(final String managerId, final YearMonth yearMonth) {
         final long paidStudentsCountInMonth = studentPaymentHistoryRepository.findStudentIdsByUserIdAndYearMonth(managerId, yearMonth).size();
         List<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesByUserIdAndYearMonthWithPaymentStatusPaid(managerId, yearMonth);
+        List<PaymentHistory> unPaidPaymentHistories = paymentHistoryRepository.findPaymentHistoriesByManagerIdAndYearMonthWithPaymentStatusUnPaid(managerId,yearMonth);
         List<Group> groups = groupRepository.getGroupsByUserId(managerId);
 
         long totalNumberOfStudents = studentRepository.findAllByUserId(managerId).size(); // manager가 관리하고 있는 모든 학생 수
@@ -96,12 +97,15 @@ public class PaymentService {
                 .sum();
         final long totalUnpaidAmount = totalTuition - totalPaidAmount;
 
+        final long totalUnCheckedAmount = unPaidPaymentHistories.stream()
+                .mapToInt(PaymentHistory::getPaidAmount).sum();
 
         return PaymentStatusDto.builder()
                 .paidCount(paidStudentsCountInMonth)
                 .unpaidCount(unpaidStudentsCount)
                 .totalPaidAmount(totalPaidAmount)
                 .totalUnpaidAmount(totalUnpaidAmount)
+                .totalUnCheckedAmount(totalUnCheckedAmount)
                 .build();
     }
 
@@ -131,7 +135,7 @@ public class PaymentService {
     @Transactional
     public void handleStudentPaymentProcessing(YearMonth yearMonth, String userId) {
         //paymentHistory 에 userId를 추가하여 외래키로 가지고 있음.
-        List<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesByUserIdAndYearMonth(userId, yearMonth);
+        List<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesByManagerIdAndYearMonth(userId, yearMonth);
         List<Group> groups = groupRepository.getGroupsByUserId(userId);
 
         // 중복된 이름을 가진 학생들 가져오기

@@ -17,7 +17,9 @@ public interface PaymentHistoryCustomRepository {
 
     List<PaymentHistory> findPaymentHistoriesByUserIdAndYearMonthWithPaymentStatusPaid(String managerId, YearMonth yearMonth);
 
-    List<PaymentHistory> findPaymentHistoriesByUserIdAndYearMonth(String managerId, YearMonth yearMonth);
+    List<PaymentHistory> findPaymentHistoriesByManagerIdAndYearMonthWithPaymentStatusUnPaid(String managerId, YearMonth yearMonth);
+
+    List<PaymentHistory> findPaymentHistoriesByManagerIdAndYearMonth(String managerId, YearMonth yearMonth);
 
     long countPaidStudentsForUserInMonth(String userId, YearMonth yearMonth);
 

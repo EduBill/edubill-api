@@ -80,29 +80,39 @@ public class PaymentService {
 
     @Transactional
     public PaymentStatusDto getPaymentStatusForManagerInMonth(final String managerId, final YearMonth yearMonth) {
+        // 납부 인원
         final long paidStudentsCountInMonth = studentPaymentHistoryRepository.findStudentIdsByUserIdAndYearMonth(managerId, yearMonth).size();
+
         List<PaymentHistory> paymentHistories = paymentHistoryRepository.findPaymentHistoriesByUserIdAndYearMonthWithPaymentStatusPaid(managerId, yearMonth);
         List<PaymentHistory> unPaidPaymentHistories = paymentHistoryRepository.findPaymentHistoriesByManagerIdAndYearMonthWithPaymentStatusUnPaid(managerId,yearMonth);
         List<Group> groups = groupRepository.getGroupsByUserId(managerId);
 
-        long totalNumberOfStudents = studentRepository.findAllByUserId(managerId).size(); // manager가 관리하고 있는 모든 학생 수
+        // manager가 관리하고 있는 모든 학생 수
+        long totalNumberOfStudents = studentRepository.findAllByUserId(managerId).size();
 
-
+        // 미납부 인원 = 관리자 하에 있는 총 학생 수 - 납부 인원 수
         final long unpaidStudentsCount = totalNumberOfStudents - paidStudentsCountInMonth;
 
+        // 납부된 수업료 총합
         final long totalPaidAmount = paymentHistories.stream().mapToInt(PaymentHistory::getPaidAmount).sum();
 
+        // 관리자가 맡고 있는 그룹의 납부해야 할 금액 총합
         final long totalTuition = groups.stream()
                 .mapToInt(group -> group.getTuition() * group.getTotalStudentCount())
                 .sum();
+        // 미납부 수업료 총합 = 납부해야 할 수업료 총합 - 납부된 수업료 총합
         final long totalUnpaidAmount = totalTuition - totalPaidAmount;
 
+        // 미확인 입금내역 수
+        final long unCheckedCount = unPaidPaymentHistories.size();
+        // 미확인 입금액 총합
         final long totalUnCheckedAmount = unPaidPaymentHistories.stream()
                 .mapToInt(PaymentHistory::getPaidAmount).sum();
 
         return PaymentStatusDto.builder()
                 .paidCount(paidStudentsCountInMonth)
                 .unpaidCount(unpaidStudentsCount)
+                .unCheckedCount(unCheckedCount)
                 .totalPaidAmount(totalPaidAmount)
                 .totalUnpaidAmount(totalUnpaidAmount)
                 .totalUnCheckedAmount(totalUnCheckedAmount)

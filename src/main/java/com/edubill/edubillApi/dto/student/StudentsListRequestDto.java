@@ -11,20 +11,17 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class StudentsListRequestDto {
-    @Schema(description = "groupIds", type = "List<Long>", example = "{1, 2, 3}")
+    @Schema(description = "그룹 ids", type = "List<Long>", example = "{1, 2, 3} OR null")
     private List<Long> groupIds;
 
-    @Schema(description = "isUnpaid", type = "string", example = "true", defaultValue = "false")
+    @Schema(description = "미납입 학생만 조회 여부", type = "string", example = "true", defaultValue = "false")
     @NotNull(message = "미납입 조회 여부는 필수입니다.")
     private Boolean isUnpaid;
 
-    @Schema(description = "studentName", type = "String", example = "학생1")
-    private String studentName;
+    @Schema(description = "학생이름 또는 학생전화번호", type = "String", example = "학생1 OR 01012345678 OR 빈 문자열(\"\") ")
+    private String studentNameORPhoneNum;
 
-    @Schema(description = "studentPhoneNumber", type = "String", example = "01012345678")
-    private String studentPhoneNumber;
-
-    @Schema(description = "정렬기준 / studentName(가나다순) || id(최신등록순)", type = "String", example = "id", defaultValue = "id")
+    @Schema(description = "정렬기준", type = "String", example = "id", defaultValue = " studentName(가나다순) || id(최신등록순)")
     @NotNull(message = "정렬 기준은 필수입니다.")
     private String sort;
 }

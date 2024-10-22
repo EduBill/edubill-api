@@ -11,6 +11,8 @@ public class PaymentStatusDto{
 
         private Long unpaidCount;  // 미 납부 인원
 
+        private Long unCheckedCount; // 미확인 납부 인원
+
         private Long totalPaidAmount; // 납부 완료 금액
 
         private Long totalUnpaidAmount; // 미납부 금액

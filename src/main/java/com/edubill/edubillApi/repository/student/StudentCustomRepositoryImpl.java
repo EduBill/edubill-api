@@ -194,7 +194,7 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository {
     }
 
     @Override
-    public Page<Student> getStudentsByUserIdAndGroupIdOrStudentNameOrPhoneNumWithPaging(String currentUserId, Pageable pageable, List<Long> groupIds, String studentName, String studentPhoneNumber) {
+    public Page<Student> getStudentsByUserIdAndGroupIdOrStudentNameOrPhoneNumWithPaging(String currentUserId, Pageable pageable, List<Long> groupIds, String studentNameORPhoneNum) {
         QGroup group = QGroup.group;
         QStudentGroup studentGroup = QStudentGroup.studentGroup;
         QStudent student = QStudent.student;
@@ -205,11 +205,13 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository {
         if (!Objects.isNull(groupIds)) {
             builder.and(group.id.in(groupIds));
         }
-        if (!Objects.isNull(studentName)){
-            builder.and(student.studentName.eq(studentName));
-        }
-        if (!Objects.isNull(studentPhoneNumber)){
-            builder.and(student.studentPhoneNumber.eq(studentPhoneNumber));
+        if (!Objects.isNull(studentNameORPhoneNum)){
+            if(studentNameORPhoneNum.matches("^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$")){ // 검색 조건이 학생 전화번호일 경우
+                builder.and(student.studentPhoneNumber.eq(studentNameORPhoneNum));
+            }
+            else{ // 검색 조건이 학생 이름일 경우
+                builder.and(student.studentName.contains(studentNameORPhoneNum));
+            }
         }
 
         // 기본 쿼리 설정
@@ -234,7 +236,7 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository {
     }
 
     @Override
-    public Page<Student> getUnpaidStudentsByUserIdAndGroupIdOrStudentNameOrPhoneNumWithPaging(String currentUserId, Pageable pageable, List<Long> groupIds, String studentName, String studentPhoneNumber) {
+    public Page<Student> getUnpaidStudentsByUserIdAndGroupIdOrStudentNameOrPhoneNumWithPaging(String currentUserId, Pageable pageable, List<Long> groupIds, String studentNameORPhoneNum) {
         QGroup group = QGroup.group;
         QStudentGroup studentGroup = QStudentGroup.studentGroup;
         QStudent student = QStudent.student;
@@ -244,11 +246,13 @@ public class StudentCustomRepositoryImpl implements StudentCustomRepository {
         if (!Objects.isNull(groupIds)) {
             builder.and(group.id.in(groupIds));
         }
-        if (!Objects.isNull(studentName)){
-            builder.and(student.studentName.contains(studentName));
-        }
-        if (!Objects.isNull(studentPhoneNumber)){
-            builder.and(student.studentPhoneNumber.eq(studentPhoneNumber));
+        if (!Objects.isNull(studentNameORPhoneNum)){
+            if(studentNameORPhoneNum.matches("^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$")){ // 검색 조건이 학생 전화번호일 경우
+                builder.and(student.studentPhoneNumber.eq(studentNameORPhoneNum));
+            }
+            else{ // 검색 조건이 학생 이름일 경우
+                builder.and(student.studentName.contains(studentNameORPhoneNum));
+            }
         }
 
         String sYearMonth = YearMonth.now().toString();

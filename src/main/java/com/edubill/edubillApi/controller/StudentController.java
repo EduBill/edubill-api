@@ -135,13 +135,12 @@ public class StudentController {
             @RequestBody StudentsListRequestDto studentsListRequestDto) {
         Boolean isUnpaid = studentsListRequestDto.getIsUnpaid();
         List<Long> groupIds = studentsListRequestDto.getGroupIds();
-        String studentName = studentsListRequestDto.getStudentName();
-        String studentPhoneNumber = studentsListRequestDto.getStudentPhoneNumber();
+        String studentNameORPhoneNum = studentsListRequestDto.getStudentNameORPhoneNum();
         String sort = studentsListRequestDto.getSort();
 
         Sort orders = (!Objects.isNull(sort) && sort.equals("studentName")) ? Sort.by(Sort.Direction.DESC, sort) : Sort.by(Sort.Direction.ASC, sort);
         Pageable pageable = PageRequest.of(page, size, orders);
-        return ResponseEntity.ok(studentService.findStudentsByUserIdAndGroupIdOrNameOrPhoneNum(pageable, isUnpaid, groupIds, studentName, studentPhoneNumber));
+        return ResponseEntity.ok(studentService.findStudentsByUserIdAndGroupIdOrNameOrPhoneNum(pageable, isUnpaid, groupIds, studentNameORPhoneNum));
     }
 
     @Operation(summary = "학생 상세 조회",

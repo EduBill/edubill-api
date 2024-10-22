@@ -127,15 +127,15 @@ public class StudentService {
 
     }
 
-    public Page<StudentAndGroupResponseDto> findStudentsByUserIdAndGroupIdOrNameOrPhoneNum(Pageable pageable, Boolean isUnpaid, List<Long> groupIds, String studentName, String studentPhoneNumber) {
+    public Page<StudentAndGroupResponseDto> findStudentsByUserIdAndGroupIdOrNameOrPhoneNum(Pageable pageable, Boolean isUnpaid, List<Long> groupIds, String studentNameORPhoneNum) {
 
         String currentId = SecurityUtils.getCurrentUserId();
         if (isUnpaid.equals(false)){ // 납입 여부 구분 안함
-            Page<Student> students = studentRepository.getStudentsByUserIdAndGroupIdOrStudentNameOrPhoneNumWithPaging(currentId, pageable, groupIds, studentName, studentPhoneNumber);
+            Page<Student> students = studentRepository.getStudentsByUserIdAndGroupIdOrStudentNameOrPhoneNumWithPaging(currentId, pageable, groupIds, studentNameORPhoneNum);
             return studentMapToStudentAndGroupResponseDtowWithPaging(students);
         }
         else { // 미납입자 조회
-            Page<Student> students = studentRepository.getUnpaidStudentsByUserIdAndGroupIdOrStudentNameOrPhoneNumWithPaging(currentId, pageable, groupIds, studentName, studentPhoneNumber);
+            Page<Student> students = studentRepository.getUnpaidStudentsByUserIdAndGroupIdOrStudentNameOrPhoneNumWithPaging(currentId, pageable, groupIds, studentNameORPhoneNum);
             return studentMapToStudentAndGroupResponseDtowWithPaging(students);
 
         }

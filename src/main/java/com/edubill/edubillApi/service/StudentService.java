@@ -17,20 +17,15 @@ import com.edubill.edubillApi.repository.student.StudentRepository;
 import com.edubill.edubillApi.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Time;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
 @Service
 @RequiredArgsConstructor
@@ -266,6 +261,25 @@ public class StudentService {
         );
 
         return StudentInfoDetailResponse.of(findStudent);
+    }
+
+    public UpdateStudentInfoDetailResponse updateStudentDetail(Long studentId, UpdateStudentInfoDetailRequest studentInfoDetailRequest) {
+        final Student findStudent = studentRepository.findById(studentId).orElseThrow(
+                () -> new StudentNotFoundException("Student not found with id " + studentId)
+        );
+
+
+        findStudent.updateStudentInfoDetail(studentInfoDetailRequest);
+
+        List<Group> groups = studentInfoDetailRequest.getGroups().stream()
+                .map(groupInfo -> groupRepository.getGroupByGroupName(groupInfo.getGroupName()).orElseThrow(
+                        () -> new GroupNotFoundException("Group not found with groupName " + groupInfo.getGroupName())
+                )).toList();
+
+        findStudent.updateGroups(groups);
+
+        Student updateStudent = studentRepository.save(findStudent);
+        return UpdateStudentInfoDetailResponse.of(updateStudent);
     }
 
     private <T> List<Long> extractIds(List<T> entities, Function<T, Long> idExtractor) {

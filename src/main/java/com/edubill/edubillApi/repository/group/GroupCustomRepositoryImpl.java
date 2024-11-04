@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.edubill.edubillApi.domain.QGroup.group;
 
@@ -44,5 +45,13 @@ public class GroupCustomRepositoryImpl implements GroupCustomRepository {
                 .fetch();
 
         return new PageImpl<>(results, pageable, total);
+    }
+
+    @Override
+    public Optional<Group> getGroupByGroupName(String groupName) {
+        return queryFactory
+                .selectFrom(group)
+                .where(group.groupName.eq(groupName))
+                .fetch().stream().findFirst();
     }
 }

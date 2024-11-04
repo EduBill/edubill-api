@@ -150,6 +150,13 @@ public class StudentController {
         return ResponseEntity.ok(studentService.getStudentInfo(studentId));
     }
 
+    @Operation(summary = "학생 정보 수정",
+            description = "학생 정보를 수정한다.")
+    @PutMapping("/{studentId}")
+    public ResponseEntity<UpdateStudentInfoDetailResponse> updateStudentDetail(@PathVariable Long studentId, @RequestBody UpdateStudentInfoDetailRequest updateStudentInfoDetailRequest) {
+        return ResponseEntity.ok(studentService.updateStudentDetail(studentId, updateStudentInfoDetailRequest));
+    }
+
     @Operation(summary = "학생 삭제",
             description = "특정 id에 해당하는 학생을 삭제한다.")
     @DeleteMapping("/{studentId}")

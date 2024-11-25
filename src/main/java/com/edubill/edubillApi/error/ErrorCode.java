@@ -27,11 +27,14 @@ public enum ErrorCode {
 
     //Student
     STUDENT_NOT_FOUND(400, "S001", "학생이 존재하지 않습니다."),
+    STUDENT_ALREADY_PAID(400,"S002", "이미 납부를 완료한 학생입니다."),
 
     //Payment
     PAYMENT_HISTORY_NOT_FOUND(400, "P001","납부내역이 존재하지 않습니다"),
     PAYMENT_KEY_NOT_ENCRYPTED(500, "P002", "결제 키가 암호화되지 않았습니다"),
     PAID_AMOUNT_TUITION_MISMATCH(400,"P003", "납부금액과 학원비가 일치하지 않습니다."),
+    HISTORY_ALREADY_PAID(400,"P004", "이미 납부처리 완료된 이체내역입니다."),
+
 
     // common
     INTERNAL_SERVER_ERROR(500, "C001", "서버 오류"),

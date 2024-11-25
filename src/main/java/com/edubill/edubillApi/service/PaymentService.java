@@ -6,14 +6,11 @@ import com.edubill.edubillApi.domain.enums.PaymentType;
 import com.edubill.edubillApi.dto.FileUrlResponseDto;
 import com.edubill.edubillApi.dto.payment.*;
 import com.edubill.edubillApi.error.ErrorCode;
-import com.edubill.edubillApi.error.exception.BusinessException;
-import com.edubill.edubillApi.error.exception.PaymentHistoryNotFoundException;
+import com.edubill.edubillApi.error.exception.*;
 import com.edubill.edubillApi.dto.payment.PaymentHistoryDetailResponse;
 
 import com.edubill.edubillApi.dto.payment.PaymentHistoryResponseDto;
 import com.edubill.edubillApi.dto.payment.PaymentStatusDto;
-import com.edubill.edubillApi.error.exception.PaymentKeyNotEncryptedException;
-import com.edubill.edubillApi.error.exception.UserNotFoundException;
 import com.edubill.edubillApi.repository.ExcelUploadStatusRepository;
 import com.edubill.edubillApi.repository.StudentPaymentHistoryRepository;
 import com.edubill.edubillApi.repository.payment.PaymentHistoryRepository;
@@ -296,86 +293,108 @@ public class PaymentService {
         PaymentHistory paymentHistory = paymentHistoryRepository.findById(paymentHistoryId)
                 .orElseThrow(() -> new PaymentHistoryNotFoundException("존재하지 않는 납부 내역입니다."));
 
-        String studentPhoneNumber = student.getStudentPhoneNumber();
-        String depositorName = paymentHistory.getDepositorName();
-        Integer paidAmount = paymentHistory.getPaidAmount();
+        // 해당 연월에 납부처리된 학생인지 확인
+        Boolean isPaidStudent = studentPaymentHistoryRepository.existsByStudentAndYearMonth(student, yearMonth.toString());
 
-        if (!isPaidAmountMatching(student, paidAmount)) {
-            throw new BusinessException("납부금액과 학원비가 일치하지 않습니다.", ErrorCode.PAID_AMOUNT_TUITION_MISMATCH);
+        // 해당 연월에 납부처리된 이체 내역인지 확인
+        Boolean isPaidHistory = studentPaymentHistoryRepository.existsByPaymentHistoryAndYearMonth(paymentHistory, yearMonth.toString());
+
+        if (isPaidStudent){ // 이미 해당연월에 완납처리 완료한 학생이라면
+            throw new StudentAlreadyPaidException("이미 납부 완료한 학생입니다.");
         }
-
-        // 새로운 결제키 생성 -> 이전에 수동처리한 적 없으니 결제키 존재한 적 X
-        String newPaymentKey = depositorName + studentPhoneNumber + paidAmount + paymentHistory.getPaymentType();
-        String encryptedNewPaymentKey;
-
-        try {
-            encryptedNewPaymentKey = EncryptionUtils.encrypt(newPaymentKey, SECRET_KEY);
-        } catch (Exception e) {
-            throw new PaymentKeyNotEncryptedException("암호할 할 수 없습니다.");
+        else if (isPaidHistory){
+            throw new PaymentAlreadyPaidException("이미 납부처리 완료된 이체내역입니다.");
         }
+        else{
+            String studentPhoneNumber = student.getStudentPhoneNumber();
+            String depositorName = paymentHistory.getDepositorName();
+            Integer paidAmount = paymentHistory.getPaidAmount();
 
-        // 완납처리 -> 납입기록은 이때 납입완료로 처리
-        paymentStatusToPaid(student, paymentHistory);
+            if (!isPaidAmountMatching(student, paidAmount)) {
+                throw new BusinessException("납부금액과 학원비가 일치하지 않습니다.", ErrorCode.PAID_AMOUNT_TUITION_MISMATCH);
+            }
 
-        // 미납 리스트 학생에서 해당 학생이 조회되지 않도록 처리
-        createStudentPaymentHistory(student, paymentHistory, yearMonth);
+            // 새로운 결제키 생성 -> 이전에 수동처리한 적 없으니 결제키 존재한 적 X
+            String newPaymentKey = depositorName + studentPhoneNumber + paidAmount + paymentHistory.getPaymentType();
+            String encryptedNewPaymentKey;
 
-        // 결제키 저장
-        paymentKeyRepository.save(PaymentKey.builder()
-                .paymentKey(encryptedNewPaymentKey)
-                .student(student)
-                .build());
+            try {
+                encryptedNewPaymentKey = EncryptionUtils.encrypt(newPaymentKey, SECRET_KEY);
+            } catch (Exception e) {
+                throw new PaymentKeyNotEncryptedException("암호할 할 수 없습니다.");
+            }
+
+            // 완납처리 -> 납입기록은 이때 납입완료로 처리
+            paymentStatusToPaid(student, paymentHistory);
+
+            // 미납 리스트 학생에서 해당 학생이 조회되지 않도록 처리
+            createStudentPaymentHistory(student, paymentHistory, yearMonth);
+
+            // 결제키 저장
+            paymentKeyRepository.save(PaymentKey.builder()
+                    .paymentKey(encryptedNewPaymentKey)
+                    .student(student)
+                    .build());
+        }
     }
 
     @Transactional
     public FileUrlResponseDto manualProcessingOfUnpaidHistoryByManualInput(ManualPaymentHistoryRequestDto manualPaymentHistoryRequestDto) throws IOException {
         String userId = SecurityUtils.getCurrentUserId();
         Long studentId = manualPaymentHistoryRequestDto.getStudentId();
-        PaymentType paymentType = PaymentType.getPaymentTypeByDescription(manualPaymentHistoryRequestDto.getPaymentTypeString());
-
-        // YearMonth와 임의의 시간을 사용하여 LocalDateTime 생성
-        YearMonth yearMonth = manualPaymentHistoryRequestDto.getYearMonth();
-        LocalTime arbitraryTime = LocalTime.of(12, 0); // 임의의 시간 설정 (여기서는 12:00로 설정)
-        LocalDateTime depositDate = yearMonth.atDay(1).atTime(arbitraryTime);
-
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다.  userId: " + studentId));
+        PaymentType paymentType = PaymentType.getPaymentTypeByDescription(manualPaymentHistoryRequestDto.getPaymentTypeString());
+        YearMonth yearMonth = manualPaymentHistoryRequestDto.getYearMonth();
 
-        String s3Url = fileUploadService.saveImageFile(manualPaymentHistoryRequestDto.getFile());
+        // 해당 연월에 납부처리된 학생인지 확인
+        Boolean isPaidStudent = studentPaymentHistoryRepository.existsByStudentAndYearMonth(student, yearMonth.toString());
 
-        PaymentHistory newPaymentHistory = paymentHistoryRepository.save(PaymentHistory.builder()
-                .depositDate(depositDate)
-                .bankName("수동입력")
-                .paidAmount(manualPaymentHistoryRequestDto.getPaidAmount())
-                .memo(manualPaymentHistoryRequestDto.getMemo())
-                .paymentType(paymentType)
-                .managerId(userId)
-                .s3Url(s3Url)
-                .build());
-
-
-        paymentStatusToPaid(student, newPaymentHistory);
-        createStudentPaymentHistory(student, newPaymentHistory, yearMonth);
-
-        if (!isPaidAmountMatching(student, newPaymentHistory.getPaidAmount())) {
-            throw new BusinessException("납부금액과 학원비가 일치하지 않습니다.", ErrorCode.PAID_AMOUNT_TUITION_MISMATCH);
+        if (isPaidStudent){
+            throw new StudentAlreadyPaidException(yearMonth+"에 이미 납부한 학생입니다.");
         }
+        else{
+            // YearMonth와 임의의 시간을 사용하여 LocalDateTime 생성
+
+            LocalTime arbitraryTime = LocalTime.of(12, 0); // 임의의 시간 설정 (여기서는 12:00로 설정)
+            LocalDateTime depositDate = yearMonth.atDay(1).atTime(arbitraryTime);
+
+            String s3Url = fileUploadService.saveImageFile(manualPaymentHistoryRequestDto.getFile());
+
+            PaymentHistory newPaymentHistory = paymentHistoryRepository.save(PaymentHistory.builder()
+                    .depositDate(depositDate)
+                    .bankName("수동입력")
+                    .paidAmount(manualPaymentHistoryRequestDto.getPaidAmount())
+                    .memo(manualPaymentHistoryRequestDto.getMemo())
+                    .paymentType(paymentType)
+                    .managerId(userId)
+                    .s3Url(s3Url)
+                    .build());
 
 
-        String newPaymentKey = student.getStudentName() + student.getStudentPhoneNumber() + newPaymentHistory.getPaidAmount() + paymentType;
-        String encryptedNewPaymentKey;
-        try {
-            encryptedNewPaymentKey = EncryptionUtils.encrypt(newPaymentKey, SECRET_KEY);
-        } catch (Exception e) {
-            throw new PaymentKeyNotEncryptedException("암호할 할 수 없습니다.");
+            paymentStatusToPaid(student, newPaymentHistory);
+            createStudentPaymentHistory(student, newPaymentHistory, yearMonth);
+
+            if (!isPaidAmountMatching(student, newPaymentHistory.getPaidAmount())) {
+                throw new BusinessException("납부금액과 학원비가 일치하지 않습니다.", ErrorCode.PAID_AMOUNT_TUITION_MISMATCH);
+            }
+
+
+            String newPaymentKey = student.getStudentName() + student.getStudentPhoneNumber() + newPaymentHistory.getPaidAmount() + paymentType;
+            String encryptedNewPaymentKey;
+            try {
+                encryptedNewPaymentKey = EncryptionUtils.encrypt(newPaymentKey, SECRET_KEY);
+            } catch (Exception e) {
+                throw new PaymentKeyNotEncryptedException("암호할 할 수 없습니다.");
+            }
+            // 결제키 저장
+            paymentKeyRepository.save(PaymentKey.builder()
+                    .paymentKey(encryptedNewPaymentKey)
+                    .student(student)
+                    .build());
+
+            return new FileUrlResponseDto(s3Url);
         }
-        // 결제키 저장
-        paymentKeyRepository.save(PaymentKey.builder()
-                .paymentKey(encryptedNewPaymentKey)
-                .student(student)
-                .build());
-
-        return new FileUrlResponseDto(s3Url);
     }
 
     public MemoResponseDto updateMemo(MemoRequestDto memoRequestDto) {

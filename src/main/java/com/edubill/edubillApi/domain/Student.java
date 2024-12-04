@@ -4,6 +4,7 @@ import com.edubill.edubillApi.domain.enums.DepartmentType;
 import com.edubill.edubillApi.domain.enums.GradeLevel;
 import com.edubill.edubillApi.domain.enums.SchoolType;
 import com.edubill.edubillApi.dto.student.StudentInfoRequestDto;
+import com.edubill.edubillApi.dto.student.UpdateStudentInfoDetailRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -85,5 +86,28 @@ public class Student extends BaseEntity{
     }
     public static Student from(StudentInfoRequestDto studentInfoRequestDto) {
       return new Student(studentInfoRequestDto);
+    }
+
+    public void updateStudentInfoDetail(UpdateStudentInfoDetailRequest request) {
+        this.studentName = request.getStudentName();
+        this.studentPhoneNumber = request.getStudentPhoneNumber();
+        this.parentName = request.getParentName();
+        this.parentPhoneNumber = request.getParentPhoneNumber();
+        this.schoolType = request.getSchoolLevel();
+        this.gradeLevel = request.getGrade();
+        this.departmentType = request.getDepartment();
+        this.schoolName = request.getSchoolName();
+        this.memo = request.getMemo();
+    }
+
+    public void updateGroups(List<Group> groups) {
+        this.studentGroups.clear();
+        
+        for (Group group : groups) {
+            this.studentGroups.add(StudentGroup.builder()
+                    .student(this)
+                    .group(group)
+                    .build());
+        }
     }
 }

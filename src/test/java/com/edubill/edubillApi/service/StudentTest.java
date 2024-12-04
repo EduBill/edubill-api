@@ -12,8 +12,8 @@ import com.edubill.edubillApi.domain.enums.GradeLevel;
 import com.edubill.edubillApi.domain.enums.SchoolType;
 import com.edubill.edubillApi.dto.group.GroupInfoRequestDto;
 import com.edubill.edubillApi.dto.group.GroupInfoResponseDto;
-import com.edubill.edubillApi.dto.student.StudentInfoDetailResponse;
-import com.edubill.edubillApi.dto.student.StudentInfoResponseDto;
+import com.edubill.edubillApi.dto.student.*;
+import com.edubill.edubillApi.error.exception.GroupNotFoundException;
 import com.edubill.edubillApi.error.exception.StudentNotFoundException;
 import com.edubill.edubillApi.repository.ClassTimeRepository;
 import com.edubill.edubillApi.repository.StudentGroupRepository;
@@ -32,8 +32,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @TestcontainerConfig
@@ -54,6 +54,8 @@ public class StudentTest {
     private Student student;
     private Group savedGroup1;
     private Group savedGroup2;
+    private Group savedGroup3;
+    private Group savedGroup4;
 
     @BeforeEach
     void setUp() {
@@ -80,7 +82,8 @@ public class StudentTest {
                 .build()));
         savedGroup1 = groupRepository.save(createGroup("기초 회화반", "testManager", classTimes));
         savedGroup2 = groupRepository.save(createGroup("기초반", "testManager", classTimes));
-
+        savedGroup3 = groupRepository.save(createGroup("기초 회화반2", "testManager", classTimes));
+        savedGroup4 = groupRepository.save(createGroup("기초반2", "testManager", classTimes));
         createAndSaveStudentGroup(student, savedGroup1);
         createAndSaveStudentGroup(student, savedGroup2);
     }
@@ -146,6 +149,85 @@ public class StudentTest {
         Assertions.assertThat(groupInfoResponseDto.getClassTimeResponseDtos().size()).isEqualTo(2);
         Assertions.assertThat(groupInfoResponseDto.getClassTimeResponseDtos().get(0).getDayOfWeek()).isEqualTo(DayOfWeek.MON);
         Assertions.assertThat(groupInfoResponseDto.getClassTimeResponseDtos().get(1).getDayOfWeek()).isEqualTo(DayOfWeek.THU);
+    }
+
+    @Test
+    @DisplayName("학생 정보를 성공적으로 변경한다.")
+    void updateStudentDetail_shouldUpdateStudentInfoAndGroups() {
+        //given
+        List<GroupInfo> groupInfos = Arrays.asList(
+                new GroupInfo("기초 회화반2"),
+                new GroupInfo("기초반2")
+        );
+        UpdateStudentInfoDetailRequest updateStudentInfoDetailRequest = createUpdateStudentInfoDetailRequest(groupInfos);
+        //when
+        UpdateStudentInfoDetailResponse updateStudentInfoDetailResponse = studentService.updateStudentDetail(student.getId(),updateStudentInfoDetailRequest);
+        //then
+        assertThat(updateStudentInfoDetailResponse.getStudentName()).isEqualTo("s2");
+        assertThat(updateStudentInfoDetailResponse.getStudentPhoneNumber()).isEqualTo("01012341234");
+        assertThat(updateStudentInfoDetailResponse.getParentName()).isEqualTo("p2");
+        assertThat(updateStudentInfoDetailResponse.getParentPhoneNumber()).isEqualTo("01098769876");
+        assertThat(updateStudentInfoDetailResponse.getSchoolLevel()).isEqualTo("고등학교");
+        assertThat(updateStudentInfoDetailResponse.getGrade()).isEqualTo("2학년");
+        assertThat(updateStudentInfoDetailResponse.getDepartment()).isEqualTo("문과");
+        assertThat(updateStudentInfoDetailResponse.getSchoolName()).isEqualTo("updatedSchoolName");
+        assertThat(updateStudentInfoDetailResponse.getMemo()).isEqualTo("Updated memo");
+
+        List<GroupInfo> updatedGroupNames = updateStudentInfoDetailResponse.getGroups();
+
+        assertThat(updatedGroupNames)
+                .hasSize(2)
+                .extracting("groupName")
+                .containsExactlyInAnyOrder("기초 회화반2", "기초반2");
+
+    }
+
+    @Test
+    @DisplayName("학생 정보 변경 시 학생 ID가 잘못된 경우 StudentNotFoundException을 발생한다.")
+    void shouldThrowExceptionWhenStudentIdIsInvalid() {
+        // given
+        Long invalidStudentId = -1L;
+        List<GroupInfo> groupInfos = Arrays.asList(
+                new GroupInfo("기초 회화반2"),
+                new GroupInfo("기초반2")
+        );// 존재하지 않는 학생 ID
+        UpdateStudentInfoDetailRequest request = createUpdateStudentInfoDetailRequest(groupInfos);
+
+        // when & then
+        Assertions.assertThatThrownBy(() -> studentService.updateStudentDetail(invalidStudentId, request))
+                .isInstanceOf(StudentNotFoundException.class)
+                .hasMessageContaining("Student not found with id " + invalidStudentId);
+    }
+
+    @Test
+    @DisplayName("학생 정보 변경 시 그룹 정보가 없는 경우 GroupNotFoundException을 발생한다.")
+    void shouldThrowExceptionWhenGroupInfoIsInvalid() {
+        //given
+        List<GroupInfo> groupInfos = Arrays.asList(
+                new GroupInfo("기초 회화반3"),
+                new GroupInfo("기초반3")
+        );
+        UpdateStudentInfoDetailRequest request = createUpdateStudentInfoDetailRequest(groupInfos);
+
+        // when & then
+        Assertions.assertThatThrownBy(() -> studentService.updateStudentDetail(student.getId(), request))
+                .isInstanceOf(GroupNotFoundException.class)
+                .hasMessageContaining("Group not found with groupName 기초 회화반3");
+    }
+
+    private UpdateStudentInfoDetailRequest createUpdateStudentInfoDetailRequest(List<GroupInfo> groupInfos) {
+        return new UpdateStudentInfoDetailRequest(
+                "s2",
+                "01012341234",
+                "p2",
+                "01098769876",
+                groupInfos,
+                SchoolType.HIGH,
+                GradeLevel.SECOND,
+                DepartmentType.LIBERAL_ARTS,
+                "updatedSchoolName",
+                "Updated memo"
+        );
     }
 
     // 학생 정보 검증

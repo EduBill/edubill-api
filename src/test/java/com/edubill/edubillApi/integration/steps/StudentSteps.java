@@ -3,7 +3,9 @@ package com.edubill.edubillApi.integration.steps;
 import com.edubill.edubillApi.domain.enums.DepartmentType;
 import com.edubill.edubillApi.domain.enums.GradeLevel;
 import com.edubill.edubillApi.domain.enums.SchoolType;
+import com.edubill.edubillApi.dto.student.GroupInfo;
 import com.edubill.edubillApi.dto.student.StudentInfoRequestDto;
+import com.edubill.edubillApi.dto.student.UpdateStudentInfoDetailRequest;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -28,6 +30,23 @@ public class StudentSteps {
                 .build();
     }
 
+    public static UpdateStudentInfoDetailRequest 학생정보변경모델_생성(List<GroupInfo> groupInfos) {
+        return new UpdateStudentInfoDetailRequest(
+                "s2",
+                "01012341234",
+                "p2",
+                "01098769876",
+                 groupInfos,
+                SchoolType.HIGH,
+                GradeLevel.SECOND,
+                DepartmentType.LIBERAL_ARTS,
+                "updatedSchoolName",
+                "Updated memo"
+        );
+    }
+
+
+
     public static ExtractableResponse<Response> 학생생성_요청(final StudentInfoRequestDto request, final String authorizationToken) {
         final ExtractableResponse<Response> response = RestAssured.given().log().all()
                 .header("Authorization", authorizationToken)
@@ -50,5 +69,16 @@ public class StudentSteps {
                 .extract();
 
         return response;
+    }
+
+    public static ExtractableResponse<Response> 학생_정보변경_요청(final Long studentId, final UpdateStudentInfoDetailRequest request, final String authorizationToken) {
+        return RestAssured.given()
+                .header("Authorization", authorizationToken)
+                .body(request)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .put("/v1/student/{studentId}", studentId)
+                .then().log().all()
+                .extract();
     }
 }

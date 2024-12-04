@@ -1,6 +1,5 @@
 package com.edubill.edubillApi.dto.student;
 
-
 import com.edubill.edubillApi.domain.Student;
 import lombok.Getter;
 
@@ -8,8 +7,8 @@ import java.util.List;
 
 
 @Getter
-public class StudentInfoDetailResponse {
-
+public class UpdateStudentInfoDetailResponse {
+    private final Long studentId;
     private final String studentName;
     private final String studentPhoneNumber;
     private final String parentName;
@@ -21,8 +20,8 @@ public class StudentInfoDetailResponse {
     private final String schoolName;
     private final String memo;
 
-    private StudentInfoDetailResponse(String studentName, String studentPhoneNumber, String parentName, String parentPhoneNumber, List<GroupInfo> groups,
-                                      String schoolLevel, String grade, String department, String schoolName, String memo) {
+    protected UpdateStudentInfoDetailResponse(Long studentId, String studentName, String studentPhoneNumber, String parentName, String parentPhoneNumber, List<GroupInfo> groups, String schoolLevel, String grade, String department, String schoolName, String memo) {
+        this.studentId = studentId;
         this.studentName = studentName;
         this.studentPhoneNumber = studentPhoneNumber;
         this.parentName = parentName;
@@ -35,7 +34,7 @@ public class StudentInfoDetailResponse {
         this.memo = memo;
     }
 
-    public static StudentInfoDetailResponse of(Student student) {
+    public static UpdateStudentInfoDetailResponse of(Student student) {
 
         final List<GroupInfo> groups = student.getStudentGroups()
                 .stream()
@@ -44,7 +43,8 @@ public class StudentInfoDetailResponse {
 
         final String memo = student.getMemo() != null ? student.getMemo() : null;
 
-        return new StudentInfoDetailResponse(
+        return new UpdateStudentInfoDetailResponse(
+                student.getId(),
                 student.getStudentName(),
                 student.getStudentPhoneNumber(),
                 student.getParentName(),
@@ -57,7 +57,4 @@ public class StudentInfoDetailResponse {
                 memo
         );
     }
-
-
 }
-
